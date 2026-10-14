@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "apps.cuentas",
     "apps.auditoria",
     "apps.obras",
+    "apps.plantillas",
     # Se activan a medida que se construye cada sección:
     "apps.documentos",
     # "apps.notificaciones",

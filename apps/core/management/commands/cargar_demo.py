@@ -1,4 +1,4 @@
-"""Carga datos de demostración: una persona por área, dos clientes y dos obras.
+"""Carga datos de demostración: una persona por área, dos clientes, un proyecto, una obra y plantillas de tareas.
 
 Uso:  python manage.py cargar_demo
 Todos los usuarios de prueba usan la contraseña CLAVE_DEMO (ver README).
@@ -12,7 +12,8 @@ from django.db import transaction
 
 from apps.auditoria.services import registrar
 from apps.cuentas.models import Area, Cliente, MiembroArea, Usuario
-from apps.obras.models import AsignacionObra, Hito, Obra
+from apps.obras.models import AsignacionObra, Hito, Obra, TareaObra
+from apps.plantillas.demo import cargar_plantillas_demo
 
 CLAVE_DEMO = "Demo2026!"
 
@@ -98,6 +99,7 @@ class Command(BaseCommand):
             nombre="Edificio Sur",
             defaults={"cliente": clientes[1], "direccion": "Av. del Sur 850", "localidad": "Avellaneda",
                       "superficie_m2": 3200, "etapa": Obra.Etapa.PROYECTO, "avance": 10,
+                      "tipo": Obra.Tipo.PROYECTO,
                       "descripcion": "Edificio de viviendas de 8 pisos.", "creada_por": personas[A.GERENCIA]},
         )
         if creada:
@@ -105,6 +107,16 @@ class Command(BaseCommand):
                                           area=areas[A.GESTION_PROYECTOS], funcion="Coordinación", es_responsable=True)
             AsignacionObra.objects.create(obra=edificio, usuario=personas[A.DESARROLLO_PROYECTOS],
                                           area=areas[A.DESARROLLO_PROYECTOS], funcion="Anteproyecto")
+
+        plantillas = cargar_plantillas_demo(personas[A.GERENCIA])
+        # Tareas con avance: la casa va por la estructura; el edificio, por el anteproyecto.
+        for obra, plantilla, avances in [(casa, "Vivienda unifamiliar", [100, 100, 100, 100, 30]),
+                                         (edificio, "Proyecto ejecutivo", [100, 25])]:
+            if not obra.tareas.exists():
+                for n, t in enumerate(plantillas[plantilla].tareas.all()):
+                    TareaObra.objects.create(obra=obra, nombre=t.nombre, incidencia=t.incidencia, orden=n,
+                                             avance=avances[n] if n < len(avances) else 0)
+                obra.recalcular_avance()
 
         if apps.is_installed("apps.documentos"):
             from apps.documentos.demo import cargar_documentos_demo
@@ -115,5 +127,6 @@ class Command(BaseCommand):
 
         registrar("sistema.demo", "Se cargaron los datos de demostración", usuario=None)
         self.stdout.write(self.style.SUCCESS(
-            f"Listo. Usuarios de prueba cargados (contraseña: ver README). Obras: {casa}, {edificio}."
+            f"Listo. Usuarios de prueba cargados (contraseña: ver README). Proyecto: {edificio}. Obra: {casa}. "
+            f"Plantillas: {', '.join(plantillas)}."
         ))

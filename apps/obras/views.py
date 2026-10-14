@@ -3,20 +3,25 @@ from datetime import date
 from django.apps import apps
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.db import transaction
 from django.db.models import Count, Q
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from apps.auditoria.services import registrar
 from apps.core.utils import cambios_de_formulario as _cambios
 from apps.cuentas import permisos
 
-from .forms import AsignacionForm, HitoForm, ObraForm
-from .models import AsignacionObra, Hito, Obra
+from apps.plantillas.forms import AplicarPlantillaForm
+
+from .forms import AsignacionForm, HitoForm, ObraForm, TareasObraFormSet
+from .models import AsignacionObra, Hito, Obra, TareaObra
 
 PESTANAS = [
     ("resumen", "Resumen", "info-circle"),
     ("equipo", "Equipo", "people"),
+    ("tareas", "Tareas", "list-check"),
     ("hitos", "Hitos", "flag"),
     ("archivos", "Archivos", "folder2-open"),
     ("solicitudes", "Solicitudes", "check2-square"),
@@ -26,9 +31,15 @@ PESTANAS = [
 PESTANA_APP = {"archivos": "apps.documentos", "solicitudes": "apps.aprobaciones"}
 
 
+def _marcar_menu(request, tipo):
+    """Los proyectos comparten las pantallas de obras; esto ilumina la sección correcta del menú."""
+    request.menu_activo = "proyectos:lista" if tipo == Obra.Tipo.PROYECTO else "obras:lista"
+
+
 def _obra_visible(request, pk):
     obra = get_object_or_404(Obra.objects.select_related("cliente"), pk=pk)
     permisos.exigir(permisos.puede_ver_obra(request.user, obra))
+    _marcar_menu(request, obra.tipo)
     return obra
 
 
@@ -37,11 +48,11 @@ def _exigir_edicion(request, obra):
 
 
 @permisos.solo_personal
-def lista(request):
+def lista(request, tipo=Obra.Tipo.OBRA):
     estado = request.GET.get("estado", Obra.Estado.ACTIVA)
     etapa = request.GET.get("etapa", "")
     q = request.GET.get("q", "").strip()
-    obras = (permisos.obras_visibles(request.user).select_related("cliente")
+    obras = (permisos.obras_visibles(request.user).filter(tipo=tipo).select_related("cliente")
              .annotate(personas=Count("asignaciones__usuario", distinct=True)))
     if estado:
         obras = obras.filter(estado=estado)
@@ -55,19 +66,25 @@ def lista(request):
         "estado": estado, "etapa": etapa, "q": q,
         "estados": Obra.Estado.choices, "etapas": Obra.Etapa.choices,
         "puede_crear": permisos.puede_crear_obra(request.user),
+        "es_proyecto": tipo == Obra.Tipo.PROYECTO,
     })
 
 
+def lista_proyectos(request):
+    return lista(request, tipo=Obra.Tipo.PROYECTO)
+
+
 @permisos.solo_personal
-def obra_form(request, pk=None):
+def obra_form(request, pk=None, tipo=Obra.Tipo.OBRA):
     obra = None
     if pk:
         obra = _obra_visible(request, pk)
         _exigir_edicion(request, obra)
     else:
         permisos.exigir(permisos.puede_crear_obra(request.user))
+        _marcar_menu(request, tipo)
     form = ObraForm(request.POST or None, instance=obra, initial={} if obra else {
-        "cliente": request.GET.get("cliente")})
+        "cliente": request.GET.get("cliente"), "tipo": tipo})
     if request.method == "POST" and form.is_valid():
         es_alta = obra is None
         cambios = {} if es_alta else _cambios(form)
@@ -76,19 +93,23 @@ def obra_form(request, pk=None):
             obra.creada_por = request.user
         obra.save()
         if es_alta:
-            registrar("obra.alta", f"Alta de obra: {obra}", objeto=obra)
-            messages.success(request, f"Obra {obra.codigo} creada. Ahora sumá a su equipo.")
+            registrar("obra.alta", f"Alta de {obra.etiqueta}: {obra}", objeto=obra)
+            messages.success(request, f"{'Proyecto' if obra.es_proyecto else 'Obra'} {obra.codigo} "
+                                      f"{'creado' if obra.es_proyecto else 'creada'}. Ahora sumá a su equipo.")
             return redirect(f"{obra_url(obra)}?tab=equipo")
         if cambios:
-            registrar("obra.edicion", f"Edición de obra: {', '.join(cambios)}", objeto=obra, detalle=cambios)
-        messages.success(request, "Los datos de la obra quedaron guardados.")
+            registrar("obra.edicion", f"Edición de {obra.etiqueta}: {', '.join(cambios)}", objeto=obra,
+                      detalle=cambios)
+        messages.success(request, "Los datos quedaron guardados.")
         return redirect(obra_url(obra))
-    return render(request, "obras/form.html", {"form": form, "obra": obra})
+    return render(request, "obras/form.html", {"form": form, "obra": obra, "tipo": obra.tipo if obra else tipo})
+
+
+def proyecto_form(request):
+    return obra_form(request, tipo=Obra.Tipo.PROYECTO)
 
 
 def obra_url(obra):
-    from django.urls import reverse
-
     return reverse("obras:detalle", args=[obra.pk])
 
 
@@ -114,6 +135,8 @@ def detalle(request, pk):
         contexto["form_asignacion"] = AsignacionForm(obra=obra)
     if tab == "hitos" and puede_editar:
         contexto["form_hito"] = HitoForm()
+    if tab == "tareas":
+        contexto.update(_contexto_tareas(obra, puede_editar))
     if tab == "archivos":
         from apps.documentos.views import contexto_pestana_obra
 
@@ -217,3 +240,74 @@ def hito_borrar(request, pk, hito_pk):
     hito.delete()
     messages.success(request, "Hito quitado.")
     return redirect(f"{obra_url(obra)}?tab=hitos")
+
+
+# --- Tareas (avance por incidencia) -----------------------------------------
+
+def _contexto_tareas(obra, puede_editar, formset=None):
+    tareas = list(obra.tareas.all())
+    contexto = {"tareas": tareas}
+    if puede_editar:
+        contexto["formset_tareas"] = formset or TareasObraFormSet(instance=obra, prefix="tareas")
+        contexto["form_plantilla"] = AplicarPlantillaForm(tipo=obra.tipo)
+    return contexto
+
+
+@permisos.solo_personal
+@require_POST
+def tareas_guardar(request, pk):
+    obra = _obra_visible(request, pk)
+    _exigir_edicion(request, obra)
+    antes = {t.pk: (t.nombre, t.incidencia, t.avance) for t in obra.tareas.all()}
+    formset = TareasObraFormSet(request.POST, instance=obra, prefix="tareas")
+    if not formset.is_valid():
+        messages.error(request, "Revisá las tareas: hay datos con errores.")
+        contexto = {
+            "obra": obra, "tab": "tareas", "puede_editar": True, "hoy": date.today(),
+            "pestanas": [p for p in PESTANAS if p[0] not in PESTANA_APP or apps.is_installed(PESTANA_APP[p[0]])],
+        }
+        contexto.update(_contexto_tareas(obra, True, formset))
+        return render(request, "obras/detalle.html", contexto)
+    avance_antes = obra.avance
+    with transaction.atomic():
+        formset.save()
+        obra.recalcular_avance()
+    cambios = {}
+    for t in obra.tareas.all():
+        previo = antes.pop(t.pk, None)
+        if previo is None:
+            cambios[t.nombre] = ["—", f"{t.incidencia:g}% · avance {t.avance}%"]
+        elif previo != (t.nombre, t.incidencia, t.avance):
+            cambios[t.nombre] = [f"{previo[1]:g}% · avance {previo[2]}%", f"{t.incidencia:g}% · avance {t.avance}%"]
+    for nombre, incidencia, avance in antes.values():
+        cambios[nombre] = [f"{incidencia:g}% · avance {avance}%", "quitada"]
+    if cambios:
+        registrar("obra.tareas", f"Tareas actualizadas · avance {avance_antes}% → {obra.avance}%", objeto=obra,
+                  detalle=cambios)
+    messages.success(request, f"Tareas guardadas. Avance: {obra.avance}%.")
+    return redirect(f"{obra_url(obra)}?tab=tareas")
+
+
+@permisos.solo_personal
+@require_POST
+def tareas_aplicar_plantilla(request, pk):
+    obra = _obra_visible(request, pk)
+    _exigir_edicion(request, obra)
+    form = AplicarPlantillaForm(request.POST, tipo=obra.tipo)
+    if not form.is_valid():
+        messages.error(request, "Elegí una plantilla.")
+        return redirect(f"{obra_url(obra)}?tab=tareas")
+    plantilla = form.cleaned_data["plantilla"]
+    with transaction.atomic():
+        reemplazadas = obra.tareas.count()
+        obra.tareas.all().delete()
+        TareaObra.objects.bulk_create([
+            TareaObra(obra=obra, nombre=t.nombre, incidencia=t.incidencia, orden=t.orden)
+            for t in plantilla.tareas.all()
+        ])
+        obra.recalcular_avance()
+    registrar("obra.plantilla", f"Se aplicó la plantilla «{plantilla}»"
+              + (f" (reemplazó {reemplazadas} tareas)" if reemplazadas else ""), objeto=obra)
+    messages.success(request, f"Se cargaron las tareas de «{plantilla}». Ajustalas si hace falta y "
+                              "andá cargando el avance de cada una.")
+    return redirect(f"{obra_url(obra)}?tab=tareas")

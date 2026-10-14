@@ -16,10 +16,15 @@ def inicio(request):
 @permisos.solo_personal
 def tablero(request):
     u = request.user
-    obras = permisos.obras_visibles(u)
+    activas = permisos.obras_visibles(u).filter(estado=Obra.Estado.ACTIVA).select_related("cliente")
+    T = Obra.Tipo
     contexto = {
-        "obras_activas": obras.filter(estado=Obra.Estado.ACTIVA).select_related("cliente")[:8],
-        "total_obras_activas": obras.filter(estado=Obra.Estado.ACTIVA).count(),
+        "secciones": [
+            {"tipo": tipo, "titulo": titulo, "icono": icono, "url": url,
+             "items": activas.filter(tipo=tipo)[:8], "total": activas.filter(tipo=tipo).count()}
+            for tipo, titulo, icono, url in [(T.PROYECTO, "Proyectos activos", "pencil-square", "proyectos:lista"),
+                                             (T.OBRA, "Obras activas", "buildings", "obras:lista")]
+        ],
         "mis_areas": u.membresias.select_related("area"),
     }
     if apps.is_installed("apps.aprobaciones"):

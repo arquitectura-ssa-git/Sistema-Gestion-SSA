@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block titulo %}{% if plantilla %}Editar {{ plantilla }}{% else %}Nueva plantilla{% endif %}{% endblock %}
+{% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'plantillas:lista' %}">Plantillas</a></li>{% if plantilla %}<li class="breadcrumb-item"><a href="{% url 'plantillas:detalle' plantilla.pk %}">{{ plantilla }}</a></li>{% endif %}<li class="breadcrumb-item active">{% if plantilla %}Editar{% else %}Nueva{% endif %}</li></ol></nav>{% endblock %}
+{% block contenido %}
+<div class="pagina-titulo"><h1>{% if plantilla %}Editar plantilla{% else %}Nueva plantilla{% endif %}</h1></div>
+<form method="post" novalidate>
+  {% csrf_token %}
+  {% include "includes/errores_form.html" %}
+  <div class="tarjeta mb-3">
+    <div class="tarjeta-cuerpo">
+      <div class="row">
+        <div class="col-md-8">{% include "includes/campo.html" with campo=form.nombre %}</div>
+        <div class="col-md-4">{% include "includes/campo.html" with campo=form.uso %}</div>
+      </div>
+      {% include "includes/campo.html" with campo=form.descripcion %}
+    </div>
+  </div>
+  <div class="tarjeta">
+    <div class="tarjeta-cabecera"><h2>Tareas</h2><span class="small text-muted">La incidencia es cuánto pesa cada tarea en el avance. Entre todas tienen que sumar 100%.</span></div>
+    {% include "includes/tareas_formset.html" with formset=formset con_avance=False %}
+  </div>
+  <div class="mt-3 d-flex gap-2">
+    <button class="btn btn-dark"><i class="bi bi-check-lg"></i> Guardar</button>
+    <a href="{% if plantilla %}{% url 'plantillas:detalle' plantilla.pk %}{% else %}{% url 'plantillas:lista' %}{% endif %}" class="btn btn-outline-secondary">Cancelar</a>
+  </div>
+</form>
+{% endblock %}

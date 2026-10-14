@@ -1,8 +1,8 @@
 {% extends "base.html" %}
-{% block titulo %}Personal{% endblock %}
+{% block titulo %}Miembros{% endblock %}
 {% block contenido %}
 <div class="pagina-titulo">
-  <h1>Personal del estudio</h1>
+  <h1>Miembros del estudio</h1>
   <div class="d-flex gap-2">
     {% if request.GET.inactivos == "1" %}
       <a href="?" class="btn btn-outline-secondary">Ocultar inactivos</a>

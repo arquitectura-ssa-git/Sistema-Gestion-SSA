@@ -1,8 +1,8 @@
 {% extends "base.html" %}
-{% block titulo %}Áreas y equipos{% endblock %}
+{% block titulo %}Equipo{% endblock %}
 {% block contenido %}
 <div class="pagina-titulo">
-  <h1>Áreas y equipos</h1>
+  <h1>Equipo</h1>
   {% if puede_gestionar %}
   <a href="{% url 'cuentas:persona_nueva' %}" class="btn btn-dark"><i class="bi bi-person-plus"></i> Designar persona</a>
   {% endif %}

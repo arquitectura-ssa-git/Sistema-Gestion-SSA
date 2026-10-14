@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% block titulo %}{{ obra.nombre }}{% endblock %}
-{% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'obras:lista' %}">Obras</a></li><li class="breadcrumb-item active">{{ obra.nombre }}</li></ol></nav>{% endblock %}
+{% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ obra.url_lista }}">{{ obra.nombre_lista }}</a></li><li class="breadcrumb-item active">{{ obra.nombre }}</li></ol></nav>{% endblock %}
 {% block contenido %}
 <div class="pagina-titulo">
   <div>
-    <div class="small text-muted">{{ obra.codigo }}{% if obra.superficie_m2 %} · {{ obra.superficie_m2|floatformat:"-2" }} m²{% endif %}</div>
+    <div class="small text-muted"><span class="badge text-bg-{% if obra.es_proyecto %}info{% else %}secondary{% endif %}">{{ obra.get_tipo_display }}</span> {{ obra.codigo }}{% if obra.superficie_m2 %} · {{ obra.superficie_m2|floatformat:"-2" }} m²{% endif %}</div>
     <h1>{{ obra.nombre }}</h1>
     <div class="small text-muted">{{ obra.cliente }}{% if obra.direccion %} · {{ obra.direccion }}{% endif %}{% if obra.localidad %}, {{ obra.localidad }}{% endif %}</div>
   </div>
@@ -29,7 +29,7 @@
             {% if obra.estado != "activa" %}<span class="badge {% if obra.estado == 'pausada' %}text-bg-warning{% else %}text-bg-secondary{% endif %}">{{ obra.get_estado_display }}</span>{% endif %}
           </div>
           <div class="col-sm-8">
-            <div class="dato-etiqueta mb-1">Avance de obra</div>
+            <div class="dato-etiqueta mb-1">Avance{% if obra.tareas.exists %} <a href="?tab=tareas" class="text-decoration-none">(según tareas)</a>{% endif %}</div>
             <div class="d-flex align-items-baseline gap-2"><span class="dato-numero">{{ obra.avance }}%</span></div>
             {% include "obras/_avance.html" %}
           </div>
@@ -94,13 +94,13 @@
               {% endif %}
             </tr>
           {% empty %}
-            <tr><td colspan="5"><div class="lista-vacia"><i class="bi bi-people"></i>Todavía no hay nadie asignado a esta obra.</div></td></tr>
+            <tr><td colspan="5"><div class="lista-vacia"><i class="bi bi-people"></i>Todavía no hay nadie asignado a {% if obra.es_proyecto %}este proyecto{% else %}esta obra{% endif %}.</div></td></tr>
           {% endfor %}
           </tbody>
         </table>
       </div>
     </div>
-    <p class="small text-muted mt-2">Solo las personas del equipo ven esta obra, sus archivos y sus solicitudes. Los responsables pueden editarla. Gerencia ve todas.</p>
+    <p class="small text-muted mt-2">Solo las personas del equipo ven {% if obra.es_proyecto %}este proyecto{% else %}esta obra{% endif %}, sus archivos y sus solicitudes. Los responsables pueden editarla. Gerencia ve todas.</p>
   </div>
   {% if puede_editar %}
   <div class="col-lg-4">
@@ -120,6 +120,9 @@
   </div>
   {% endif %}
 </div>
+
+{% elif tab == "tareas" %}
+  {% include "obras/_tareas.html" %}
 
 {% elif tab == "hitos" %}
 <div class="row g-3">
@@ -177,7 +180,7 @@
 
 {% elif tab == "actividad" %}
 <div class="tarjeta">
-  <div class="tarjeta-cabecera"><h2>Todo lo que pasó en esta obra</h2><span class="small text-muted">No se puede editar ni borrar</span></div>
+  <div class="tarjeta-cabecera"><h2>Todo lo que pasó en {% if obra.es_proyecto %}este proyecto{% else %}esta obra{% endif %}</h2><span class="small text-muted">No se puede editar ni borrar</span></div>
   <div class="tarjeta-cuerpo">
     {% include "auditoria/_linea.html" with registros=pagina %}
     {% include "includes/paginacion.html" %}

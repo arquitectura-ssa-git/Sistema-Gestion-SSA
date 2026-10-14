@@ -8,6 +8,7 @@
 | 2 | Registro de actividad (auditoría inmutable) | ✅ Hecho: se guarda y está bloqueado contra cambios. Falta la pantalla para consultarlo. |
 | 3 | Personal, áreas y clientes | ✅ Hecho |
 | 4 | Obras y equipo | ✅ Hecho: lista con filtros, alta/edición, ficha con pestañas (resumen, equipo, hitos, actividad) |
+| 4b | Proyectos, menú nuevo y plantillas de tareas | ✅ Hecho: menú Dashboard · Proyectos · Obras · Documentos · Equipo · Miembros · Clientes · Plantillas. Cada obra es de tipo *Proyecto* u *Obra* (se elige al crearla; códigos PR-/OB-). Plantillas de tareas con incidencia (suman 100%); al aplicarlas se copian a la pestaña *Tareas* y el avance sale de incidencia × avance de cada tarea. |
 | 5 | Documentos (archivos, versiones, papelera) | ✅ Hecho: 10 tipos con datos propios, 3 niveles de acceso, versiones con huella, circuito de planos, vista previa de PDF/fotos/planillas, papelera. Diseño en `docs/SECCION-5-DOCUMENTOS.md` |
 | 6 | Notificaciones (sistema, email, WhatsApp) | ⏭️ Sigue |
 | 7 | Aprobaciones (gastos, decisiones y cambios) | ⏳ Pendiente |

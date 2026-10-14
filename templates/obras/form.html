@@ -1,16 +1,17 @@
 {% extends "base.html" %}
-{% block titulo %}{% if obra %}Editar {{ obra.nombre }}{% else %}Nueva obra{% endif %}{% endblock %}
-{% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'obras:lista' %}">Obras</a></li>{% if obra %}<li class="breadcrumb-item"><a href="{% url 'obras:detalle' obra.pk %}">{{ obra.nombre }}</a></li>{% endif %}<li class="breadcrumb-item active">{% if obra %}Editar{% else %}Nueva{% endif %}</li></ol></nav>{% endblock %}
+{% block titulo %}{% if obra %}Editar {{ obra.nombre }}{% elif tipo == "proyecto" %}Nuevo proyecto{% else %}Nueva obra{% endif %}{% endblock %}
+{% block migas %}<nav><ol class="breadcrumb">{% if tipo == "proyecto" %}<li class="breadcrumb-item"><a href="{% url 'proyectos:lista' %}">Proyectos</a></li>{% else %}<li class="breadcrumb-item"><a href="{% url 'obras:lista' %}">Obras</a></li>{% endif %}{% if obra %}<li class="breadcrumb-item"><a href="{% url 'obras:detalle' obra.pk %}">{{ obra.nombre }}</a></li>{% endif %}<li class="breadcrumb-item active">{% if obra %}Editar{% elif tipo == "proyecto" %}Nuevo{% else %}Nueva{% endif %}</li></ol></nav>{% endblock %}
 {% block contenido %}
-<div class="pagina-titulo"><h1>{% if obra %}Editar obra{% else %}Nueva obra{% endif %}</h1></div>
+<div class="pagina-titulo"><h1>{% if obra %}Editar {{ obra.etiqueta }}{% elif tipo == "proyecto" %}Nuevo proyecto{% else %}Nueva obra{% endif %}</h1></div>
 <form method="post" novalidate>
   {% csrf_token %}
   {% include "includes/errores_form.html" %}
   <div class="row g-3">
     <div class="col-lg-7">
       <div class="tarjeta">
-        <div class="tarjeta-cabecera"><h2>Datos de la obra</h2></div>
+        <div class="tarjeta-cabecera"><h2>Datos generales</h2></div>
         <div class="tarjeta-cuerpo">
+          {% include "includes/campo.html" with campo=form.tipo %}
           <div class="row">
             <div class="col-sm-8">{% include "includes/campo.html" with campo=form.nombre %}</div>
             <div class="col-sm-4">{% include "includes/campo.html" with campo=form.codigo %}</div>
@@ -48,7 +49,7 @@
   </div>
   <div class="mt-3 d-flex gap-2">
     <button class="btn btn-dark"><i class="bi bi-check-lg"></i> Guardar</button>
-    <a href="{% if obra %}{% url 'obras:detalle' obra.pk %}{% else %}{% url 'obras:lista' %}{% endif %}" class="btn btn-outline-secondary">Cancelar</a>
+    <a href="{% if obra %}{% url 'obras:detalle' obra.pk %}{% elif tipo == "proyecto" %}{% url 'proyectos:lista' %}{% else %}{% url 'obras:lista' %}{% endif %}" class="btn btn-outline-secondary">Cancelar</a>
   </div>
 </form>
 {% endblock %}

@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {% load core_tags %}
-{% block titulo %}Archivos{% endblock %}
+{% block titulo %}Documentos{% endblock %}
 {% block contenido %}
 <div class="pagina-titulo">
-  <h1>Archivos</h1>
+  <h1>Documentos</h1>
   <div class="d-flex gap-2">
     <a href="{% url 'documentos:papelera' %}" class="btn btn-outline-secondary"><i class="bi bi-trash"></i> Papelera{% if en_papelera %} <span class="badge text-bg-secondary">{{ en_papelera }}</span>{% endif %}</a>
     <a href="{% url 'documentos:subir' %}{% if f.obra and f.obra != 'general' %}?obra={{ f.obra }}{% endif %}" class="btn btn-dark"><i class="bi bi-upload"></i> Subir archivos</a>

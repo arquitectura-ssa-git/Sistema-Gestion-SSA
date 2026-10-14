@@ -1,0 +1,18 @@
+{% load core_tags %}<tr data-fila{% if f.DELETE.value %} class="d-none"{% endif %}>
+  <td class="text-muted small" data-numero></td>
+  <td>
+    {% for h in f.hidden_fields %}{{ h }}{% endfor %}
+    {{ f.nombre|bs }}
+    {% for e in f.nombre.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+    {% for e in f.non_field_errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+  </td>
+  <td>{{ f.incidencia|bs }}{% for e in f.incidencia.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}</td>
+  {% if con_avance %}
+  <td>{{ f.avance|bs }}{% for e in f.avance.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}</td>
+  <td class="text-end small text-muted" data-aporte></td>
+  {% endif %}
+  <td class="text-end">
+    <span class="d-none">{{ f.DELETE }}</span>
+    <button type="button" class="btn btn-sm btn-outline-danger" data-quitar-tarea title="Quitar tarea"><i class="bi bi-trash"></i></button>
+  </td>
+</tr>
