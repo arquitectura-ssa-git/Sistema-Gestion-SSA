@@ -1,10 +1,13 @@
+import json
 from datetime import date
 
 from django.apps import apps
 from django.contrib import messages
+from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Count, Q
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
@@ -13,9 +16,10 @@ from apps.auditoria.services import registrar
 from apps.core.utils import cambios_de_formulario as _cambios
 from apps.cuentas import permisos
 
-from apps.plantillas.forms import AplicarPlantillaForm
+from apps.plantillas import arbol
+from apps.plantillas.forms import AplicarPlantillaForm, leer_estructura
 
-from .forms import AsignacionForm, HitoForm, ObraForm, TareasObraFormSet
+from .forms import AsignacionForm, HitoForm, ObraForm
 from .models import AsignacionObra, Hito, Obra, TareaObra
 
 PESTANAS = [
@@ -137,6 +141,7 @@ def detalle(request, pk):
         contexto["form_hito"] = HitoForm()
     if tab == "tareas":
         contexto.update(_contexto_tareas(obra, puede_editar))
+        contexto["editando_tareas"] = puede_editar and request.GET.get("editar") == "1"
     if tab == "archivos":
         from apps.documentos.views import contexto_pestana_obra
 
@@ -244,11 +249,14 @@ def hito_borrar(request, pk, hito_pk):
 
 # --- Tareas (avance por incidencia) -----------------------------------------
 
-def _contexto_tareas(obra, puede_editar, formset=None):
+def _contexto_tareas(obra, puede_editar, estructura=None, errores=None):
     tareas = list(obra.tareas.all())
-    contexto = {"tareas": tareas}
+    contexto = {
+        "arbol": arbol.anotar(tareas),
+        "estructura_json": estructura if estructura is not None else json.dumps(arbol.a_datos(tareas, con_avance=True)),
+        "errores_estructura": errores or [],
+    }
     if puede_editar:
-        contexto["formset_tareas"] = formset or TareasObraFormSet(instance=obra, prefix="tareas")
         contexto["form_plantilla"] = AplicarPlantillaForm(tipo=obra.tipo)
     return contexto
 
@@ -256,36 +264,60 @@ def _contexto_tareas(obra, puede_editar, formset=None):
 @permisos.solo_personal
 @require_POST
 def tareas_guardar(request, pk):
+    """Guarda la estructura completa (rubros, ítems, incidencias y avances) desde el editor."""
     obra = _obra_visible(request, pk)
     _exigir_edicion(request, obra)
-    antes = {t.pk: (t.nombre, t.incidencia, t.avance) for t in obra.tareas.all()}
-    formset = TareasObraFormSet(request.POST, instance=obra, prefix="tareas")
-    if not formset.is_valid():
+    estructura = request.POST.get("estructura", "[]")
+    try:
+        datos = leer_estructura(estructura, con_avance=True, minimo_una=False)
+    except ValidationError as e:
         messages.error(request, "Revisá las tareas: hay datos con errores.")
         contexto = {
-            "obra": obra, "tab": "tareas", "puede_editar": True, "hoy": date.today(),
+            "obra": obra, "tab": "tareas", "puede_editar": True, "hoy": date.today(), "editando_tareas": True,
             "pestanas": [p for p in PESTANAS if p[0] not in PESTANA_APP or apps.is_installed(PESTANA_APP[p[0]])],
         }
-        contexto.update(_contexto_tareas(obra, True, formset))
+        contexto.update(_contexto_tareas(obra, True, estructura, e.messages))
         return render(request, "obras/detalle.html", contexto)
     avance_antes = obra.avance
     with transaction.atomic():
-        formset.save()
+        arbol.guardar(TareaObra, {"obra": obra}, datos, con_avance=True)
         obra.recalcular_avance()
-    cambios = {}
-    for t in obra.tareas.all():
-        previo = antes.pop(t.pk, None)
-        if previo is None:
-            cambios[t.nombre] = ["—", f"{t.incidencia:g}% · avance {t.avance}%"]
-        elif previo != (t.nombre, t.incidencia, t.avance):
-            cambios[t.nombre] = [f"{previo[1]:g}% · avance {previo[2]}%", f"{t.incidencia:g}% · avance {t.avance}%"]
-    for nombre, incidencia, avance in antes.values():
-        cambios[nombre] = [f"{incidencia:g}% · avance {avance}%", "quitada"]
-    if cambios:
-        registrar("obra.tareas", f"Tareas actualizadas · avance {avance_antes}% → {obra.avance}%", objeto=obra,
-                  detalle=cambios)
+    registrar("obra.tareas", f"Se modificó el listado de tareas · avance {avance_antes}% → {obra.avance}%",
+              objeto=obra, detalle={"rubros": obra.tareas.filter(tipo=TareaObra.Tipo.RUBRO).count(),
+                                    "items": obra.tareas.filter(tipo=TareaObra.Tipo.ITEM).count()})
     messages.success(request, f"Tareas guardadas. Avance: {obra.avance}%.")
     return redirect(f"{obra_url(obra)}?tab=tareas")
+
+
+@permisos.solo_personal
+@require_POST
+def tarea_avance(request, pk, tarea_pk):
+    """Guarda el avance de una tarea al soltar su barra. Responde los avances recalculados."""
+    obra = _obra_visible(request, pk)
+    _exigir_edicion(request, obra)
+    tarea = get_object_or_404(TareaObra, pk=tarea_pk, obra=obra)
+    if tarea.hijos.exists():
+        return JsonResponse({"error": "El avance de un rubro o etapa se calcula con sus ítems."}, status=400)
+    try:
+        nuevo = max(0, min(100, int(request.POST.get("avance", ""))))
+    except ValueError:
+        return JsonResponse({"error": "Avance inválido."}, status=400)
+    anterior = tarea.avance
+    if nuevo != anterior:
+        tarea.avance = nuevo
+        tarea.save(update_fields=["avance", "actualizada"])
+        obra.recalcular_avance()
+        registrar("obra.tarea_avance", f"Avance de «{tarea.nombre}»: {anterior}% → {nuevo}%", objeto=obra)
+    nodos = arbol.anotar(obra.tareas.all())
+    avances = {}
+
+    def juntar(lista):
+        for n in lista:
+            avances[n.id] = float(round(n.avance_calculado, 1))
+            juntar(n.hijos_lista)
+
+    juntar(nodos)
+    return JsonResponse({"avance_obra": obra.avance, "avances": avances})
 
 
 @permisos.solo_personal
@@ -300,14 +332,10 @@ def tareas_aplicar_plantilla(request, pk):
     plantilla = form.cleaned_data["plantilla"]
     with transaction.atomic():
         reemplazadas = obra.tareas.count()
-        obra.tareas.all().delete()
-        TareaObra.objects.bulk_create([
-            TareaObra(obra=obra, nombre=t.nombre, incidencia=t.incidencia, orden=t.orden)
-            for t in plantilla.tareas.all()
-        ])
+        arbol.copiar(plantilla.tareas.all(), TareaObra, {"obra": obra})
         obra.recalcular_avance()
     registrar("obra.plantilla", f"Se aplicó la plantilla «{plantilla}»"
               + (f" (reemplazó {reemplazadas} tareas)" if reemplazadas else ""), objeto=obra)
     messages.success(request, f"Se cargaron las tareas de «{plantilla}». Ajustalas si hace falta y "
-                              "andá cargando el avance de cada una.")
+                              "andá cargando el avance con las barras.")
     return redirect(f"{obra_url(obra)}?tab=tareas")

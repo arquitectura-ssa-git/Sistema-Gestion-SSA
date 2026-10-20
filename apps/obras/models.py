@@ -2,9 +2,11 @@ from datetime import date
 from decimal import ROUND_HALF_UP, Decimal
 
 from django.conf import settings
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator
 from django.db import models
 from django.urls import reverse
+
+from apps.plantillas.models import NodoTarea
 
 
 class Obra(models.Model):
@@ -79,13 +81,13 @@ class Obra(models.Model):
         return "Proyectos" if self.es_proyecto else "Obras"
 
     def recalcular_avance(self):
-        """Si tiene tareas, el avance sale de ellas: suma de (incidencia × avance de la tarea)."""
+        """Si tiene tareas, el avance sale de ellas (incidencias × avance de cada hoja)."""
+        from apps.plantillas.arbol import avance_total
+
         tareas = list(self.tareas.all())
-        total = sum((t.incidencia for t in tareas), Decimal(0))
-        if not tareas or total <= 0:
+        if not tareas:
             return
-        hecho = sum((t.incidencia * t.avance for t in tareas), Decimal(0)) / total
-        nuevo = int(hecho.quantize(Decimal(1), rounding=ROUND_HALF_UP))
+        nuevo = int(avance_total(tareas).quantize(Decimal(1), rounding=ROUND_HALF_UP))
         if nuevo != self.avance:
             self.avance = nuevo
             self.save(update_fields=["avance", "actualizada"])
@@ -135,25 +137,13 @@ class Hito(models.Model):
         return f"{self.titulo} ({self.fecha:%d/%m/%Y})"
 
 
-class TareaObra(models.Model):
-    """Tarea de un proyecto u obra. Su incidencia es cuánto pesa en el avance total (las de una obra suman 100%)."""
+class TareaObra(NodoTarea):
+    """Etapa, rubro o ítem de un proyecto u obra. El avance se carga en las hojas (ítems, o rubros sin ítems);
+    el de rubros, etapas y de la obra se calcula con las incidencias."""
 
     obra = models.ForeignKey(Obra, on_delete=models.CASCADE, related_name="tareas")
-    nombre = models.CharField(max_length=200)
-    incidencia = models.DecimalField("incidencia (%)", max_digits=5, decimal_places=2,
-                                     validators=[MinValueValidator(Decimal("0.01")), MaxValueValidator(100)])
     avance = models.PositiveSmallIntegerField("avance (%)", default=0, validators=[MaxValueValidator(100)])
-    orden = models.PositiveIntegerField(default=0)
     actualizada = models.DateTimeField(auto_now=True)
 
-    class Meta:
+    class Meta(NodoTarea.Meta):
         verbose_name = "tarea"
-        ordering = ["orden", "id"]
-
-    def __str__(self):
-        return f"{self.nombre} ({self.incidencia:g}%)"
-
-    @property
-    def aporte(self):
-        """Puntos que esta tarea suma al avance total."""
-        return self.incidencia * self.avance / 100
