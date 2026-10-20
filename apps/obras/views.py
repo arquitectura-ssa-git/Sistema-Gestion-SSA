@@ -95,9 +95,20 @@ def obra_form(request, pk=None, tipo=Obra.Tipo.OBRA):
         obra = form.save(commit=False)
         if es_alta:
             obra.creada_por = request.user
-        obra.save()
+        plantilla = form.cleaned_data.get("plantilla") if es_alta else None
+        with transaction.atomic():
+            obra.save()
+            if plantilla:
+                arbol.copiar(plantilla.tareas.all(), TareaObra, {"obra": obra})
+                obra.recalcular_avance()
         if es_alta:
-            registrar("obra.alta", f"Alta de {obra.etiqueta}: {obra}", objeto=obra)
+            registrar("obra.alta", f"Alta de {obra.etiqueta}: {obra}"
+                      + (f" con la plantilla «{plantilla}»" if plantilla else ""), objeto=obra)
+            if plantilla:
+                messages.success(request, f"{'Proyecto' if obra.es_proyecto else 'Obra'} {obra.codigo} "
+                                          f"{'creado' if obra.es_proyecto else 'creada'} con la plantilla «{plantilla}». "
+                                          "Ajustá las etapas, rubros e ítems para este caso y guardá.")
+                return redirect(f"{obra_url(obra)}?tab=tareas&editar=1")
             messages.success(request, f"{'Proyecto' if obra.es_proyecto else 'Obra'} {obra.codigo} "
                                       f"{'creado' if obra.es_proyecto else 'creada'}. Ahora sumá a su equipo.")
             return redirect(f"{obra_url(obra)}?tab=equipo")

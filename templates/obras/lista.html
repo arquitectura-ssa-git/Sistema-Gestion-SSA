@@ -31,7 +31,7 @@
       {% for o in obras %}
         <tr>
           <td><a href="{% url 'obras:detalle' o.pk %}" class="fw-semibold">{{ o.nombre }}</a><div class="small text-muted">{{ o.codigo }}{% if o.localidad %} · {{ o.localidad }}{% endif %}</div></td>
-          <td>{{ o.cliente }}</td>
+          <td>{{ o.cliente|default:"<span class='text-muted'>Sin cliente</span>" }}</td>
           <td>{% include "obras/_etapa.html" with obra=o %}</td>
           <td>{% include "obras/_avance.html" with obra=o %}</td>
           <td><i class="bi bi-people text-muted"></i> {{ o.personas }}</td>

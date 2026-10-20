@@ -36,7 +36,8 @@ class Obra(models.Model):
     codigo = models.CharField("código", max_length=20, unique=True, blank=True,
                               help_text="Si lo dejás vacío se genera solo (PR-AÑO-NNN o OB-AÑO-NNN).")
     nombre = models.CharField(max_length=200)
-    cliente = models.ForeignKey("cuentas.Cliente", on_delete=models.PROTECT, related_name="obras")
+    cliente = models.ForeignKey("cuentas.Cliente", on_delete=models.PROTECT, related_name="obras",
+                                null=True, blank=True, help_text="Se puede asignar después.")
     direccion = models.CharField("dirección", max_length=200, blank=True)
     localidad = models.CharField(max_length=100, blank=True)
     descripcion = models.TextField("descripción", blank=True)

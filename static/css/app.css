@@ -259,3 +259,8 @@ input[type=radio], input[type=checkbox], input[type=range] { accent-color: var(-
 .badge.area-gestion_obras { --area: #666666; }
 .badge.area-direccion_tecnica { --area: #858585; }
 .badge.area-gestion_administrativa { --area: #a6a6a6; --area-texto: var(--ssa-negro); --area-borde-texto: #6f6f6f; }
+
+/* Avisos: confirmaciones en gris; los errores siguen en rojo para que se noten */
+.alert { border-radius: .4rem; }
+.alert-success, .alert-info { --bs-alert-bg: var(--ssa-platino); --bs-alert-color: var(--ssa-negro); --bs-alert-border-color: var(--ssa-platino); }
+.alert-warning { --bs-alert-bg: #ececec; --bs-alert-color: var(--ssa-negro); --bs-alert-border-color: var(--ssa-gris); }
