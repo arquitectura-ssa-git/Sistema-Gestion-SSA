@@ -1,0 +1,64 @@
+<div class="row g-3">
+  <div class="{% if puede_editar %}col-xl-9{% else %}col-12{% endif %}">
+    <div class="tarjeta">
+      <div class="tarjeta-cabecera">
+        <h2><i class="bi bi-list-check"></i> Tareas y avance</h2>
+        <span class="d-flex align-items-center gap-2"><span class="small text-muted">Avance total</span> <span class="fs-5 fw-semibold">{{ obra.avance }}%</span></span>
+      </div>
+      {% if puede_editar %}
+        <form method="post" action="{% url 'obras:tareas_guardar' obra.pk %}" novalidate>
+          {% csrf_token %}
+          {% include "includes/tareas_formset.html" with formset=formset_tareas con_avance=True %}
+          <div class="tarjeta-cuerpo border-top d-flex flex-wrap gap-2 align-items-center">
+            <button class="btn btn-dark"><i class="bi bi-check-lg"></i> Guardar tareas y avance</button>
+            <span class="small text-muted">El avance total se calcula solo: suma de incidencia × avance de cada tarea.</span>
+          </div>
+        </form>
+      {% else %}
+        <div class="table-responsive">
+          <table class="table table-tarjeta">
+            <thead><tr><th style="width: 2.5rem">#</th><th>Tarea</th><th>Incidencia</th><th style="width: 30%">Avance</th><th class="text-end">Aporta</th></tr></thead>
+            <tbody>
+            {% for t in tareas %}
+              <tr>
+                <td class="text-muted small">{{ forloop.counter }}</td>
+                <td>{{ t.nombre }}</td>
+                <td>{{ t.incidencia|floatformat:"-2" }}%</td>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="progress flex-grow-1" style="height: 8px"><div class="progress-bar {% if t.avance == 100 %}bg-success{% endif %}" style="width: {{ t.avance }}%"></div></div>
+                    <span class="small text-muted" style="min-width: 2.6rem">{{ t.avance }}%</span>
+                  </div>
+                </td>
+                <td class="text-end small">{{ t.aporte|floatformat:2 }}%</td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="5"><div class="lista-vacia"><i class="bi bi-list-check"></i>Todavía no hay tareas cargadas.</div></td></tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+  {% if puede_editar %}
+  <div class="col-xl-3">
+    <div class="tarjeta">
+      <div class="tarjeta-cabecera"><h2>Cargar desde plantilla</h2></div>
+      <div class="tarjeta-cuerpo">
+        {% if form_plantilla.fields.plantilla.queryset.exists %}
+        <form method="post" action="{% url 'obras:tareas_plantilla' obra.pk %}" novalidate
+              {% if tareas %}data-confirmar="Esto reemplaza las {{ tareas|length }} tareas actuales (y su avance) por las de la plantilla. ¿Seguir?"{% endif %}>
+          {% csrf_token %}
+          {% include "includes/campo.html" with campo=form_plantilla.plantilla %}
+          <button class="btn btn-outline-dark w-100"><i class="bi bi-download"></i> {% if tareas %}Reemplazar tareas{% else %}Cargar tareas{% endif %}</button>
+        </form>
+        <p class="small text-muted mt-2 mb-0">Las tareas se copian: lo que cambies acá no modifica la plantilla.</p>
+        {% else %}
+        <p class="small text-muted mb-0">No hay plantillas para {{ obra.etiqueta }}s. <a href="{% url 'plantillas:lista' %}">Crear una en Plantillas</a>.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endif %}
+</div>

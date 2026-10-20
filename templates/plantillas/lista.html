@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block titulo %}Plantillas{% endblock %}
+{% block contenido %}
+<div class="pagina-titulo">
+  <div>
+    <h1>Plantillas</h1>
+    <div class="small text-muted">Listados modelo de tareas con su incidencia. Se aplican a un proyecto u obra para medir el avance a medida que se ejecutan.</div>
+  </div>
+  {% if puede_gestionar %}<a href="{% url 'plantillas:nueva' %}" class="btn btn-dark"><i class="bi bi-plus-lg"></i> Nueva plantilla</a>{% endif %}
+</div>
+
+<div class="tarjeta">
+  <div class="table-responsive">
+    <table class="table table-hover table-tarjeta">
+      <thead><tr><th>Plantilla</th><th>Para</th><th>Tareas</th><th>Incidencia total</th><th>Actualizada</th></tr></thead>
+      <tbody>
+      {% for p in plantillas %}
+        <tr>
+          <td><a href="{% url 'plantillas:detalle' p.pk %}" class="fw-semibold">{{ p.nombre }}</a>{% if p.descripcion %}<div class="small text-muted text-truncate" style="max-width: 32rem">{{ p.descripcion }}</div>{% endif %}</td>
+          <td><span class="badge text-bg-light border">{{ p.get_uso_display }}</span></td>
+          <td>{{ p.cantidad }}</td>
+          <td>{% if p.total == 100 %}<span class="text-success">100%</span>{% else %}<span class="text-danger">{{ p.total|default:0|floatformat:"-2" }}%</span>{% endif %}</td>
+          <td class="small">{{ p.actualizada|date:"d/m/Y" }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="5"><div class="lista-vacia"><i class="bi bi-list-check"></i>Todavía no hay plantillas.{% if puede_gestionar %} Creá la primera con las tareas que se repiten en tus proyectos u obras.{% endif %}</div></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

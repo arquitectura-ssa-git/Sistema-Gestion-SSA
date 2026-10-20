@@ -25,7 +25,7 @@ def env_lista(nombre, defecto=""):
     return [v.strip() for v in os.getenv(nombre, defecto).split(",") if v.strip()]
 
 
-NOMBRE_ESTUDIO = os.getenv("NOMBRE_ESTUDIO", "Estudio de Arquitectura")
+NOMBRE_ESTUDIO = os.getenv("NOMBRE_ESTUDIO", "Saez Sanchez Arquitectos")
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-inseguro-solo-para-uso-local")
 DEBUG = env_bool("DEBUG", True)
 ALLOWED_HOSTS = env_lista("ALLOWED_HOSTS", "localhost,127.0.0.1")
@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     "apps.cuentas",
     "apps.auditoria",
     "apps.obras",
+    "apps.plantillas",
     # Se activan a medida que se construye cada sección:
     "apps.documentos",
     # "apps.notificaciones",

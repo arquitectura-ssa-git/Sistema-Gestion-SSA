@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block titulo %}Subir archivos{% endblock %}
-{% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'documentos:lista' %}">Archivos</a></li><li class="breadcrumb-item active">Subir</li></ol></nav>{% endblock %}
+{% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'documentos:lista' %}">Documentos</a></li><li class="breadcrumb-item active">Subir</li></ol></nav>{% endblock %}
 {% block contenido %}
 <div class="pagina-titulo"><h1>Subir archivos</h1></div>
 <form method="post" enctype="multipart/form-data" novalidate>

@@ -1,9 +1,9 @@
 {% extends "base.html" %}
-{% block titulo %}Obras{% endblock %}
+{% block titulo %}{% if es_proyecto %}Proyectos{% else %}Obras{% endif %}{% endblock %}
 {% block contenido %}
 <div class="pagina-titulo">
-  <h1>Obras</h1>
-  {% if puede_crear %}<a href="{% url 'obras:nueva' %}" class="btn btn-dark"><i class="bi bi-plus-lg"></i> Nueva obra</a>{% endif %}
+  <h1>{% if es_proyecto %}Proyectos{% else %}Obras{% endif %}</h1>
+  {% if puede_crear %}{% if es_proyecto %}<a href="{% url 'proyectos:nuevo' %}" class="btn btn-dark"><i class="bi bi-plus-lg"></i> Nuevo proyecto</a>{% else %}<a href="{% url 'obras:nueva' %}" class="btn btn-dark"><i class="bi bi-plus-lg"></i> Nueva obra</a>{% endif %}{% endif %}
 </div>
 
 <form class="row g-2 mb-3" method="get">
@@ -26,7 +26,7 @@
 <div class="tarjeta">
   <div class="table-responsive">
     <table class="table table-hover table-tarjeta">
-      <thead><tr><th>Obra</th><th>Cliente</th><th>Etapa</th><th style="width: 22%">Avance</th><th>Equipo</th><th>Fin estimado</th></tr></thead>
+      <thead><tr><th>{% if es_proyecto %}Proyecto{% else %}Obra{% endif %}</th><th>Cliente</th><th>Etapa</th><th style="width: 22%">Avance</th><th>Equipo</th><th>Fin estimado</th></tr></thead>
       <tbody>
       {% for o in obras %}
         <tr>
@@ -38,8 +38,8 @@
           <td class="small">{{ o.fecha_fin_estimada|date:"d/m/Y"|default:"—" }}</td>
         </tr>
       {% empty %}
-        <tr><td colspan="6"><div class="lista-vacia"><i class="bi bi-buildings"></i>
-          {% if q or etapa or estado != "activa" %}No hay obras con esos filtros.{% elif perm.gerencia %}Todavía no hay obras. Creá la primera.{% else %}Todavía no te asignaron a ninguna obra.{% endif %}
+        <tr><td colspan="6"><div class="lista-vacia"><i class="bi bi-{% if es_proyecto %}pencil-square{% else %}buildings{% endif %}"></i>
+          {% if es_proyecto %}{% if q or etapa or estado != "activa" %}No hay proyectos con esos filtros.{% elif perm.gerencia %}Todavía no hay proyectos. Creá el primero.{% else %}Todavía no te asignaron a ningún proyecto.{% endif %}{% else %}{% if q or etapa or estado != "activa" %}No hay obras con esos filtros.{% elif perm.gerencia %}Todavía no hay obras. Creá la primera.{% else %}Todavía no te asignaron a ninguna obra.{% endif %}{% endif %}
         </div></td></tr>
       {% endfor %}
       </tbody>

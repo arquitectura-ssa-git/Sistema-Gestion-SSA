@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block titulo %}Papelera{% endblock %}
-{% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'documentos:lista' %}">Archivos</a></li><li class="breadcrumb-item active">Papelera</li></ol></nav>{% endblock %}
+{% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'documentos:lista' %}">Documentos</a></li><li class="breadcrumb-item active">Papelera</li></ol></nav>{% endblock %}
 {% block contenido %}
 <div class="pagina-titulo"><h1>Papelera</h1></div>
 <p class="text-muted small">Los documentos de la papelera se pueden restaurar en cualquier momento. No se vacía sola.{% if puede_eliminar %} Como Gerencia, podés borrarlos definitivamente: el registro de actividad conserva qué eran y quién los borró.{% endif %}</p>

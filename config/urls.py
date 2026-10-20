@@ -10,7 +10,9 @@ urlpatterns = [
     path("", include("apps.core.urls")),
     path("personal/", include("apps.cuentas.urls")),
     # Se activan a medida que se construye cada sección:
+    path("proyectos/", include("apps.obras.urls_proyectos")),
     path("obras/", include("apps.obras.urls")),
+    path("plantillas/", include("apps.plantillas.urls")),
     path("documentos/", include("apps.documentos.urls")),
     # path("solicitudes/", include("apps.aprobaciones.urls")),
     # path("notificaciones/", include("apps.notificaciones.urls")),

@@ -108,6 +108,12 @@ def puede_editar_obra(u, obra):
     return es_gerencia(u) or (es_personal(u) and obra.asignaciones.filter(usuario=u, es_responsable=True).exists())
 
 
+# --- Plantillas de tareas ---------------------------------------------------
+
+def puede_gestionar_plantillas(u):
+    return pertenece_a(u, A.GESTION_PROYECTOS, A.GESTION_OBRAS)
+
+
 # --- Documentos ------------------------------------------------------------
 
 def documentos_visibles(u):

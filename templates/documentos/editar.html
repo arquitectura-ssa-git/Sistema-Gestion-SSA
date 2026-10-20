@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block titulo %}Editar {{ doc }}{% endblock %}
-{% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'documentos:lista' %}">Archivos</a></li><li class="breadcrumb-item"><a href="{% url 'documentos:detalle' doc.pk %}">{{ doc }}</a></li><li class="breadcrumb-item active">Editar</li></ol></nav>{% endblock %}
+{% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'documentos:lista' %}">Documentos</a></li><li class="breadcrumb-item"><a href="{% url 'documentos:detalle' doc.pk %}">{{ doc }}</a></li><li class="breadcrumb-item active">Editar</li></ol></nav>{% endblock %}
 {% block contenido %}
 <div class="pagina-titulo"><h1>Editar datos del documento</h1></div>
 <form method="post" novalidate>

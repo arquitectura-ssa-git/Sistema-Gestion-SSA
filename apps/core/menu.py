@@ -7,19 +7,15 @@ medida que se agregan secciones.
 from django.urls import NoReverseMatch, reverse
 
 MENU_PERSONAL = [
-    ("Principal", [
-        ("core:tablero", "Tablero", "speedometer2", None),
+    ("", [
+        ("core:tablero", "Dashboard", "speedometer2", None),
+        ("proyectos:lista", "Proyectos", "pencil-square", None),
         ("obras:lista", "Obras", "buildings", None),
-        ("documentos:lista", "Archivos", "folder2-open", None),
-        ("aprobaciones:lista", "Solicitudes al cliente", "check2-square", None),
-        ("comunicados:lista", "Comunicados", "megaphone", None),
-        ("notificaciones:lista", "Notificaciones", "bell", None),
-    ]),
-    ("Organización", [
-        ("cuentas:areas", "Áreas y equipos", "diagram-3", None),
-        ("cuentas:personal", "Personal", "people", "gerencia"),
+        ("documentos:lista", "Documentos", "folder2-open", None),
+        ("cuentas:areas", "Equipo", "diagram-3", None),
+        ("cuentas:personal", "Miembros", "people", "gerencia"),
         ("cuentas:clientes", "Clientes", "person-vcard", "clientes"),
-        ("auditoria:lista", "Registro de actividad", "journal-text", "auditoria"),
+        ("plantillas:lista", "Plantillas", "list-check", None),
     ]),
 ]
 
@@ -36,14 +32,26 @@ def _item(request, nombre_url, texto, icono):
         url = reverse(nombre_url)
     except NoReverseMatch:
         return None
-    activo = request.path == url if url == "/" else request.path.startswith(url)
-    return {"url": url, "texto": texto, "icono": icono, "activo": activo}
+    return {"url": url, "texto": texto, "icono": icono, "activo": False, "nombre_url": nombre_url}
+
+
+def _marcar_activo(request, items):
+    """Ilumina un solo ítem: el que la vista indicó, o el de url más larga que coincide con la página."""
+    marcado = getattr(request, "menu_activo", None)
+    if marcado:
+        candidatos = [x for x in items if x["nombre_url"] == marcado]
+    else:
+        candidatos = [x for x in items
+                      if (request.path == x["url"] if x["url"] == "/" else request.path.startswith(x["url"]))]
+    if candidatos:
+        max(candidatos, key=lambda x: len(x["url"]))["activo"] = True
 
 
 def construir_menu(request, perm):
     if perm.get("cliente"):
-        items = [_item(request, u, t, i) for u, t, i, _ in MENU_CLIENTE]
-        return [{"titulo": "", "items": [x for x in items if x]}]
+        items = [x for x in (_item(request, u, t, i) for u, t, i, _ in MENU_CLIENTE) if x]
+        _marcar_activo(request, items)
+        return [{"titulo": "", "items": items}]
     menu = []
     for titulo, entradas in MENU_PERSONAL:
         items = [
@@ -53,4 +61,5 @@ def construir_menu(request, perm):
         items = [x for x in items if x]
         if items:
             menu.append({"titulo": titulo, "items": items})
+    _marcar_activo(request, [x for grupo in menu for x in grupo["items"]])
     return menu

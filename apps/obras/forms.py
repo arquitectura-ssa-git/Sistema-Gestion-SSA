@@ -1,8 +1,10 @@
 from django import forms
+from django.forms import inlineformset_factory
 
 from apps.cuentas.models import Area, MiembroArea, Usuario
+from apps.plantillas.forms import BaseTareasFormSet, widgets_tarea
 
-from .models import AsignacionObra, Hito, Obra
+from .models import AsignacionObra, Hito, Obra, TareaObra
 
 
 class FechaInput(forms.DateInput):
@@ -15,7 +17,7 @@ class FechaInput(forms.DateInput):
 class ObraForm(forms.ModelForm):
     class Meta:
         model = Obra
-        fields = ["codigo", "nombre", "cliente", "direccion", "localidad", "superficie_m2", "descripcion",
+        fields = ["tipo", "codigo", "nombre", "cliente", "direccion", "localidad", "superficie_m2", "descripcion",
                   "etapa", "estado", "fecha_inicio", "fecha_fin_estimada", "avance"]
         widgets = {
             "descripcion": forms.Textarea(attrs={"rows": 3}),
@@ -23,6 +25,15 @@ class ObraForm(forms.ModelForm):
             "fecha_fin_estimada": FechaInput(),
             "avance": forms.NumberInput(attrs={"min": 0, "max": 100, "step": 1}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["tipo"].widget = forms.RadioSelect(choices=Obra.Tipo.choices)
+        self.fields["tipo"].help_text = ("Proyecto: trabajo de diseño, planos o trámites. "
+                                         "Obra: construcción en ejecución.")
+        if self.instance.pk and self.instance.tareas.exists():
+            self.fields["avance"].disabled = True
+            self.fields["avance"].help_text = "Se calcula solo con el avance de las tareas (pestaña Tareas)."
 
     def clean_codigo(self):
         return self.cleaned_data["codigo"].strip().upper()
@@ -72,3 +83,14 @@ class HitoForm(forms.ModelForm):
         model = Hito
         fields = ["titulo", "fecha", "visible_cliente"]
         widgets = {"fecha": FechaInput()}
+
+
+class BaseTareasObraFormSet(BaseTareasFormSet):
+    minimo_una = False  # Sin tareas, el avance se vuelve a cargar a mano.
+
+
+TareasObraFormSet = inlineformset_factory(
+    Obra, TareaObra, formset=BaseTareasObraFormSet, fields=["nombre", "incidencia", "avance"],
+    widgets={**widgets_tarea(), "avance": forms.NumberInput(attrs={"min": 0, "max": 100, "step": 1, "data-avance": ""})},
+    extra=0, can_delete=True,
+)

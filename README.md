@@ -25,7 +25,8 @@ El plan completo y el estado de cada sección están en [PLAN.md](PLAN.md).
 .venv\Scripts\python.exe manage.py cargar_demo
 ```
 
-Carga una persona por área, dos clientes, dos obras y documentos de ejemplo. Todos los usuarios de prueba
+Carga una persona por área, dos clientes, un proyecto (Edificio Sur), una obra (Casa Pérez), dos plantillas de
+tareas y documentos de ejemplo. Todos los usuarios de prueba
 usan la contraseña **`Demo2026!`** (solo para probar en esta PC).
 
 | Email | Quién es |
@@ -38,6 +39,14 @@ usan la contraseña **`Demo2026!`** (solo para probar en esta PC).
 | tecnica@demo.local | Pablo Vera · Dirección Técnica (aprueba planos) |
 | cliente@demo.local | Carlos Pérez · cliente de Casa Pérez |
 | cliente2@demo.local | Ana Torres · cliente de Edificio Sur |
+
+## Plantillas y avance por tareas
+
+En **Plantillas** se arman listados modelo de tareas, cada una con su **incidencia** (cuánto pesa en el total;
+entre todas suman 100%). En un proyecto u obra, pestaña **Tareas**, se elige una plantilla: las tareas se copian
+y se pueden ajustar sin tocar la plantilla. A medida que se ejecutan se carga el avance de cada tarea y el avance
+total se calcula solo (suma de incidencia × avance). Pueden crear y editar plantillas Gerencia, Gestión de
+Proyectos y Gestión de Obras; las tareas de cada obra las editan sus responsables.
 
 ## Dónde queda cada cosa
 

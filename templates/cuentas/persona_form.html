@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block titulo %}{% if persona %}Editar {{ persona.nombre_completo }}{% else %}Nueva persona{% endif %}{% endblock %}
-{% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'cuentas:personal' %}">Personal</a></li><li class="breadcrumb-item active">{% if persona %}{{ persona.nombre_completo }}{% else %}Nueva{% endif %}</li></ol></nav>{% endblock %}
+{% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'cuentas:personal' %}">Miembros</a></li><li class="breadcrumb-item active">{% if persona %}{{ persona.nombre_completo }}{% else %}Nueva{% endif %}</li></ol></nav>{% endblock %}
 {% block contenido %}
 <div class="pagina-titulo"><h1>{% if persona %}Editar persona{% else %}Nueva persona{% endif %}</h1></div>
 <form method="post" novalidate>
