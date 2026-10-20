@@ -152,7 +152,14 @@ nginx -t -q
 systemctl restart nginx
 
 paso "Firewall (solo SSH y web)"
-ufw allow OpenSSH >/dev/null
+# Muchos proveedores usan otro puerto para SSH (ej. 22022): se abren el 22 y los que use el servidor,
+# para no quedar afuera del VPS al activar el firewall.
+PUERTOS_SSH="22 $(sshd -T 2>/dev/null | awk '/^port /{print $2}' | tr '\n' ' ')"
+[ -n "${SSH_CONNECTION:-}" ] && PUERTOS_SSH="$PUERTOS_SSH $(echo "$SSH_CONNECTION" | awk '{print $4}')"
+for PUERTO in $(echo "$PUERTOS_SSH" | tr ' ' '\n' | sort -un); do
+  ufw allow "$PUERTO/tcp" >/dev/null
+done
+echo "Puertos SSH abiertos: $(echo "$PUERTOS_SSH" | tr ' ' '\n' | sort -un | tr '\n' ' ')"
 ufw allow 'Nginx Full' >/dev/null
 ufw --force enable >/dev/null
 
