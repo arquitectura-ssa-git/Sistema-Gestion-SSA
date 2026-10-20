@@ -1,43 +1,35 @@
+{% if editando_tareas %}
+<form method="post" action="{% url 'obras:tareas_guardar' obra.pk %}" novalidate>
+  {% csrf_token %}
+  <div class="tarjeta">
+    <div class="tarjeta-cabecera"><h2><i class="bi bi-pencil-square"></i> Editar tareas de {{ obra.nombre }}</h2></div>
+    {% include "includes/tareas_editor.html" with estructura=estructura_json con_avance=True errores=errores_estructura %}
+    <div class="tarjeta-cuerpo border-top d-flex flex-wrap gap-2">
+      <button class="btn btn-dark"><i class="bi bi-check-lg"></i> Guardar tareas</button>
+      <a href="?tab=tareas" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+  </div>
+</form>
+{% else %}
 <div class="row g-3">
   <div class="{% if puede_editar %}col-xl-9{% else %}col-12{% endif %}">
-    <div class="tarjeta">
-      <div class="tarjeta-cabecera">
+    <div class="tarjeta" data-barras-avance data-url-avance="{% url 'obras:tarea_avance' obra.pk 0 %}" data-csrf="{{ csrf_token }}">
+      <div class="tarjeta-cabecera flex-wrap">
         <h2><i class="bi bi-list-check"></i> Tareas y avance</h2>
-        <span class="d-flex align-items-center gap-2"><span class="small text-muted">Avance total</span> <span class="fs-5 fw-semibold">{{ obra.avance }}%</span></span>
-      </div>
-      {% if puede_editar %}
-        <form method="post" action="{% url 'obras:tareas_guardar' obra.pk %}" novalidate>
-          {% csrf_token %}
-          {% include "includes/tareas_formset.html" with formset=formset_tareas con_avance=True %}
-          <div class="tarjeta-cuerpo border-top d-flex flex-wrap gap-2 align-items-center">
-            <button class="btn btn-dark"><i class="bi bi-check-lg"></i> Guardar tareas y avance</button>
-            <span class="small text-muted">El avance total se calcula solo: suma de incidencia × avance de cada tarea.</span>
-          </div>
-        </form>
-      {% else %}
-        <div class="table-responsive">
-          <table class="table table-tarjeta">
-            <thead><tr><th style="width: 2.5rem">#</th><th>Tarea</th><th>Incidencia</th><th style="width: 30%">Avance</th><th class="text-end">Aporta</th></tr></thead>
-            <tbody>
-            {% for t in tareas %}
-              <tr>
-                <td class="text-muted small">{{ forloop.counter }}</td>
-                <td>{{ t.nombre }}</td>
-                <td>{{ t.incidencia|floatformat:"-2" }}%</td>
-                <td>
-                  <div class="d-flex align-items-center gap-2">
-                    <div class="progress flex-grow-1" style="height: 8px"><div class="progress-bar {% if t.avance == 100 %}bg-success{% endif %}" style="width: {{ t.avance }}%"></div></div>
-                    <span class="small text-muted" style="min-width: 2.6rem">{{ t.avance }}%</span>
-                  </div>
-                </td>
-                <td class="text-end small">{{ t.aporte|floatformat:2 }}%</td>
-              </tr>
-            {% empty %}
-              <tr><td colspan="5"><div class="lista-vacia"><i class="bi bi-list-check"></i>Todavía no hay tareas cargadas.</div></td></tr>
-            {% endfor %}
-            </tbody>
-          </table>
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+          <span data-estado-guardado class="small text-muted"></span>
+          <span class="d-flex align-items-center gap-2"><span class="small text-muted">Avance total</span> <span class="fs-5 fw-semibold" data-avance-obra>{{ obra.avance }}%</span></span>
+          {% if arbol %}<button type="button" class="btn btn-sm btn-outline-secondary" data-plegar-todo><i class="bi bi-arrows-collapse"></i> <span>Ver solo rubros</span></button>{% endif %}
+          {% if puede_editar and arbol %}<a href="?tab=tareas&editar=1" class="btn btn-sm btn-outline-dark"><i class="bi bi-pencil"></i> Editar rubros e ítems</a>{% endif %}
         </div>
+      </div>
+      {% if arbol %}
+        <div class="ta-lista" data-plegables data-clave="obra-{{ obra.pk }}">
+          {% for nodo in arbol %}{% include "obras/_tarea_nodo.html" %}{% endfor %}
+        </div>
+        {% if puede_editar %}<div class="tarjeta-cuerpo border-top small text-muted">Mové la barra de cada ítem: el avance se guarda solo al soltarla, y se recalculan el rubro, la etapa y el total.</div>{% endif %}
+      {% else %}
+        <div class="lista-vacia"><i class="bi bi-list-check"></i>Todavía no hay tareas cargadas.{% if puede_editar %} Elegí una plantilla a la derecha o <a href="?tab=tareas&editar=1">armá el listado a mano</a>.{% endif %}</div>
       {% endif %}
     </div>
   </div>
@@ -48,12 +40,12 @@
       <div class="tarjeta-cuerpo">
         {% if form_plantilla.fields.plantilla.queryset.exists %}
         <form method="post" action="{% url 'obras:tareas_plantilla' obra.pk %}" novalidate
-              {% if tareas %}data-confirmar="Esto reemplaza las {{ tareas|length }} tareas actuales (y su avance) por las de la plantilla. ¿Seguir?"{% endif %}>
+              {% if arbol %}data-confirmar="Esto reemplaza las tareas actuales (y su avance) por las de la plantilla. ¿Seguir?"{% endif %}>
           {% csrf_token %}
           {% include "includes/campo.html" with campo=form_plantilla.plantilla %}
-          <button class="btn btn-outline-dark w-100"><i class="bi bi-download"></i> {% if tareas %}Reemplazar tareas{% else %}Cargar tareas{% endif %}</button>
+          <button class="btn btn-outline-dark w-100"><i class="bi bi-download"></i> {% if arbol %}Reemplazar tareas{% else %}Cargar tareas{% endif %}</button>
         </form>
-        <p class="small text-muted mt-2 mb-0">Las tareas se copian: lo que cambies acá no modifica la plantilla.</p>
+        <p class="small text-muted mt-2 mb-0">Las tareas se copian: lo que ajustes acá no modifica la plantilla.</p>
         {% else %}
         <p class="small text-muted mb-0">No hay plantillas para {{ obra.etiqueta }}s. <a href="{% url 'plantillas:lista' %}">Crear una en Plantillas</a>.</p>
         {% endif %}
@@ -62,3 +54,4 @@
   </div>
   {% endif %}
 </div>
+{% endif %}

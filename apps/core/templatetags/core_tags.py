@@ -95,3 +95,15 @@ def query_con(context, **cambios):
         else:
             params[clave] = valor
     return params.urlencode()
+
+
+@register.filter
+def pct(valor, decimales=2):
+    """33.3333 -> '33,33'; 40.001 -> '40'; 2.5 -> '2,5' (redondea y saca los ceros que sobran)."""
+    try:
+        texto = f"{round(float(valor), int(decimales)):.{int(decimales)}f}"
+    except (TypeError, ValueError):
+        return ""
+    if "." in texto:
+        texto = texto.rstrip("0").rstrip(".")
+    return texto.replace(".", ",")

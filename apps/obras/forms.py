@@ -1,10 +1,8 @@
 from django import forms
-from django.forms import inlineformset_factory
 
 from apps.cuentas.models import Area, MiembroArea, Usuario
-from apps.plantillas.forms import BaseTareasFormSet, widgets_tarea
 
-from .models import AsignacionObra, Hito, Obra, TareaObra
+from .models import AsignacionObra, Hito, Obra
 
 
 class FechaInput(forms.DateInput):
@@ -83,14 +81,3 @@ class HitoForm(forms.ModelForm):
         model = Hito
         fields = ["titulo", "fecha", "visible_cliente"]
         widgets = {"fecha": FechaInput()}
-
-
-class BaseTareasObraFormSet(BaseTareasFormSet):
-    minimo_una = False  # Sin tareas, el avance se vuelve a cargar a mano.
-
-
-TareasObraFormSet = inlineformset_factory(
-    Obra, TareaObra, formset=BaseTareasObraFormSet, fields=["nombre", "incidencia", "avance"],
-    widgets={**widgets_tarea(), "avance": forms.NumberInput(attrs={"min": 0, "max": 100, "step": 1, "data-avance": ""})},
-    extra=0, can_delete=True,
-)

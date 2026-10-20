@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base.html" %}{% load static %}
 {% block titulo %}{{ plantilla }}{% endblock %}
 {% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'plantillas:lista' %}">Plantillas</a></li><li class="breadcrumb-item active">{{ plantilla }}</li></ol></nav>{% endblock %}
 {% block contenido %}
@@ -11,6 +11,9 @@
   {% if puede_gestionar %}
   <div class="d-flex gap-2">
     <a href="{% url 'plantillas:editar' plantilla.pk %}" class="btn btn-outline-dark"><i class="bi bi-pencil"></i> Editar</a>
+    <form method="post" action="{% url 'plantillas:duplicar' plantilla.pk %}">{% csrf_token %}
+      <button class="btn btn-outline-dark" title="Crear una plantilla nueva a partir de esta"><i class="bi bi-copy"></i> Duplicar</button>
+    </form>
     <form method="post" action="{% url 'plantillas:borrar' plantilla.pk %}" data-confirmar="¿Borrar la plantilla «{{ plantilla }}»? Los proyectos y obras que ya la usaron conservan sus tareas.">{% csrf_token %}
       <button class="btn btn-outline-danger"><i class="bi bi-trash"></i> Borrar</button>
     </form>
@@ -19,27 +22,14 @@
 </div>
 
 <div class="tarjeta">
-  <div class="table-responsive">
-    <table class="table table-tarjeta">
-      <thead><tr><th style="width: 2.5rem">#</th><th>Tarea</th><th style="width: 30%">Incidencia</th></tr></thead>
-      <tbody>
-      {% for t in tareas %}
-        <tr>
-          <td class="text-muted small">{{ forloop.counter }}</td>
-          <td>{{ t.nombre }}</td>
-          <td>
-            <div class="d-flex align-items-center gap-2">
-              <div class="progress flex-grow-1" style="height: 8px"><div class="progress-bar" style="width: {{ t.incidencia|stringformat:'f' }}%"></div></div>
-              <span class="small" style="min-width: 3.5rem">{{ t.incidencia|floatformat:"-2" }}%</span>
-            </div>
-          </td>
-        </tr>
-      {% empty %}
-        <tr><td colspan="3"><div class="lista-vacia"><i class="bi bi-list-check"></i>Esta plantilla no tiene tareas.</div></td></tr>
-      {% endfor %}
-      </tbody>
-    </table>
-  </div>
+  {% if arbol %}
+  <div class="tarjeta-cabecera"><h2>Etapas, rubros e ítems</h2><button type="button" class="btn btn-sm btn-outline-secondary" data-plegar-todo><i class="bi bi-arrows-collapse"></i> <span>Ver solo rubros</span></button></div>
+  <div class="ta-fila ta-cabecera"><div class="ta-num">#</div><div class="ta-nombre">Etapa / rubro / ítem</div><div class="ta-inc">En su grupo</div><div class="ta-avance">Peso en el total</div></div>
+  <div class="ta-lista" data-plegables data-clave="plantilla-{{ plantilla.pk }}">{% for nodo in arbol %}{% include "plantillas/_nodo.html" %}{% endfor %}</div>
+  {% else %}
+  <div class="lista-vacia"><i class="bi bi-list-check"></i>Esta plantilla no tiene tareas.</div>
+  {% endif %}
 </div>
 <p class="small text-muted mt-2">Para usarla, entrá a un proyecto u obra, pestaña <strong>Tareas</strong>, y elegí esta plantilla. Las tareas se copian y ahí podés ajustarlas sin cambiar la plantilla.</p>
 {% endblock %}
+{% block scripts %}<script src="{% static 'js/tareas.js' %}"></script>{% endblock %}

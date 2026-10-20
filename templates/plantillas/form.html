@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base.html" %}{% load static %}
 {% block titulo %}{% if plantilla %}Editar {{ plantilla }}{% else %}Nueva plantilla{% endif %}{% endblock %}
 {% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'plantillas:lista' %}">Plantillas</a></li>{% if plantilla %}<li class="breadcrumb-item"><a href="{% url 'plantillas:detalle' plantilla.pk %}">{{ plantilla }}</a></li>{% endif %}<li class="breadcrumb-item active">{% if plantilla %}Editar{% else %}Nueva{% endif %}</li></ol></nav>{% endblock %}
 {% block contenido %}
@@ -16,8 +16,8 @@
     </div>
   </div>
   <div class="tarjeta">
-    <div class="tarjeta-cabecera"><h2>Tareas</h2><span class="small text-muted">La incidencia es cuánto pesa cada tarea en el avance. Entre todas tienen que sumar 100%.</span></div>
-    {% include "includes/tareas_formset.html" with formset=formset con_avance=False %}
+    <div class="tarjeta-cabecera"><h2>Etapas, rubros e ítems</h2></div>
+    {% include "includes/tareas_editor.html" with estructura=estructura con_avance=False errores=errores_estructura %}
   </div>
   <div class="mt-3 d-flex gap-2">
     <button class="btn btn-dark"><i class="bi bi-check-lg"></i> Guardar</button>
@@ -25,3 +25,4 @@
   </div>
 </form>
 {% endblock %}
+{% block scripts %}<script src="{% static 'js/tareas.js' %}"></script>{% endblock %}

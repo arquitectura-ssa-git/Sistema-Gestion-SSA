@@ -13,7 +13,9 @@ from django.db import transaction
 from apps.auditoria.services import registrar
 from apps.cuentas.models import Area, Cliente, MiembroArea, Usuario
 from apps.obras.models import AsignacionObra, Hito, Obra, TareaObra
+from apps.plantillas import arbol
 from apps.plantillas.demo import cargar_plantillas_demo
+from apps.plantillas.models import Plantilla
 
 CLAVE_DEMO = "Demo2026!"
 
@@ -109,14 +111,28 @@ class Command(BaseCommand):
                                           area=areas[A.DESARROLLO_PROYECTOS], funcion="Anteproyecto")
 
         plantillas = cargar_plantillas_demo(personas[A.GERENCIA])
-        # Tareas con avance: la casa va por la estructura; el edificio, por el anteproyecto.
-        for obra, plantilla, avances in [(casa, "Vivienda unifamiliar", [100, 100, 100, 100, 30]),
-                                         (edificio, "Proyecto ejecutivo", [100, 25])]:
-            if not obra.tareas.exists():
-                for n, t in enumerate(plantillas[plantilla].tareas.all()):
-                    TareaObra.objects.create(obra=obra, nombre=t.nombre, incidencia=t.incidencia, orden=n,
-                                             avance=avances[n] if n < len(avances) else 0)
-                obra.recalcular_avance()
+        # La casa usa una plantilla simple (solo rubros) y va por la estructura.
+        if not casa.tareas.exists():
+            avances = [100, 100, 100, 100, 30]
+            for n, t in enumerate(plantillas["Vivienda unifamiliar"].tareas.all()):
+                TareaObra.objects.create(obra=casa, nombre=t.nombre, incidencia=t.incidencia, orden=n,
+                                         avance=avances[n] if n < len(avances) else 0)
+            casa.recalcular_avance()
+        # El edificio usa la plantilla del estudio (etapas → rubros → ítems) y está terminando el anteproyecto.
+        base = Plantilla.objects.filter(nombre="Proyecto de Arquitectura").first()
+        if base and not edificio.tareas.exists():
+            arbol.copiar(base.tareas.all(), TareaObra, {"obra": edificio})
+            hojas = []
+
+            def juntar_hojas(nodos):
+                for n in nodos:
+                    juntar_hojas(n.hijos_lista) if n.hijos_lista else hojas.append(n)
+
+            juntar_hojas(arbol.armar(list(edificio.tareas.all())))
+            for t, av in zip(hojas, [100, 100, 100, 100, 100, 100, 60, 0, 0]):
+                t.avance = av
+                t.save(update_fields=["avance"])
+            edificio.recalcular_avance()
 
         if apps.is_installed("apps.documentos"):
             from apps.documentos.demo import cargar_documentos_demo

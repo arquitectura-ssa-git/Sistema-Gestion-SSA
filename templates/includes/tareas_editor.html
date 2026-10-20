@@ -1,0 +1,28 @@
+{% comment %}
+Editor de etapas → rubros → ítems con incidencias (lo arma static/js/tareas.js).
+Parámetros: estructura (JSON), con_avance (muestra las barras de avance), errores (lista de mensajes).
+Tiene que ir dentro de un <form> y necesita {% block scripts %} con tareas.js.
+{% endcomment %}
+<div data-editor-tareas data-con-avance="{% if con_avance %}1{% else %}0{% endif %}" class="editor-tareas{% if con_avance %} con-avance{% endif %}">
+  <input type="hidden" name="estructura" value="{{ estructura }}">
+  {% if errores %}<div class="alert alert-danger m-3">{% for e in errores %}<div>{{ e }}</div>{% endfor %}</div>{% endif %}
+  <div class="te-fila te-cabecera">
+    <div class="te-num">#</div><div class="te-nombre">Etapa / rubro / ítem</div>
+    <div class="te-inc">Incidencia en su grupo</div>
+    {% if con_avance %}<div class="te-avance">Avance</div>{% endif %}
+    <div class="te-acciones"></div>
+  </div>
+  <div data-cuerpo></div>
+  <div class="te-pie">
+    <div class="d-flex flex-wrap gap-2">
+      <button type="button" class="btn btn-sm btn-outline-dark" data-agregar="etapa"><i class="bi bi-plus-lg"></i> Etapa</button>
+      <button type="button" class="btn btn-sm btn-outline-dark" data-agregar="rubro"><i class="bi bi-plus-lg"></i> Rubro suelto</button>
+      <button type="button" class="btn btn-sm btn-outline-secondary" data-plegar-todo><i class="bi bi-arrows-collapse"></i> <span>Ver solo rubros</span></button>
+    </div>
+    {% if con_avance %}<div>Avance total: <strong data-avance-total>0%</strong></div>{% endif %}
+  </div>
+  <div class="small text-muted px-3 pb-3">
+    La incidencia es cuánto pesa cada fila dentro de su grupo. Si cambiás una, agregás o quitás filas, las demás del
+    mismo grupo se reacomodan solas para seguir sumando 100%. Debajo se ve cuánto pesa en el total.
+  </div>
+</div>

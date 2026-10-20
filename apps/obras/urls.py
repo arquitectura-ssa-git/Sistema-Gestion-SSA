@@ -14,6 +14,7 @@ urlpatterns = [
     path("<int:pk>/equipo/<int:asignacion_pk>/responsable/", views.equipo_responsable, name="equipo_responsable"),
     path("<int:pk>/tareas/", views.tareas_guardar, name="tareas_guardar"),
     path("<int:pk>/tareas/plantilla/", views.tareas_aplicar_plantilla, name="tareas_plantilla"),
+    path("<int:pk>/tareas/<int:tarea_pk>/avance/", views.tarea_avance, name="tarea_avance"),
     path("<int:pk>/hitos/agregar/", views.hito_agregar, name="hito_agregar"),
     path("<int:pk>/hitos/<int:hito_pk>/alternar/", views.hito_alternar, name="hito_alternar"),
     path("<int:pk>/hitos/<int:hito_pk>/borrar/", views.hito_borrar, name="hito_borrar"),

@@ -37,6 +37,8 @@ apt-get install -y -qq python3 python3-venv python3-dev build-essential git ngin
   sqlite3 ufw cron curl sudo >/dev/null
 
 paso "Preparando el usuario y las carpetas"
+# Algunos proveedores dejan el nombre del VPS sin resolver y sudo avisa "unable to resolve host".
+grep -qw "$(hostname)" /etc/hosts || echo "127.0.1.1 $(hostname)" >> /etc/hosts
 id "$USUARIO" >/dev/null 2>&1 || useradd --system --create-home --home-dir "$BASE" --shell /usr/sbin/nologin "$USUARIO"
 mkdir -p "$BASE" "$RESPALDOS"
 chown "$USUARIO:$USUARIO" "$BASE"

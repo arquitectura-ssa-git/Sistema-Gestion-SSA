@@ -31,17 +31,37 @@ class Plantilla(models.Model):
         return self.uso in (self.Uso.AMBOS, tipo)
 
 
-class TareaPlantilla(models.Model):
-    plantilla = models.ForeignKey(Plantilla, on_delete=models.CASCADE, related_name="tareas")
-    nombre = models.CharField(max_length=200)
-    incidencia = models.DecimalField("incidencia (%)", max_digits=5, decimal_places=2,
-                                     validators=[MinValueValidator(Decimal("0.01")), MaxValueValidator(100)])
+class NodoTarea(models.Model):
+    """Una fila del listado de tareas: etapa, rubro o ítem.
+
+    Etapa → rubros → ítems (un rubro puede no tener ítems y no hace falta usar etapas).
+    La incidencia es el porcentaje dentro de su grupo (sus hermanos); el peso en el total
+    sale de multiplicar las incidencias de toda la rama.
+    """
+
+    class Tipo(models.TextChoices):
+        ETAPA = "etapa", "Etapa"
+        RUBRO = "rubro", "Rubro"
+        ITEM = "item", "Ítem"
+
+    tipo = models.CharField(max_length=5, choices=Tipo.choices, default=Tipo.RUBRO)
+    padre = models.ForeignKey("self", null=True, blank=True, on_delete=models.CASCADE, related_name="hijos")
+    nombre = models.CharField(max_length=300)
+    incidencia = models.DecimalField("incidencia (%)", max_digits=6, decimal_places=3,
+                                     validators=[MinValueValidator(Decimal("0.001")), MaxValueValidator(100)])
     orden = models.PositiveIntegerField(default=0)
 
     class Meta:
-        verbose_name = "tarea de plantilla"
-        verbose_name_plural = "tareas de plantilla"
+        abstract = True
         ordering = ["orden", "id"]
 
     def __str__(self):
         return f"{self.nombre} ({self.incidencia:g}%)"
+
+
+class TareaPlantilla(NodoTarea):
+    plantilla = models.ForeignKey(Plantilla, on_delete=models.CASCADE, related_name="tareas")
+
+    class Meta(NodoTarea.Meta):
+        verbose_name = "tarea de plantilla"
+        verbose_name_plural = "tareas de plantilla"

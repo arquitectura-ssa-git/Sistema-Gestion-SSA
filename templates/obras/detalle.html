@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "base.html" %}{% load static %}
 {% block titulo %}{{ obra.nombre }}{% endblock %}
 {% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{{ obra.url_lista }}">{{ obra.nombre_lista }}</a></li><li class="breadcrumb-item active">{{ obra.nombre }}</li></ol></nav>{% endblock %}
 {% block contenido %}
@@ -188,3 +188,4 @@
 </div>
 {% endif %}
 {% endblock %}
+{% block scripts %}{% if tab == "tareas" %}<script src="{% static 'js/tareas.js' %}"></script>{% endif %}{% endblock %}
