@@ -163,6 +163,12 @@ CONFIAR_EN_PROXY = env_bool("CONFIAR_EN_PROXY", False)
 
 # --- Publicado en internet (DEBUG=false, detrás de nginx con HTTPS) ---
 if not DEBUG:
+    # Cada versión de los estilos y scripts tiene su propio nombre (app.3f2a….css), así el navegador
+    # nunca se queda con una versión vieja después de actualizar.
+    STORAGES = {
+        "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+        "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.ManifestStaticFilesStorage"},
+    }
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     if CONFIAR_EN_PROXY:
