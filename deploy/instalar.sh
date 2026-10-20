@@ -3,7 +3,7 @@
 #
 # Uso, como root en el VPS:
 #   curl -fsSL https://raw.githubusercontent.com/arquitectura-ssa-git/Sistema-Gestion-SSA/main/deploy/instalar.sh \
-#     | bash -s -- gestion.saezsanchez.com.ar tu-email@ejemplo.com
+#     | bash -s -- marta.saezsanchez.com.ar tu-email@ejemplo.com
 #
 # Se puede volver a correr sin perder datos: actualiza el código y la configuración,
 # pero nunca toca la base de datos ni los archivos subidos.
@@ -168,7 +168,7 @@ else
 fi
 
 paso "Copias de seguridad diarias (3 AM, se guardan 14 días)"
-cat > /usr/local/bin/gestion-respaldo <<EOF
+cat > /usr/local/bin/marta-respaldo <<EOF
 #!/usr/bin/env bash
 set -euo pipefail
 umask 077
@@ -182,31 +182,31 @@ rm -rf "\$TMP"
 find "$RESPALDOS" -name 'respaldo_*.tar.gz' -mtime +14 -delete
 echo "Respaldo guardado: $RESPALDOS/respaldo_\$FECHA.tar.gz"
 EOF
-chmod 700 /usr/local/bin/gestion-respaldo
-echo "0 3 * * * root /usr/local/bin/gestion-respaldo >/dev/null 2>&1" > /etc/cron.d/gestion-respaldo
+chmod 700 /usr/local/bin/marta-respaldo
+echo "0 3 * * * root /usr/local/bin/marta-respaldo >/dev/null 2>&1" > /etc/cron.d/marta-respaldo
 
-# Atajo para correr comandos del sistema: gestion-manage createsuperuser, gestion-manage cargar_demo, etc.
+# Atajo para correr comandos del sistema: marta-manage createsuperuser, marta-manage cargar_demo, etc.
 # (sudo descarta las variables de entorno: createsuperuser pide la contraseña en pantalla).
-cat > /usr/local/bin/gestion-manage <<EOF
+cat > /usr/local/bin/marta-manage <<EOF
 #!/usr/bin/env bash
 cd "$APP" && sudo -u "$USUARIO" -H "$APP/.venv/bin/python" manage.py "\$@"
 EOF
-chmod 755 /usr/local/bin/gestion-manage
+chmod 755 /usr/local/bin/marta-manage
 
 # Atajo para actualizar con lo último de GitHub.
-cat > /usr/local/bin/gestion-actualizar <<EOF
+cat > /usr/local/bin/marta-actualizar <<EOF
 #!/usr/bin/env bash
 set -euo pipefail
-/usr/local/bin/gestion-respaldo
+/usr/local/bin/marta-respaldo
 sudo -u "$USUARIO" -H git -C "$APP" fetch -q origin "$RAMA"
 sudo -u "$USUARIO" -H git -C "$APP" reset -q --hard "origin/$RAMA"
 sudo -u "$USUARIO" -H "$APP/.venv/bin/pip" install -q -r "$APP/deploy/requirements-servidor.txt"
-gestion-manage migrate --noinput
-gestion-manage collectstatic --noinput -v0
+marta-manage migrate --noinput
+marta-manage collectstatic --noinput -v0
 systemctl restart gestion
 echo "Sistema actualizado."
 EOF
-chmod 700 /usr/local/bin/gestion-actualizar
+chmod 700 /usr/local/bin/marta-actualizar
 
 sleep 2
 if systemctl is-active -q gestion && curl -fsS -o /dev/null -H "Host: $DOMINIO" http://127.0.0.1/cuenta/login/; then
@@ -217,8 +217,8 @@ fi
 cat <<EOF
 
   Dirección:        https://$DOMINIO
-  Crear tu usuario: gestion-manage createsuperuser
-  Actualizar:       gestion-actualizar
-  Respaldo ahora:   gestion-respaldo   (quedan en $RESPALDOS)
+  Crear tu usuario: marta-manage createsuperuser
+  Actualizar:       marta-actualizar
+  Respaldo ahora:   marta-respaldo   (quedan en $RESPALDOS)
 
 EOF

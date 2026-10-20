@@ -1,4 +1,4 @@
-# Gestión de obras
+# MARTA · Gestión de proyectos y obras
 
 Sistema para un estudio de arquitectura: obras, equipo por área, archivos (planos, planillas, fotos,
 permisos…), aprobaciones del cliente y registro de todo lo que pasa. Corre en esta PC.
@@ -31,7 +31,7 @@ usan la contraseña **`Demo2026!`** (solo para probar en esta PC).
 
 | Email | Quién es |
 |---|---|
-| gerencia@demo.local | Marta Gómez · Gerencia (ve todo; también entra a la administración técnica) |
+| gerencia@demo.local | Lucía Gómez · Gerencia (ve todo; también entra a la administración técnica) |
 | obras@demo.local | Juan Ruiz · Gestión de Obras (responsable de Casa Pérez) |
 | administracion@demo.local | Laura Sosa · Gestión Administrativa |
 | proyectos@demo.local | Diego Paz · Gestión de Proyectos (en las dos obras) |
