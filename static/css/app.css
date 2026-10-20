@@ -23,6 +23,8 @@ body { background: #f4f5f7; }
 .app-marca { display: flex; align-items: center; justify-content: space-between; padding: 1.1rem 1.2rem; border-bottom: 1px solid rgba(255,255,255,.08); }
 .app-marca a { color: #fff; text-decoration: none; font-weight: 600; }
 .app-marca .bi { color: var(--acento); }
+.app-logo img { display: block; width: 175px; max-width: 100%; height: auto; }
+.logo-ingreso { display: block; width: 100%; max-width: 300px; height: auto; margin: 0 auto; }
 
 .app-menu { padding: .5rem 0 2rem; }
 .app-menu-titulo { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; opacity: .55; padding: 1rem 1.2rem .35rem; }

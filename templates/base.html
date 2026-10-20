@@ -15,7 +15,7 @@
 <div class="app">
   <aside class="app-lateral offcanvas-lg offcanvas-start" tabindex="-1" id="menuLateral">
     <div class="app-marca">
-      <a href="{% url 'core:inicio' %}"><i class="bi bi-rulers"></i> {{ NOMBRE_ESTUDIO }}</a>
+      <a href="{% url 'core:inicio' %}" class="app-logo"><img src="{% static 'img/logo-blanco.png' %}" alt="{{ NOMBRE_ESTUDIO }}"></a>
       <button type="button" class="btn-close btn-close-white d-lg-none" data-bs-dismiss="offcanvas" data-bs-target="#menuLateral" aria-label="Cerrar"></button>
     </div>
     <nav class="app-menu">
