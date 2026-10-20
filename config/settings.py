@@ -160,3 +160,20 @@ HUEY = {
 
 # Solo tomar la IP de X-Forwarded-For si hay un proxy de confianza adelante.
 CONFIAR_EN_PROXY = env_bool("CONFIAR_EN_PROXY", False)
+
+# --- Publicado en internet (DEBUG=false, detrás de nginx con HTTPS) ---
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    if CONFIAR_EN_PROXY:
+        SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+    LOGGING = {
+        "version": 1,
+        "disable_existing_loggers": False,
+        "handlers": {"archivo": {"class": "logging.FileHandler", "filename": BASE_DIR / "data" / "errores.log"}},
+        "loggers": {
+            "django": {"handlers": ["archivo"], "level": "ERROR"},
+            # Bots que prueban direcciones ajenas: no ensuciar el registro de errores.
+            "django.security.DisallowedHost": {"handlers": [], "propagate": False},
+        },
+    }
