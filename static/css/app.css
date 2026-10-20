@@ -240,3 +240,22 @@ input[type=radio], input[type=checkbox], input[type=range] { accent-color: var(-
 .app-marca { position: relative; justify-content: center; padding: 2.75rem 1.5rem 1.75rem; }
 .app-marca .btn-close { position: absolute; top: 1rem; right: 1rem; }
 .app-logo img { margin: 0 auto; }
+
+/* Miembros: agrupados por área, emails discretos, áreas en escala de grises */
+.tabla-miembros .grupo-miembros th { padding-top: 1.75rem; font-size: .68rem; text-transform: uppercase; letter-spacing: .1em; font-weight: 500; color: var(--ssa-negro); border-bottom: 1px solid var(--ssa-plomo); background: transparent; }
+.tabla-miembros .grupo-miembros th .text-muted { margin-left: .35rem; font-weight: 400; }
+.tabla-miembros tbody:first-of-type .grupo-miembros th { padding-top: .75rem; }
+.miembro-nombre { font-size: 1rem; }
+.miembro-email { font-size: .8rem; color: var(--ssa-gris); }
+.btn-acciones { border: 0; border-radius: 50%; width: 2.1rem; height: 2.1rem; padding: 0; color: var(--ssa-plomo); }
+.btn-acciones:hover, .btn-acciones[aria-expanded="true"] { background: var(--ssa-platino); }
+.leyenda-areas { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; }
+
+.badge.area { --area: var(--ssa-gris); --area-texto: var(--ssa-blanco); background: var(--area); color: var(--area-texto); border: 1px solid var(--area); font-weight: 400; letter-spacing: .02em; padding: .38em .6em; }
+.badge.area.integrante { background: transparent; color: var(--area-borde-texto, var(--area)); }
+.badge.area-gerencia { --area: var(--ssa-negro); }
+.badge.area-gestion_proyectos { --area: #333333; }
+.badge.area-desarrollo_proyectos { --area: #4d4d4d; }
+.badge.area-gestion_obras { --area: #666666; }
+.badge.area-direccion_tecnica { --area: #858585; }
+.badge.area-gestion_administrativa { --area: #a6a6a6; --area-texto: var(--ssa-negro); --area-borde-texto: #6f6f6f; }

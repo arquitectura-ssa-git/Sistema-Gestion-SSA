@@ -12,38 +12,52 @@
     <a href="{% url 'cuentas:persona_nueva' %}" class="btn btn-dark"><i class="bi bi-person-plus"></i> Nueva persona</a>
   </div>
 </div>
+<div class="leyenda-areas mb-3">
+  {% for a in areas %}<span class="badge area area-{{ a.codigo }}">{{ a.nombre }}</span>{% endfor %}
+  <span class="small text-muted ms-2">Relleno: responsable del área · Contorno: integrante</span>
+</div>
 <div class="tarjeta">
   <div class="table-responsive">
-    <table class="table table-hover table-tarjeta">
+    <table class="table table-hover table-tarjeta tabla-miembros">
       <thead><tr><th>Nombre</th><th>Email</th><th>Áreas</th><th>WhatsApp</th><th></th></tr></thead>
+      {% for titulo, personas in secciones %}
       <tbody>
-      {% for p in personas %}
+        <tr class="grupo-miembros"><th colspan="5">{{ titulo }} <span class="text-muted">{{ personas|length }}</span></th></tr>
+        {% for p in personas %}
         <tr class="{% if not p.is_active %}text-muted{% endif %}">
           <td>
-            <strong>{{ p.nombre_completo }}</strong>
+            <span class="miembro-nombre">{{ p.nombre_completo }}</span>
             {% if p.cargo %}<div class="small text-muted">{{ p.cargo }}</div>{% endif %}
             {% if not p.is_active %}<span class="badge text-bg-secondary">Inactivo</span>{% endif %}
           </td>
-          <td>{{ p.email }}</td>
+          <td class="miembro-email">{{ p.email }}</td>
           <td>
             {% for m in p.membresias.all %}
-              <span class="badge {% if m.rol == 'responsable' %}text-bg-warning{% else %}text-bg-light border{% endif %}">{{ m.area.nombre }}</span>
+              <span class="badge area area-{{ m.area.codigo }}{% if m.rol != 'responsable' %} integrante{% endif %}" title="{{ m.get_rol_display }}">{{ m.area.nombre }}</span>
             {% endfor %}
           </td>
           <td class="small">{{ p.telefono|default:"—" }}</td>
-          <td class="text-end text-nowrap">
-            {% if not p.has_usable_password %}
-            <form method="post" action="{% url 'cuentas:persona_invitar' p.pk %}" class="d-inline">{% csrf_token %}
-              <button class="btn btn-sm btn-outline-secondary" title="Todavía no eligió contraseña"><i class="bi bi-envelope"></i> Reenviar invitación</button>
-            </form>
-            {% endif %}
-            <a href="{% url 'cuentas:persona_editar' p.pk %}" class="btn btn-sm btn-outline-dark"><i class="bi bi-pencil"></i> Editar</a>
+          <td class="text-end">
+            <div class="dropdown">
+              <button class="btn btn-sm btn-acciones" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Acciones de {{ p.nombre_completo }}"><i class="bi bi-three-dots"></i></button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{% url 'cuentas:persona_editar' p.pk %}">Editar datos y áreas</a></li>
+                {% if not p.has_usable_password %}
+                <li>
+                  <form method="post" action="{% url 'cuentas:persona_invitar' p.pk %}">{% csrf_token %}
+                    <button class="dropdown-item">Reenviar invitación por email</button>
+                  </form>
+                </li>
+                {% endif %}
+              </ul>
+            </div>
           </td>
         </tr>
-      {% empty %}
-        <tr><td colspan="5"><div class="lista-vacia"><i class="bi bi-people"></i>No hay personas cargadas.</div></td></tr>
-      {% endfor %}
+        {% endfor %}
       </tbody>
+      {% empty %}
+      <tbody><tr><td colspan="5"><div class="lista-vacia"><i class="bi bi-people"></i>No hay personas cargadas.</div></td></tr></tbody>
+      {% endfor %}
     </table>
   </div>
 </div>

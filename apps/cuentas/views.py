@@ -33,12 +33,38 @@ def areas(request):
     })
 
 
+# Orden de la lista de miembros: (título del grupo, regla). Gana la primera regla que se cumple.
+_A = Area.Codigo
+_GRUPOS_PERSONAL = [
+    ("DIR", lambda areas, resp: _A.GERENCIA in areas),
+    ("Coordinación", lambda areas, resp: bool(resp & {_A.GESTION_OBRAS, _A.GESTION_PROYECTOS})),
+    ("Administración", lambda areas, resp: _A.GESTION_ADMINISTRATIVA in areas),
+    ("Área Proyectos", lambda areas, resp: bool(areas & {_A.GESTION_PROYECTOS, _A.DESARROLLO_PROYECTOS})),
+    ("Área Obras", lambda areas, resp: bool(areas & {_A.GESTION_OBRAS, _A.DIRECCION_TECNICA})),
+    ("Otros", lambda areas, resp: True),
+]
+# Orden en pantalla (Administración se evalúa antes que las áreas técnicas pero se muestra al final).
+_ORDEN_GRUPOS = ["DIR", "Coordinación", "Área Proyectos", "Área Obras", "Administración", "Otros"]
+
+
+def _grupo_de(persona):
+    membresias = list(persona.membresias.all())
+    areas = {m.area.codigo for m in membresias}
+    resp = {m.area.codigo for m in membresias if m.rol == MiembroArea.Rol.RESPONSABLE}
+    return next(titulo for titulo, regla in _GRUPOS_PERSONAL if regla(areas, resp))
+
+
 @permisos.solo_gerencia
 def personal_lista(request):
     personas = Usuario.objects.filter(tipo=Usuario.Tipo.PERSONAL).prefetch_related("membresias__area")
     if request.GET.get("inactivos") != "1":
         personas = personas.filter(is_active=True)
-    return render(request, "cuentas/personal_lista.html", {"personas": personas})
+    grupos = {titulo: [] for titulo in _ORDEN_GRUPOS}
+    for p in personas:
+        grupos[_grupo_de(p)].append(p)
+    secciones = [(titulo, sorted(lista, key=lambda p: (p.first_name.lower(), p.last_name.lower())))
+                 for titulo, lista in grupos.items() if lista]
+    return render(request, "cuentas/personal_lista.html", {"secciones": secciones, "areas": Area.objects.all()})
 
 
 @permisos.solo_gerencia
