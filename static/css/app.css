@@ -264,3 +264,12 @@ input[type=radio], input[type=checkbox], input[type=range] { accent-color: var(-
 .alert { border-radius: .4rem; }
 .alert-success, .alert-info { --bs-alert-bg: var(--ssa-platino); --bs-alert-color: var(--ssa-negro); --bs-alert-border-color: var(--ssa-platino); }
 .alert-warning { --bs-alert-bg: #ececec; --bs-alert-color: var(--ssa-negro); --bs-alert-border-color: var(--ssa-gris); }
+.marca-area { display: inline-block; width: .6rem; height: .6rem; border-radius: 50%; margin-right: .5rem; vertical-align: .05em; background: var(--area); }
+.marca-area.area-gerencia { --area: var(--ssa-negro); }
+.marca-area.area-gestion_proyectos { --area: #333333; }
+.marca-area.area-desarrollo_proyectos { --area: #4d4d4d; }
+.marca-area.area-gestion_obras { --area: #666666; }
+.marca-area.area-direccion_tecnica { --area: #858585; }
+.marca-area.area-gestion_administrativa { --area: #a6a6a6; }
+.descripcion-area { font-size: .78rem; text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--ssa-gris); margin-top: .3rem; }
+.table-hover > tbody > tr.grupo-miembros:hover > * { --bs-table-bg-state: transparent; --bs-table-color-state: inherit; }

@@ -7,30 +7,47 @@
   <a href="{% url 'cuentas:persona_nueva' %}" class="btn btn-dark"><i class="bi bi-person-plus"></i> Designar persona</a>
   {% endif %}
 </div>
-<div class="row g-3">
-  {% for area in areas %}
-  <div class="col-md-6 col-xl-4">
-    <div class="tarjeta h-100">
-      <div class="tarjeta-cabecera">
-        <h2>{{ area.nombre }}</h2>
-        <span class="badge text-bg-light">{{ area.membresias.all|length }}</span>
-      </div>
-      <div class="tarjeta-cuerpo">
-        {% if area.descripcion %}<p class="small text-muted">{{ area.descripcion }}</p>{% endif %}
-        <ul class="list-unstyled mb-0">
-          {% for m in area.membresias.all %}
-          <li class="d-flex align-items-center gap-2 py-1">
-            <i class="bi bi-person-circle text-secondary"></i>
-            <span class="flex-grow-1">{{ m.usuario.nombre_completo }}{% if m.usuario.cargo %} <span class="text-muted small">· {{ m.usuario.cargo }}</span>{% endif %}</span>
-            {% if m.rol == "responsable" %}<span class="badge text-bg-warning">Responsable</span>{% endif %}
-          </li>
-          {% empty %}
-          <li class="text-muted small">Todavía no hay personas en esta área.</li>
-          {% endfor %}
-        </ul>
-      </div>
-    </div>
+<div class="leyenda-areas mb-3">
+  {% for a in areas %}<span class="badge area area-{{ a.codigo }}">{{ a.nombre }}</span>{% endfor %}
+  <span class="small text-muted ms-2">Relleno: responsable del área · Contorno: integrante</span>
+</div>
+<div class="tarjeta">
+  <div class="table-responsive">
+    <table class="table table-hover table-tarjeta tabla-miembros">
+      <thead><tr><th>Nombre</th><th>Email</th><th>Rol en el área</th><th></th></tr></thead>
+      {% for area in areas %}
+      <tbody>
+        <tr class="grupo-miembros">
+          <th colspan="4">
+            <span class="marca-area area-{{ area.codigo }}"></span>{{ area.nombre }} <span class="text-muted">{{ area.membresias.all|length }}</span>
+            {% if area.descripcion %}<div class="descripcion-area">{{ area.descripcion }}</div>{% endif %}
+          </th>
+        </tr>
+        {% for m in area.membresias.all %}
+        <tr>
+          <td>
+            <span class="miembro-nombre">{{ m.usuario.nombre_completo }}</span>
+            {% if m.usuario.cargo %}<div class="small text-muted">{{ m.usuario.cargo }}</div>{% endif %}
+          </td>
+          <td class="miembro-email">{{ m.usuario.email }}</td>
+          <td><span class="badge area area-{{ area.codigo }}{% if m.rol != 'responsable' %} integrante{% endif %}">{{ m.get_rol_display }}</span></td>
+          <td class="text-end">
+            {% if puede_gestionar %}
+            <div class="dropdown">
+              <button class="btn btn-sm btn-acciones" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Acciones de {{ m.usuario.nombre_completo }}"><i class="bi bi-three-dots"></i></button>
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{% url 'cuentas:persona_editar' m.usuario.pk %}">Editar datos y áreas</a></li>
+              </ul>
+            </div>
+            {% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="small text-muted">Todavía no hay personas en esta área.</td></tr>
+        {% endfor %}
+      </tbody>
+      {% endfor %}
+    </table>
   </div>
-  {% endfor %}
 </div>
 {% endblock %}
