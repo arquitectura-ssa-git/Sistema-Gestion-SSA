@@ -20,13 +20,20 @@ def _invitar_si_corresponde(request, form, usuario):
 
 # --- Personal --------------------------------------------------------------
 
+# Mismo orden que la escala de grises de las áreas (de Gerencia en negro a Administración en gris claro).
+ORDEN_AREAS = [Area.Codigo.GERENCIA, Area.Codigo.GESTION_PROYECTOS, Area.Codigo.DESARROLLO_PROYECTOS,
+               Area.Codigo.GESTION_OBRAS, Area.Codigo.DIRECCION_TECNICA, Area.Codigo.GESTION_ADMINISTRATIVA]
+
+
 @permisos.solo_personal
 def areas(request):
     """Organigrama: las 6 áreas con su gente. Lo ve todo el personal."""
     miembros = MiembroArea.objects.filter(usuario__is_active=True).select_related("usuario").order_by(
-        "-rol", "usuario__first_name"
+        "-rol", "usuario__first_name", "usuario__last_name"
     )
-    lista = Area.objects.prefetch_related(Prefetch("membresias", queryset=miembros))
+    orden = {codigo: i for i, codigo in enumerate(ORDEN_AREAS)}
+    lista = sorted(Area.objects.prefetch_related(Prefetch("membresias", queryset=miembros)),
+                   key=lambda a: orden.get(a.codigo, len(orden)))
     return render(request, "cuentas/areas.html", {
         "areas": lista,
         "puede_gestionar": permisos.puede_gestionar_personal(request.user),
