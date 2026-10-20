@@ -1,6 +1,7 @@
 from django import forms
 
 from apps.cuentas.models import Area, MiembroArea, Usuario
+from apps.plantillas.models import Plantilla
 
 from .models import AsignacionObra, Hito, Obra
 
@@ -29,6 +30,14 @@ class ObraForm(forms.ModelForm):
         self.fields["tipo"].widget = forms.RadioSelect(choices=Obra.Tipo.choices)
         self.fields["tipo"].help_text = ("Proyecto: trabajo de diseño, planos o trámites. "
                                          "Obra: construcción en ejecución.")
+        self.fields["cliente"].empty_label = "Sin cliente por ahora"
+        if not self.instance.pk:
+            # Solo al crear: se copian sus tareas y después se ajustan para este proyecto u obra.
+            self.fields["plantilla"] = forms.ModelChoiceField(
+                queryset=Plantilla.objects.all(), required=False, label="Plantilla de tareas",
+                empty_label="Sin plantilla (cargar las tareas después)",
+                help_text="Se copian sus etapas, rubros e ítems; después los ajustás para este proyecto.")
+            self.fields["plantilla"].label_from_instance = lambda p: f"{p.nombre} · {p.get_uso_display()}"
         if self.instance.pk and self.instance.tareas.exists():
             self.fields["avance"].disabled = True
             self.fields["avance"].help_text = "Se calcula solo con el avance de las tareas (pestaña Tareas)."
@@ -38,6 +47,9 @@ class ObraForm(forms.ModelForm):
 
     def clean(self):
         datos = super().clean()
+        plantilla, tipo = datos.get("plantilla"), datos.get("tipo")
+        if plantilla and tipo and not plantilla.sirve_para(tipo):
+            self.add_error("plantilla", f"«{plantilla}» es una plantilla para {plantilla.get_uso_display().lower()}.")
         inicio, fin = datos.get("fecha_inicio"), datos.get("fecha_fin_estimada")
         if inicio and fin and fin < inicio:
             self.add_error("fecha_fin_estimada", "El fin estimado no puede ser anterior al inicio.")

@@ -180,7 +180,7 @@ def puede_ver_documento(u, doc, incluir_papelera=False):
         return True
     if es_cliente(u):
         return (not doc.en_papelera and not doc.archivado and doc.acceso == Documento.Acceso.CLIENTE
-                and doc.obra_id is not None and doc.obra.cliente_id == u.cliente_id)
+                and doc.obra_id is not None and u.cliente_id is not None and doc.obra.cliente_id == u.cliente_id)
     if not es_personal(u):
         return False
     if doc.acceso == Documento.Acceso.RESTRINGIDO:

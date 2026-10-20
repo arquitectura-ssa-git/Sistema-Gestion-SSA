@@ -45,6 +45,15 @@
           <p class="small text-muted mb-0">La etapa y el avance son los que ve el cliente en su portal. Cada cambio queda registrado.</p>
         </div>
       </div>
+      {% if form.plantilla %}
+      <div class="tarjeta mt-3">
+        <div class="tarjeta-cabecera"><h2>Tareas</h2></div>
+        <div class="tarjeta-cuerpo">
+          {% include "includes/campo.html" with campo=form.plantilla %}
+          <p class="small text-muted mb-0">Al guardar se abre el editor de rubros e ítems para ajustarla a este caso. El avance se calcula con las tareas.</p>
+        </div>
+      </div>
+      {% endif %}
     </div>
   </div>
   <div class="mt-3 d-flex gap-2">
