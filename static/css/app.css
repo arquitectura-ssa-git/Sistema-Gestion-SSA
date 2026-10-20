@@ -234,3 +234,4 @@ strong, b, .fw-semibold, .fw-bold { font-weight: 500 !important; }
 .table a:hover { text-decoration: underline; }
 input[type=radio], input[type=checkbox], input[type=range] { accent-color: var(--ssa-plomo); }
 .app-lateral .btn-close { filter: invert(1) grayscale(1); }
+.te-etapa .btn-outline-dark, .te-etapa .btn-outline-secondary { --bs-btn-color: var(--ssa-blanco); --bs-btn-border-color: #6f6f6f; --bs-btn-hover-bg: var(--ssa-blanco); --bs-btn-hover-color: var(--ssa-negro); --bs-btn-hover-border-color: var(--ssa-blanco); --bs-btn-disabled-color: #6f6f6f; --bs-btn-disabled-border-color: #4a4a4a; }
