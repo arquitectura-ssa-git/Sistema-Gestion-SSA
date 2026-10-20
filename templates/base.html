@@ -24,6 +24,7 @@
         {% for item in grupo.items %}
           <a href="{{ item.url }}" class="{% if item.activo %}activo{% endif %}">
             <i class="bi bi-{{ item.icono }}"></i> <span>{{ item.texto }}</span>
+            <span class="menu-num">{{ forloop.counter|stringformat:"02d" }}.</span>
             {% if item.icono == "bell" and notif_no_leidas %}<span class="badge rounded-pill text-bg-danger ms-auto">{{ notif_no_leidas }}</span>{% endif %}
           </a>
         {% endfor %}
