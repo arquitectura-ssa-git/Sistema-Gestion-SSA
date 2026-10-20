@@ -48,6 +48,10 @@ y se pueden ajustar sin tocar la plantilla. A medida que se ejecutan se carga el
 total se calcula solo (suma de incidencia × avance). Pueden crear y editar plantillas Gerencia, Gestión de
 Proyectos y Gestión de Obras; las tareas de cada obra las editan sus responsables.
 
+## Publicarlo en internet
+
+Para tenerlo en un VPS con dirección propia y HTTPS, seguí [docs/INSTALAR-EN-VPS.md](docs/INSTALAR-EN-VPS.md).
+
 ## Dónde queda cada cosa
 
 | Qué | Dónde |
