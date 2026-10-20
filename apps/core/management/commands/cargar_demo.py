@@ -22,7 +22,7 @@ R = MiembroArea.Rol
 
 PERSONAL = [
     # email, nombre, apellido, cargo, área, rol
-    ("gerencia@demo.local", "Marta", "Gómez", "Socia gerente", A.GERENCIA, R.RESPONSABLE),
+    ("gerencia@demo.local", "Lucía", "Gómez", "Socia gerente", A.GERENCIA, R.RESPONSABLE),
     ("obras@demo.local", "Juan", "Ruiz", "Jefe de obra", A.GESTION_OBRAS, R.RESPONSABLE),
     ("administracion@demo.local", "Laura", "Sosa", "Administración", A.GESTION_ADMINISTRATIVA, R.RESPONSABLE),
     ("proyectos@demo.local", "Diego", "Paz", "Coordinador de proyectos", A.GESTION_PROYECTOS, R.RESPONSABLE),
