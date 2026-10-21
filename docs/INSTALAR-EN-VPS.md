@@ -1,6 +1,6 @@
-# Publicar MARTA en el VPS
+# Publicar SOPHIA en el VPS
 
-Resultado: el sistema queda en **https://marta.saezsanchez.com.ar**, prendido las 24 horas, con candado de
+Resultado: el sistema queda en **https://sophia.saezsanchez.com.ar**, prendido las 24 horas, con candado de
 seguridad (HTTPS) y una copia de seguridad automática todas las noches.
 
 Se hace una sola vez y lleva unos 20 minutos.
@@ -20,7 +20,7 @@ la web del estudio) y buscá **Zona DNS** o **Registros DNS**. Agregá uno nuevo
 
 | Tipo | Nombre | Valor | TTL |
 |---|---|---|---|
-| A | `marta` | `143.95.174.234` (la IP del VPS) | 3600 (o el que venga) |
+| A | `sophia` | `143.95.174.234` (la IP del VPS) | 3600 (o el que venga) |
 
 No toques los otros registros: la web y el correo del estudio siguen igual.
 El cambio puede tardar de 5 minutos a un par de horas en verse.
@@ -35,7 +35,7 @@ como `root` con la contraseña del VPS.
 Pegá este comando (todo en una línea; cambiá el email por uno de ustedes, es para los avisos del certificado):
 
 ```
-curl -fsSL https://raw.githubusercontent.com/arquitectura-ssa-git/Sistema-Gestion-SSA/main/deploy/instalar.sh | bash -s -- marta.saezsanchez.com.ar arquitectura@saezsanchez.com.ar
+curl -fsSL https://raw.githubusercontent.com/arquitectura-ssa-git/Sistema-Gestion-SSA/main/deploy/instalar.sh | bash -s -- sophia.saezsanchez.com.ar arquitectura@saezsanchez.com.ar
 ```
 
 Tarda unos 5 minutos. Al final tiene que decir **¡Listo! El sistema está funcionando.**
@@ -48,19 +48,19 @@ Esperá un rato y volvé a pegar el mismo comando: es seguro repetirlo, no borra
 En la misma terminal:
 
 ```
-marta-manage createsuperuser
+sophia-manage createsuperuser
 ```
 
 Te pide email y contraseña (al escribir la contraseña no se ve nada; es normal). Ese es el usuario de Gerencia.
 
-Listo: entrá a **https://marta.saezsanchez.com.ar**.
+Listo: entrá a **https://sophia.saezsanchez.com.ar**.
 
 ## Comandos útiles (en la terminal del VPS)
 
 | Para | Comando |
 |---|---|
-| Traer la última versión de GitHub | `marta-actualizar` (hace una copia de seguridad antes) |
-| Hacer una copia de seguridad ahora | `marta-respaldo` |
+| Traer la última versión de GitHub | `sophia-actualizar` (hace una copia de seguridad antes) |
+| Hacer una copia de seguridad ahora | `sophia-respaldo` |
 | Ver las copias guardadas | `ls /srv/gestion/respaldos` |
 | Ver si el sistema está andando | `systemctl status gestion` |
 | Ver errores | `journalctl -u gestion -n 50 --no-pager` |
@@ -77,3 +77,16 @@ Listo: entrá a **https://marta.saezsanchez.com.ar**.
 
 > Las copias quedan en el mismo VPS. Cada tanto bajá una a tu PC o a Google Drive: si el VPS se pierde, se
 > pierden con él.
+
+## Cambiar la dirección del sistema (ej. de marta a sophia)
+
+1. En la zona DNS del dominio (Wix), agregá un registro **A** con el nombre nuevo (`sophia`) y la IP del VPS.
+   No borres el viejo (`marta`): sigue andando y lleva a la dirección nueva.
+2. Esperá unos minutos y, en la terminal del VPS, pegá (todo en una línea):
+
+```
+curl -fsSL https://raw.githubusercontent.com/arquitectura-ssa-git/Sistema-Gestion-SSA/main/deploy/instalar.sh | DOMINIO_ANTERIOR=marta.saezsanchez.com.ar bash -s -- sophia.saezsanchez.com.ar arquitectura@saezsanchez.com.ar
+```
+
+No se pierde nada: datos, usuarios, archivos y contraseñas quedan igual. Los comandos `marta-actualizar`,
+`marta-respaldo` y `marta-manage` siguen andando; los nuevos son `sophia-actualizar`, `sophia-respaldo` y `sophia-manage`.

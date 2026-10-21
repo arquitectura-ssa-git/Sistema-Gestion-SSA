@@ -1,4 +1,4 @@
-# MARTA · Gestión de proyectos y obras
+# SOPHIA · Gestión de proyectos y obras
 
 Sistema para un estudio de arquitectura: obras, equipo por área, archivos (planos, planillas, fotos,
 permisos…), aprobaciones del cliente y registro de todo lo que pasa. Corre en esta PC.
