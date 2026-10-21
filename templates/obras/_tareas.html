@@ -51,6 +51,20 @@
         {% endif %}
       </div>
     </div>
+    {% if puede_crear_plantilla and arbol %}
+    <div class="tarjeta mt-3">
+      <div class="tarjeta-cabecera"><h2>Guardar como plantilla</h2></div>
+      <div class="tarjeta-cuerpo">
+        <form method="post" action="{% url 'obras:tareas_a_plantilla' obra.pk %}">
+          {% csrf_token %}
+          <label class="form-label" for="nombre-plantilla">Nombre de la plantilla</label>
+          <input type="text" class="form-control mb-2" id="nombre-plantilla" name="nombre" maxlength="150" required placeholder="Ej: Vivienda en country">
+          <button class="btn btn-outline-dark w-100"><i class="bi bi-save"></i> Guardar plantilla</button>
+        </form>
+        <p class="small text-muted mt-2 mb-0">Copia las etapas, rubros, ítems e incidencias de este {{ obra.etiqueta }} (sin el avance) para usarlas en otros.</p>
+      </div>
+    </div>
+    {% endif %}
   </div>
   {% endif %}
 </div>

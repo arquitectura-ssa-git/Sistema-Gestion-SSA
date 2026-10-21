@@ -8,7 +8,10 @@
     <h1>{{ obra.nombre }}</h1>
     <div class="small text-muted">{% if obra.cliente %}{{ obra.cliente }}{% else %}Sin cliente{% if puede_editar %} · <a href="{% url 'obras:editar' obra.pk %}">asignar</a>{% endif %}{% endif %}{% if obra.direccion %} · {{ obra.direccion }}{% endif %}{% if obra.localidad %}, {{ obra.localidad }}{% endif %}</div>
   </div>
-  {% if puede_editar %}<a href="{% url 'obras:editar' obra.pk %}" class="btn btn-outline-dark"><i class="bi bi-pencil"></i> Editar datos</a>{% endif %}
+  <div class="d-flex gap-2">
+    {% if perm.gerencia %}<a href="{% url 'obras:duplicar' obra.pk %}" class="btn btn-outline-dark" title="Crear uno nuevo con las mismas tareas"><i class="bi bi-copy"></i> Duplicar</a>{% endif %}
+    {% if puede_editar %}<a href="{% url 'obras:editar' obra.pk %}" class="btn btn-outline-dark"><i class="bi bi-pencil"></i> Editar datos</a>{% endif %}
+  </div>
 </div>
 
 <ul class="nav nav-tabs mb-3">

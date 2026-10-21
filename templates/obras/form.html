@@ -50,6 +50,7 @@
         <div class="tarjeta-cabecera"><h2>Tareas</h2></div>
         <div class="tarjeta-cuerpo">
           {% include "includes/campo.html" with campo=form.plantilla %}
+          {% if form.copiar_de %}{% include "includes/campo.html" with campo=form.copiar_de %}{% endif %}
           <p class="small text-muted mb-0">Al guardar se abre el editor de rubros e ítems para ajustarla a este caso. El avance se calcula con las tareas.</p>
         </div>
       </div>
