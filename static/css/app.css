@@ -282,3 +282,15 @@ input[type=radio], input[type=checkbox], input[type=range] { accent-color: var(-
 .tabla-semana .falta { color: #b02a37; }
 .tabla-carga td { vertical-align: top; }
 .tabla-carga .form-check-input { margin-top: .6rem; }
+@media (max-width: 767px) {
+  .tabla-carga thead { display: none; }
+  .tabla-carga, .tabla-carga tbody, .tabla-carga tr, .tabla-carga td { display: block; width: 100%; }
+  .tabla-carga tr { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; padding: .9rem 0; border-bottom: 1px solid var(--ssa-platino); }
+  .tabla-carga td { padding: 0 !important; border: 0; }
+  .tabla-carga td:nth-child(1), .tabla-carga td:nth-child(5) { grid-column: 1 / -1; }
+  .tabla-carga td:nth-child(4), .tabla-carga td:nth-child(6) { display: flex; align-items: center; gap: .4rem; font-size: .85rem; text-align: left !important; }
+  .tabla-carga td:nth-child(4)::before { content: "Extra"; order: 2; }
+  .tabla-carga td:nth-child(6):not(:empty)::before { content: "Quitar"; order: 2; }
+  .tabla-carga .form-check-input { margin-top: 0; }
+  .table-responsive:has(.tabla-carga) { overflow: visible; }
+}
