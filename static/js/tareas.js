@@ -68,9 +68,9 @@
       const idx = hermanos.indexOf(n);
       const plegable = n.tipo === "rubro" && !hoja;
       tr.innerHTML =
-        '<div class="te-num"><span class="nro">' + esc(numero) + "</span>" + (plegable ? '<button type="button" class="btn-plegar" data-a="plegar" aria-expanded="' +
+        '<div class="te-num">' + (plegable ? '<button type="button" class="btn-plegar" data-a="plegar" aria-expanded="' +
           (n._plegado ? "false" : "true") + '" title="Contraer / expandir ítems"><i class="bi bi-chevron-down"></i></button>' : "") +
-          "</div>" +
+          esc(numero) + "</div>" +
         '<div class="te-nombre"><input type="text" class="form-control form-control-sm" maxlength="300" placeholder="Nombre ' +
           (n.tipo === "etapa" ? "de la etapa" : n.tipo === "rubro" ? "del rubro" : "del ítem") + '" value="' + esc(n.nombre) + '"></div>' +
         '<div class="te-inc"><div class="input-group input-group-sm"><input type="number" class="form-control" min="0.1" max="100" step="0.1" value="' +

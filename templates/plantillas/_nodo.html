@@ -1,5 +1,5 @@
 {% load core_tags %}<div class="ta-fila ta-{{ nodo.tipo }}"{% if nodo.tipo == "item" %} data-padre="{{ nodo.padre_id }}"{% endif %}>
-  <div class="ta-num"><span class="nro">{{ nodo.numero }}</span>{% if nodo.tipo == "rubro" and nodo.hijos_lista %}<button type="button" class="btn-plegar" data-plegar="{{ nodo.id }}" aria-expanded="true" title="Contraer / expandir ítems"><i class="bi bi-chevron-down"></i></button>{% endif %}</div>
+  <div class="ta-num">{% if nodo.tipo == "rubro" and nodo.hijos_lista %}<button type="button" class="btn-plegar" data-plegar="{{ nodo.id }}" aria-expanded="true" title="Contraer / expandir ítems"><i class="bi bi-chevron-down"></i></button>{% endif %}{{ nodo.numero }}</div>
   <div class="ta-nombre">{{ nodo.nombre }}</div>
   <div class="ta-inc" title="Incidencia dentro de su grupo">{{ nodo.incidencia|pct }}%</div>
   <div class="ta-avance" title="Peso en el total">

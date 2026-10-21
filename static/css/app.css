@@ -115,8 +115,8 @@ h1, h2, h3, h4, h5 { font-weight: 400; letter-spacing: -.01em; }
 
 /* Tareas en árbol: etapas → rubros → ítems */
 .ta-fila, .te-fila { display: grid; align-items: center; gap: .5rem .75rem; padding: .5rem 1.25rem; border-bottom: 1px solid var(--ssa-platino); }
-.ta-fila { grid-template-columns: 3rem minmax(0, 1fr) 15rem; }
-.ta-lista .ta-fila:has(.ta-inc), .ta-cabecera { grid-template-columns: 3rem minmax(0, 1fr) 6rem 15rem; }
+.ta-fila { grid-template-columns: 3.5rem minmax(0, 1fr) 15rem; }
+.ta-lista .ta-fila:has(.ta-inc), .ta-cabecera { grid-template-columns: 3.5rem minmax(0, 1fr) 6rem 15rem; }
 .ta-cabecera, .te-cabecera { font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ssa-gris); font-weight: 500; background: transparent; }
 .ta-etapa, .te-etapa { background: var(--ssa-plomo); color: var(--ssa-blanco); font-weight: 500; text-transform: uppercase; letter-spacing: .08em; font-size: .85rem; }
 .ta-etapa .ta-peso, .ta-etapa .ta-av-num, .te-etapa .te-total, .te-etapa .te-av-calc { color: #bdbdbd; }
@@ -124,31 +124,30 @@ h1, h2, h3, h4, h5 { font-weight: 400; letter-spacing: -.01em; }
 .ta-etapa .progress-bar { background-color: var(--ssa-blanco) !important; }
 .ta-rubro, .te-rubro { background: #ececec; font-weight: 500; }
 .ta-item .ta-nombre, .te-item .te-nombre { padding-left: 1.25rem; }
-.btn-plegar { border: 0; background: none; padding: 0 0 0 .15rem; color: inherit; opacity: .7; line-height: 1; }
+.btn-plegar { position: absolute; left: 0; top: 50%; transform: translateY(-50%); border: 0; background: none; padding: 0; color: inherit; opacity: .7; line-height: 1; }
 .btn-plegar .bi { display: inline-block; transition: transform .15s; }
 .btn-plegar[aria-expanded="false"] .bi { transform: rotate(-90deg); }
 .ta-fila.plegada, .te-fila.plegada { display: none; }
-.ta-num, .te-num { display: flex; align-items: center; white-space: nowrap; color: var(--ssa-gris); font-size: .85rem; font-variant-numeric: tabular-nums; }
-/* El número siempre al borde izquierdo y con ancho fijo, así los números y las flechas quedan en columna. */
-.ta-num .nro, .te-num .nro { min-width: 1.4em; }
+/* La flecha de plegar ocupa un lugar fijo a la izquierda (esté o no), así todos los números quedan en columna. */
+.ta-num, .te-num { position: relative; padding-left: 1.15rem; white-space: nowrap; color: var(--ssa-gris); font-size: .85rem; font-variant-numeric: tabular-nums; }
 .ta-nombre { min-width: 0; }
 .ta-peso { margin-left: .5rem; font-size: .7rem; color: var(--ssa-gris); font-weight: 400; text-transform: none; letter-spacing: 0; }
 .ta-inc { font-size: .85rem; text-align: right; font-variant-numeric: tabular-nums; }
 .ta-avance, .te-avance { display: flex; align-items: center; gap: .5rem; }
 .ta-avance .form-range, .te-avance .form-range { flex: 1; }
 .ta-av-num, .te-av-num, .te-av-calc { min-width: 3rem; text-align: right; font-size: .85rem; font-variant-numeric: tabular-nums; }
-.te-fila { grid-template-columns: 3rem minmax(12rem, 1fr) 9rem 11.5rem; }
-.con-avance .te-fila { grid-template-columns: 3rem minmax(12rem, 1fr) 9rem 11rem 11.5rem; }
+.te-fila { grid-template-columns: 3.5rem minmax(12rem, 1fr) 9rem 11.5rem; }
+.con-avance .te-fila { grid-template-columns: 3.5rem minmax(12rem, 1fr) 9rem 11rem 11.5rem; }
 .te-total { font-size: .68rem; color: var(--ssa-gris); margin-top: .15rem; text-transform: none; letter-spacing: 0; font-weight: 400; }
 .te-etapa .te-nombre input { font-weight: 600; text-transform: uppercase; }
 .te-acciones { justify-self: end; white-space: nowrap; }
 .te-acciones .btn { white-space: nowrap; }
 .te-pie { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: .75rem; padding: .9rem 1rem; }
 @media (max-width: 767px) {
-  .ta-fila, .ta-lista .ta-fila:has(.ta-inc), .ta-cabecera { grid-template-columns: 2.5rem minmax(0, 1fr); }
+  .ta-fila, .ta-lista .ta-fila:has(.ta-inc), .ta-cabecera { grid-template-columns: 3.25rem minmax(0, 1fr); }
   .ta-avance, .ta-inc { grid-column: 2; }
   .ta-inc { text-align: left; }
-  .te-fila, .con-avance .te-fila { grid-template-columns: 2.5rem minmax(0, 1fr); }
+  .te-fila, .con-avance .te-fila { grid-template-columns: 3.25rem minmax(0, 1fr); }
   .te-inc, .te-avance, .te-acciones { grid-column: 2; justify-self: start; }
   .te-cabecera .te-inc, .te-cabecera .te-avance { display: none; }
 }
