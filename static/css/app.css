@@ -124,11 +124,13 @@ h1, h2, h3, h4, h5 { font-weight: 400; letter-spacing: -.01em; }
 .ta-etapa .progress-bar { background-color: var(--ssa-blanco) !important; }
 .ta-rubro, .te-rubro { background: #ececec; font-weight: 500; }
 .ta-item .ta-nombre, .te-item .te-nombre { padding-left: 1.25rem; }
-.btn-plegar { border: 0; background: none; padding: 0 .3rem 0 0; color: inherit; opacity: .7; line-height: 1; }
+.btn-plegar { border: 0; background: none; padding: 0 0 0 .15rem; color: inherit; opacity: .7; line-height: 1; }
 .btn-plegar .bi { display: inline-block; transition: transform .15s; }
 .btn-plegar[aria-expanded="false"] .bi { transform: rotate(-90deg); }
 .ta-fila.plegada, .te-fila.plegada { display: none; }
-.ta-num, .te-num { color: var(--ssa-gris); font-size: .85rem; font-variant-numeric: tabular-nums; }
+.ta-num, .te-num { display: flex; align-items: center; white-space: nowrap; color: var(--ssa-gris); font-size: .85rem; font-variant-numeric: tabular-nums; }
+/* El número siempre al borde izquierdo y con ancho fijo, así los números y las flechas quedan en columna. */
+.ta-num .nro, .te-num .nro { min-width: 1.4em; }
 .ta-nombre { min-width: 0; }
 .ta-peso { margin-left: .5rem; font-size: .7rem; color: var(--ssa-gris); font-weight: 400; text-transform: none; letter-spacing: 0; }
 .ta-inc { font-size: .85rem; text-align: right; font-variant-numeric: tabular-nums; }
