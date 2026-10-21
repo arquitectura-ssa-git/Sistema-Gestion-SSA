@@ -80,7 +80,7 @@
       <div class="tarjeta-cabecera"><h2>Time Report de hoy</h2><a href="{% url 'horas:mio' %}" class="small">Cargar horas</a></div>
       <div class="tarjeta-cuerpo">
         <div class="dato-numero">{{ horas_hoy|floatformat:"-1" }} h</div>
-        <div class="small text-muted mt-1">{% if jornada_hoy %}de {{ jornada_hoy|floatformat:"-1" }} h de jornada · se puede cargar hasta las 23:59{% else %}hoy no es día laboral: lo que cargues va como extra{% endif %}</div>
+        <div class="small text-muted mt-1">{% if feriado_hoy %}Feriado: {{ feriado_hoy.nombre }}. Tu jornada se computa sola; lo que cargues va como extra.{% elif jornada_hoy %}de {{ jornada_hoy|floatformat:"-1" }} h de jornada · se puede cargar hasta las 23:59{% else %}hoy no es día laboral: lo que cargues va como extra{% endif %}</div>
       </div>
     </div>
     {% endif %}

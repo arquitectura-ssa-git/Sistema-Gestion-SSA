@@ -36,6 +36,7 @@ def tablero(request):
         contexto["horas_hoy"] = RegistroHoras.objects.filter(usuario=u, fecha=reglas.hoy()).aggregate(
             t=Sum("horas"))["t"] or 0
         contexto["jornada_hoy"] = reglas.horas_contratadas(u, reglas.hoy())
+        contexto["feriado_hoy"] = reglas.feriado(reglas.hoy())
         if permisos.puede_habilitar_horas(u):
             contexto["pedidos_horas"] = Habilitacion.objects.filter(
                 estado=Habilitacion.Estado.PENDIENTE).select_related("usuario").order_by("pedida")[:6]

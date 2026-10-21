@@ -37,6 +37,7 @@ def _url_dia(fecha):
 def resumen_semana(usuario, lunes):
     """Filas (proyecto · tipo · normal/extra) × días de la semana, con totales por día."""
     dias = [lunes + timedelta(days=i) for i in range(7)]
+    feriados = reglas.feriados_en(dias[0], dias[-1])
     registros = RegistroHoras.objects.filter(usuario=usuario, fecha__range=(dias[0], dias[-1])).select_related("obra")
     filas = {}
     totales = {d: {"normal": CERO, "extra": CERO} for d in dias}
@@ -51,10 +52,13 @@ def resumen_semana(usuario, lunes):
     for f in filas:
         f["celdas"] = [f["horas"][d] for d in dias]
     cols = [{"fecha": d, "nombre": DIAS[i], "normal": totales[d]["normal"], "extra": totales[d]["extra"],
-             "total": totales[d]["normal"] + totales[d]["extra"], "contratadas": reglas.horas_contratadas(usuario, d)}
+             "total": totales[d]["normal"] + totales[d]["extra"],
+             "contratadas": reglas.horas_contratadas(usuario, d, feriados),
+             "feriado": feriados.get(d), "pagadas": reglas.jornada_feriado(usuario, d, feriados)}
             for i, d in enumerate(dias)]
     return {"filas": filas, "dias": cols,
-            "total_normal": sum((c["normal"] for c in cols), CERO), "total_extra": sum((c["extra"] for c in cols), CERO)}
+            "total_normal": sum((c["normal"] for c in cols), CERO), "total_extra": sum((c["extra"] for c in cols), CERO),
+            "total_feriado": sum((c["pagadas"] for c in cols), CERO)}
 
 
 @permisos.solo_personal
@@ -88,6 +92,7 @@ def mio(request):
         "semana": resumen_semana(u, lunes), "lunes": lunes,
         "semana_anterior": lunes - timedelta(days=7), "semana_siguiente": lunes + timedelta(days=7),
         "contratadas": reglas.horas_contratadas(u, dia),
+        "feriado": reglas.feriado(dia),
         "vigente": reglas.habilitacion_vigente(u, dia) if dia < hoy else None,
         "pedido": pedido, "form_pedido": PedidoForm(),
         "puede_habilitar": permisos.puede_habilitar_horas(u),
@@ -190,13 +195,23 @@ def _agrupado(registros, agrupar):
     return resultado
 
 
+def _feriados_por_persona(desde, hasta):
+    """Horas pagas por feriados (lunes a viernes) en el período, por persona activa."""
+    dias = [f for f in reglas.feriados_en(desde, hasta) if f.weekday() < 5]
+    if not dias:
+        return {}
+    return {f"{u.first_name} {u.last_name}".strip(): Decimal(u.horas_diarias or 0) * len(dias)
+            for u in Usuario.objects.filter(tipo=Usuario.Tipo.PERSONAL, is_active=True) if u.horas_diarias}
+
+
 def _faltantes(desde, hasta):
     """Por persona: días hábiles (hasta ayer) en que cargó menos que su jornada."""
     hasta = min(hasta, reglas.hoy() - timedelta(days=1))
     if hasta < desde:
         return []
     habiles = [desde + timedelta(days=i) for i in range((hasta - desde).days + 1)]
-    habiles = [d for d in habiles if d.weekday() < 5]
+    feriados = reglas.feriados_en(desde, hasta)
+    habiles = [d for d in habiles if d.weekday() < 5 and d not in feriados]
     cargado = {(r["usuario_id"], r["fecha"]): r["total"] for r in RegistroHoras.objects.filter(
         fecha__range=(desde, hasta), extra=False).values("usuario_id", "fecha").annotate(total=Sum("horas"))}
     resultado = []
@@ -224,12 +239,27 @@ def reportes(request):
             form = FiltroReporteForm(initial={"desde": desde, "hasta": hasta, "agrupar": agrupar})
     registros = RegistroHoras.objects.filter(fecha__range=(desde, hasta))
     filas = _agrupado(registros, agrupar)
-    totales = {k: sum((f[k] for f in filas), CERO) for k in ("normal", "extra", "total")}
+    por_persona = _feriados_por_persona(desde, hasta)
+    if agrupar == "persona":
+        # La jornada paga de los feriados se suma a cada persona (no se asigna a ningún proyecto).
+        indice = {f["nombre"]: f for f in filas}
+        for nombre, horas in por_persona.items():
+            fila = indice.get(nombre) or {"nombre": nombre, "normal": CERO, "extra": CERO, "total": CERO}
+            if nombre not in indice:
+                filas.append(fila)
+            fila["feriado"] = horas
+            fila["total"] += horas
+        filas.sort(key=lambda f: -f["total"])
+    for f in filas:
+        f.setdefault("feriado", CERO)
+    totales = {k: sum((f[k] for f in filas), CERO) for k in ("normal", "feriado", "extra", "total")}
+    feriados_periodo = [f for f in reglas.feriados_en(desde, hasta).values() if f.fecha.weekday() < 5]
     if request.GET.get("formato") == "xlsx":
         return _excel(registros, filas, totales, desde, hasta, dict(FiltroReporteForm.AGRUPAR)[agrupar])
     return render(request, "horas/reportes.html", {
         "form": form, "filas": filas, "totales": totales, "desde": desde, "hasta": hasta, "agrupar": agrupar,
-        "faltantes": _faltantes(desde, hasta),
+        "faltantes": _faltantes(desde, hasta), "feriados_periodo": feriados_periodo,
+        "horas_feriado_total": sum(por_persona.values(), CERO),
     })
 
 
@@ -243,10 +273,11 @@ def _excel(registros, filas, totales, desde, hasta, titulo):
     hoja.append([f"Time Report · {titulo} · {desde:%d/%m/%Y} al {hasta:%d/%m/%Y}"])
     hoja["A1"].font = Font(bold=True)
     hoja.append([])
-    hoja.append(["", "Normales", "Extras", "Total"])
+    hoja.append(["", "Normales", "Feriados", "Extras", "Total"])
     for f in filas:
-        hoja.append([f["nombre"], float(f["normal"]), float(f["extra"]), float(f["total"])])
-    hoja.append(["Total", float(totales["normal"]), float(totales["extra"]), float(totales["total"])])
+        hoja.append([f["nombre"], float(f["normal"]), float(f["feriado"]), float(f["extra"]), float(f["total"])])
+    hoja.append(["Total", float(totales["normal"]), float(totales["feriado"]), float(totales["extra"]),
+                 float(totales["total"])])
     hoja.column_dimensions["A"].width = 45
 
     detalle = libro.create_sheet("Detalle")
@@ -277,3 +308,43 @@ def horas_de_obra(obra):
         "horas_total": registros.aggregate(t=Sum("horas"))["t"] or CERO,
         "horas_extra": registros.filter(extra=True).aggregate(t=Sum("horas"))["t"] or CERO,
     }
+
+
+# --- Calendario de feriados (Gerencia) -----------------------------------------
+
+@permisos.solo_gerencia
+def feriados(request):
+    from .forms import FeriadoForm
+    from .models import Feriado
+
+    anio = int(request.GET.get("anio") or reglas.hoy().year)
+    form = FeriadoForm(request.POST or None)
+    if request.method == "POST":
+        if form.is_valid():
+            f = form.save()
+            registrar("horas.feriado_alta", f"Nuevo feriado: {f}")
+            messages.success(request, f"Feriado agregado: {f}.")
+            return redirect(f"{reverse('horas:feriados')}?anio={f.fecha.year}")
+        messages.error(request, "Revisá los datos del feriado.")
+    return render(request, "horas/feriados.html", {
+        "anio": anio, "form": form,
+        "feriados": Feriado.objects.filter(fecha__year=anio),
+        "anios": sorted({d.year for d in Feriado.objects.dates("fecha", "year")} | {reglas.hoy().year, reglas.hoy().year + 1}),
+    })
+
+
+@permisos.solo_gerencia
+@require_POST
+def feriado_cambiar(request, pk):
+    from .models import Feriado
+
+    f = get_object_or_404(Feriado, pk=pk)
+    if request.POST.get("accion") == "borrar":
+        registrar("horas.feriado_baja", f"Se quitó el feriado: {f}")
+        f.delete()
+        messages.success(request, f"Se quitó «{f.nombre}».")
+    else:
+        f.aplica = not f.aplica
+        f.save(update_fields=["aplica"])
+        registrar("horas.feriado_cambio", f"Feriado {'activado' if f.aplica else 'desactivado'}: {f}")
+    return redirect(f"{reverse('horas:feriados')}?anio={f.fecha.year}")

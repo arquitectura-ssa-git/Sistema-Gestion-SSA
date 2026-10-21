@@ -62,3 +62,26 @@ class Habilitacion(models.Model):
 
     def __str__(self):
         return f"{self.usuario} · {self.fecha:%d/%m/%Y} · {self.get_estado_display()}"
+
+
+class Feriado(models.Model):
+    """Día del calendario anual en que no se trabaja. Si `aplica`, la jornada de cada persona se computa
+    sola (hora paga) y lo que se cargue ese día va como extra."""
+
+    class Tipo(models.TextChoices):
+        NACIONAL = "nacional", "Feriado nacional"
+        NO_LABORABLE = "no_laborable", "Día no laborable"
+        LOCAL = "local", "Feriado local"
+
+    fecha = models.DateField(unique=True)
+    nombre = models.CharField(max_length=150)
+    tipo = models.CharField(max_length=15, choices=Tipo.choices, default=Tipo.NACIONAL)
+    aplica = models.BooleanField("aplica al estudio", default=True,
+                                 help_text="Desactivalo para feriados de otras provincias o días no laborables en que se trabaja.")
+
+    class Meta:
+        verbose_name = "feriado"
+        ordering = ["fecha"]
+
+    def __str__(self):
+        return f"{self.fecha:%d/%m/%Y} · {self.nombre}"

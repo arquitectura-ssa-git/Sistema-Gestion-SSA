@@ -5,7 +5,7 @@ from decimal import Decimal
 
 from django.utils import timezone
 
-from .models import Habilitacion
+from .models import Feriado, Habilitacion
 
 MEDIA = Decimal("0.5")
 
@@ -18,9 +18,30 @@ def lunes_de(fecha):
     return fecha - timedelta(days=fecha.weekday())
 
 
-def horas_contratadas(usuario, fecha):
-    """Lunes a viernes: las horas del contrato. Sábado y domingo: 0 (todo es extra)."""
-    return Decimal(usuario.horas_diarias or 0) if fecha.weekday() < 5 else Decimal(0)
+def feriado(fecha):
+    """El feriado que aplica al estudio ese día, o None."""
+    return Feriado.objects.filter(fecha=fecha, aplica=True).first()
+
+
+def feriados_en(desde, hasta):
+    return {f.fecha: f for f in Feriado.objects.filter(fecha__range=(desde, hasta), aplica=True)}
+
+
+def horas_contratadas(usuario, fecha, feriados=None):
+    """Horas normales que se pueden cargar ese día: la jornada de lunes a viernes; 0 los fines de semana
+    y feriados (ahí todo lo que se cargue es extra)."""
+    es_feriado = (fecha in feriados) if feriados is not None else feriado(fecha) is not None
+    if fecha.weekday() >= 5 or es_feriado:
+        return Decimal(0)
+    return Decimal(usuario.horas_diarias or 0)
+
+
+def jornada_feriado(usuario, fecha, feriados=None):
+    """Horas pagas que se computan solas en un feriado que cae de lunes a viernes."""
+    es_feriado = (fecha in feriados) if feriados is not None else feriado(fecha) is not None
+    if es_feriado and fecha.weekday() < 5:
+        return Decimal(usuario.horas_diarias or 0)
+    return Decimal(0)
 
 
 def habilitacion_vigente(usuario, fecha):

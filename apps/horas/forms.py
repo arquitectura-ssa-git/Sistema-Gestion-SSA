@@ -6,7 +6,7 @@ from django.forms import BaseModelFormSet, modelformset_factory
 from apps.obras.models import Obra
 
 from . import reglas
-from .models import Habilitacion, RegistroHoras
+from .models import Feriado, Habilitacion, RegistroHoras
 
 
 class RegistroForm(forms.ModelForm):
@@ -60,6 +60,10 @@ class BaseDiaFormSet(BaseModelFormSet):
                 raise forms.ValidationError(
                     f"Cargaste {normales:g} h normales y tu jornada es de {contratadas:g} h. "
                     f"Marcá las {normales - contratadas:g} h que sobran como hora extra.")
+            dia_feriado = reglas.feriado(self.fecha)
+            if dia_feriado:
+                raise forms.ValidationError(
+                    f"Hoy es feriado ({dia_feriado.nombre}): tu jornada se computa sola y lo que cargues va como extra.")
             raise forms.ValidationError("Los sábados y domingos todas las horas se cargan como extra.")
         if normales + extras > 24:
             raise forms.ValidationError("Un día no puede tener más de 24 horas.")
@@ -98,3 +102,10 @@ class FiltroReporteForm(forms.Form):
         if datos.get("desde") and datos.get("hasta") and datos["hasta"] < datos["desde"]:
             self.add_error("hasta", "La fecha final no puede ser anterior a la inicial.")
         return datos
+
+
+class FeriadoForm(forms.ModelForm):
+    class Meta:
+        model = Feriado
+        fields = ["fecha", "nombre", "tipo", "aplica"]
+        widgets = {"fecha": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d")}

@@ -10,6 +10,7 @@
     <a href="?dia={{ semana_anterior|date:'Y-m-d' }}" class="btn btn-outline-secondary" title="Semana anterior"><i class="bi bi-chevron-left"></i></a>
     <a href="?" class="btn btn-outline-secondary">Hoy</a>
     {% if semana_siguiente <= hoy %}<a href="?dia={{ semana_siguiente|date:'Y-m-d' }}" class="btn btn-outline-secondary" title="Semana siguiente"><i class="bi bi-chevron-right"></i></a>{% endif %}
+    {% if perm.gerencia %}<a href="{% url 'horas:feriados' %}" class="btn btn-outline-dark">Feriados</a>{% endif %}
     {% if puede_habilitar %}
       <a href="{% url 'horas:habilitaciones' %}" class="btn btn-outline-dark">Pedidos{% if pendientes %} <span class="badge text-bg-secondary">{{ pendientes }}</span>{% endif %}</a>
       <a href="{% url 'horas:reportes' %}" class="btn btn-dark">Reportes</a>
@@ -24,8 +25,8 @@
         <tr>
           <th>Proyecto · tarea</th>
           {% for d in semana.dias %}
-          <th class="text-end{% if d.fecha == dia %} dia-activo{% endif %}">
-            {% if d.fecha <= hoy %}<a href="?dia={{ d.fecha|date:'Y-m-d' }}">{{ d.nombre }} {{ d.fecha|date:"d" }}</a>{% else %}<span class="text-muted">{{ d.nombre }} {{ d.fecha|date:"d" }}</span>{% endif %}
+          <th class="text-end{% if d.fecha == dia %} dia-activo{% endif %}{% if d.feriado %} dia-feriado{% endif %}"{% if d.feriado %} title="Feriado: {{ d.feriado.nombre }}"{% endif %}>
+            {% if d.fecha <= hoy %}<a href="?dia={{ d.fecha|date:'Y-m-d' }}">{{ d.nombre }} {{ d.fecha|date:"d" }}</a>{% else %}<span class="text-muted">{{ d.nombre }} {{ d.fecha|date:"d" }}</span>{% endif %}{% if d.feriado %}<div class="etiqueta-feriado">Feriado</div>{% endif %}
           </th>
           {% endfor %}
           <th class="text-end">Semana</th>
@@ -44,6 +45,9 @@
       </tbody>
       <tfoot>
         <tr class="fila-total"><th>Normales</th>{% for d in semana.dias %}<td class="text-end{% if d.contratadas and d.normal < d.contratadas and d.fecha < hoy %} falta{% endif %}">{{ d.normal|pct:1 }}{% if d.contratadas %}<span class="text-muted">/{{ d.contratadas|pct:1 }}</span>{% endif %}</td>{% endfor %}<td class="text-end">{{ semana.total_normal|pct:1 }}</td></tr>
+        {% if semana.total_feriado %}
+        <tr class="fila-total"><th>Feriado (jornada paga)</th>{% for d in semana.dias %}<td class="text-end">{% if d.pagadas %}{{ d.pagadas|pct:1 }}{% else %}<span class="text-muted">—</span>{% endif %}</td>{% endfor %}<td class="text-end">{{ semana.total_feriado|pct:1 }}</td></tr>
+        {% endif %}
         <tr class="fila-total"><th>Extras</th>{% for d in semana.dias %}<td class="text-end">{% if d.extra %}{{ d.extra|pct:1 }}{% else %}<span class="text-muted">—</span>{% endif %}</td>{% endfor %}<td class="text-end">{{ semana.total_extra|pct:1 }}</td></tr>
       </tfoot>
     </table>
@@ -55,7 +59,7 @@
     <h2>{% if dia == hoy %}Hoy, {% endif %}{{ dia|date:"l d/m/Y"|capfirst }}</h2>
     <span class="small text-muted">
       {% if dia == hoy %}Se puede cargar hasta las 23:59{% elif vigente %}Habilitado hasta hoy a las 23:59{% elif editable is False %}Solo lectura{% endif %}
-      {% if contratadas %} · jornada {{ contratadas|pct:1 }} h{% else %} · día no laboral: todo va como extra{% endif %}
+      {% if feriado %} · Feriado: {{ feriado.nombre }}. Tu jornada se computa sola; lo que cargues va como extra{% elif contratadas %} · jornada {{ contratadas|pct:1 }} h{% else %} · día no laboral: todo va como extra{% endif %}
     </span>
   </div>
   {% if editable %}

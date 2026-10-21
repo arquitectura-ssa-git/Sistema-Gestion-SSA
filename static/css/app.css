@@ -294,3 +294,5 @@ input[type=radio], input[type=checkbox], input[type=range] { accent-color: var(-
   .tabla-carga .form-check-input { margin-top: 0; }
   .table-responsive:has(.tabla-carga) { overflow: visible; }
 }
+.tabla-semana .dia-feriado a, .tabla-semana .dia-feriado span { color: var(--ssa-gris); }
+.etiqueta-feriado { font-size: .6rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ssa-gris); font-weight: 400; }

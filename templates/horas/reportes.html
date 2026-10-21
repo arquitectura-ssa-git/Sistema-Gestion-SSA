@@ -19,20 +19,21 @@
 <div class="row g-4">
   <div class="col-xl-8">
     <div class="tarjeta">
-      <div class="tarjeta-cabecera"><h2>Horas</h2><span class="small text-muted">{{ totales.total|pct:1 }} h en total · {{ totales.extra|pct:1 }} h extra</span></div>
+      <div class="tarjeta-cabecera"><h2>Horas</h2><span class="small text-muted">{{ totales.total|pct:1 }} h en total · {{ totales.extra|pct:1 }} h extra{% if horas_feriado_total and agrupar != "persona" %} · además {{ horas_feriado_total|pct:1 }} h de feriados pagos (ver «Por persona»){% endif %}</span></div>
       <table class="table table-tarjeta">
-        <thead><tr><th></th><th class="text-end">Normales</th><th class="text-end">Extras</th><th class="text-end">Total</th><th style="width: 30%"></th></tr></thead>
+        <thead><tr><th></th><th class="text-end">Normales</th>{% if agrupar == "persona" %}<th class="text-end">Feriados</th>{% endif %}<th class="text-end">Extras</th><th class="text-end">Total</th><th style="width: 30%"></th></tr></thead>
         <tbody>
         {% for f in filas %}
           <tr>
             <td>{{ f.nombre }}</td>
             <td class="text-end">{{ f.normal|pct:1 }}</td>
+            {% if agrupar == "persona" %}<td class="text-end">{{ f.feriado|pct:1 }}</td>{% endif %}
             <td class="text-end">{{ f.extra|pct:1 }}</td>
             <td class="text-end">{{ f.total|pct:1 }}</td>
             <td>{% if totales.total %}<div class="progress" style="height: 6px"><div class="progress-bar" style="width: {% widthratio f.total totales.total 100 %}%"></div></div>{% endif %}</td>
           </tr>
         {% empty %}
-          <tr><td colspan="5"><div class="lista-vacia">No hay horas cargadas en ese período.</div></td></tr>
+          <tr><td colspan="6"><div class="lista-vacia">No hay horas cargadas en ese período.</div></td></tr>
         {% endfor %}
         </tbody>
       </table>
@@ -42,7 +43,7 @@
     <div class="tarjeta">
       <div class="tarjeta-cabecera"><h2>Días sin completar</h2></div>
       <div class="tarjeta-cuerpo pt-2">
-        <p class="small text-muted">Días hábiles (hasta ayer) con menos horas normales que la jornada.</p>
+        <p class="small text-muted">Días hábiles (hasta ayer, sin contar feriados) con menos horas normales que la jornada.</p>
         {% for f in faltantes %}
           <div class="mb-2"><strong>{{ f.persona.nombre_completo }}</strong> <span class="text-muted small">· {{ f.dias|length }} día{{ f.dias|length|pluralize }}</span>
             <div class="small text-muted">{% for d in f.dias|slice:":8" %}{{ d|date:"d/m" }}{% if not forloop.last %}, {% endif %}{% endfor %}{% if f.dias|length > 8 %}…{% endif %}</div>

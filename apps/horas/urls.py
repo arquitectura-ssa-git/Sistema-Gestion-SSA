@@ -11,4 +11,6 @@ urlpatterns = [
     path("habilitaciones/", views.habilitaciones, name="habilitaciones"),
     path("habilitaciones/<int:pk>/", views.resolver, name="resolver"),
     path("reportes/", views.reportes, name="reportes"),
+    path("feriados/", views.feriados, name="feriados"),
+    path("feriados/<int:pk>/", views.feriado_cambiar, name="feriado_cambiar"),
 ]
