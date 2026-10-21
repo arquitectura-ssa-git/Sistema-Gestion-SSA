@@ -25,19 +25,15 @@ ORDEN_AREAS = [Area.Codigo.GERENCIA, Area.Codigo.GESTION_PROYECTOS, Area.Codigo.
                Area.Codigo.GESTION_OBRAS, Area.Codigo.DIRECCION_TECNICA, Area.Codigo.GESTION_ADMINISTRATIVA]
 
 
+def _areas_ordenadas():
+    orden = {codigo: i for i, codigo in enumerate(ORDEN_AREAS)}
+    return sorted(Area.objects.all(), key=lambda a: orden.get(a.codigo, len(orden)))
+
+
 @permisos.solo_personal
 def areas(request):
-    """Organigrama: las 6 áreas con su gente. Lo ve todo el personal."""
-    miembros = MiembroArea.objects.filter(usuario__is_active=True).select_related("usuario").order_by(
-        "-rol", "usuario__first_name", "usuario__last_name"
-    )
-    orden = {codigo: i for i, codigo in enumerate(ORDEN_AREAS)}
-    lista = sorted(Area.objects.prefetch_related(Prefetch("membresias", queryset=miembros)),
-                   key=lambda a: orden.get(a.codigo, len(orden)))
-    return render(request, "cuentas/areas.html", {
-        "areas": lista,
-        "puede_gestionar": permisos.puede_gestionar_personal(request.user),
-    })
+    """La vieja página de áreas quedó unificada en Equipo."""
+    return redirect("cuentas:personal")
 
 
 # Orden de la lista de miembros: (título del grupo, regla). Gana la primera regla que se cumple.
@@ -61,17 +57,21 @@ def _grupo_de(persona):
     return next(titulo for titulo, regla in _GRUPOS_PERSONAL if regla(areas, resp))
 
 
-@permisos.solo_gerencia
+@permisos.solo_personal
 def personal_lista(request):
+    """Equipo: todo el personal agrupado. Lo ve todo el estudio; solo Gerencia agrega y edita."""
+    puede_gestionar = permisos.puede_gestionar_personal(request.user)
     personas = Usuario.objects.filter(tipo=Usuario.Tipo.PERSONAL).prefetch_related("membresias__area")
-    if request.GET.get("inactivos") != "1":
+    if not (puede_gestionar and request.GET.get("inactivos") == "1"):
         personas = personas.filter(is_active=True)
     grupos = {titulo: [] for titulo in _ORDEN_GRUPOS}
     for p in personas:
         grupos[_grupo_de(p)].append(p)
     secciones = [(titulo, sorted(lista, key=lambda p: (p.first_name.lower(), p.last_name.lower())))
                  for titulo, lista in grupos.items() if lista]
-    return render(request, "cuentas/personal_lista.html", {"secciones": secciones, "areas": Area.objects.all()})
+    return render(request, "cuentas/personal_lista.html", {
+        "secciones": secciones, "areas": _areas_ordenadas(), "puede_gestionar": puede_gestionar,
+    })
 
 
 @permisos.solo_gerencia

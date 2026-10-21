@@ -56,7 +56,7 @@ Para tenerlo en un VPS con dirección propia y HTTPS, seguí [docs/INSTALAR-EN-V
 
 Cada persona carga sus horas del día en **Time Report**: proyecto u obra (o "Estudio / sin proyecto"), tipo de
 tarea (Producción, Gestión, Administración, Compras, Capacitación), horas de a 0,5 y si son extra. Las horas
-normales no pueden pasar la jornada de la persona ese día (en Miembros se tildan los días que viene y cuántas horas; sábados y domingos todo es extra).
+normales no pueden pasar la jornada de la persona ese día (en Equipo, al editar a cada persona, se tildan los días que viene y cuántas horas; sábados y domingos todo es extra).
 Solo se puede cargar el día de hoy hasta las 23:59; para un día pasado se pide habilitación y la aprueban
 Gerencia o el coordinador de proyectos (responsable de Gestión de Proyectos). Ellos ven además los reportes por
 proyecto, persona o tipo de tarea, exportables a Excel, y la pestaña **Horas** de cada proyecto.
