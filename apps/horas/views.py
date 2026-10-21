@@ -200,8 +200,12 @@ def _feriados_por_persona(desde, hasta):
     dias = [f for f in reglas.feriados_en(desde, hasta) if f.weekday() < 5]
     if not dias:
         return {}
-    return {f"{u.first_name} {u.last_name}".strip(): Decimal(u.horas_diarias or 0) * len(dias)
-            for u in Usuario.objects.filter(tipo=Usuario.Tipo.PERSONAL, is_active=True) if u.horas_diarias}
+    resultado = {}
+    for u in Usuario.objects.filter(tipo=Usuario.Tipo.PERSONAL, is_active=True):
+        horas = sum((u.horas_del_dia(d) for d in dias), CERO)
+        if horas:
+            resultado[f"{u.first_name} {u.last_name}".strip()] = horas
+    return resultado
 
 
 def _faltantes(desde, hasta):
@@ -216,10 +220,7 @@ def _faltantes(desde, hasta):
         fecha__range=(desde, hasta), extra=False).values("usuario_id", "fecha").annotate(total=Sum("horas"))}
     resultado = []
     for u in Usuario.objects.filter(tipo=Usuario.Tipo.PERSONAL, is_active=True).order_by("first_name", "last_name"):
-        jornada = Decimal(u.horas_diarias or 0)
-        if not jornada:
-            continue
-        dias = [d for d in habiles if cargado.get((u.pk, d), CERO) < jornada]
+        dias = [d for d in habiles if cargado.get((u.pk, d), CERO) < u.horas_del_dia(d)]
         if dias:
             resultado.append({"persona": u, "dias": dias})
     return resultado

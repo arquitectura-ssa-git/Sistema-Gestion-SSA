@@ -1,8 +1,9 @@
 {% extends "base.html" %}
-{% block titulo %}{% if persona %}Editar {{ persona.nombre_completo }}{% else %}Nueva persona{% endif %}{% endblock %}
-{% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'cuentas:personal' %}">Miembros</a></li><li class="breadcrumb-item active">{% if persona %}{{ persona.nombre_completo }}{% else %}Nueva{% endif %}</li></ol></nav>{% endblock %}
+{% load core_tags %}
+{% block titulo %}{% if persona %}Editar {{ persona.nombre_completo }}{% else %}Nuevo usuario{% endif %}{% endblock %}
+{% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'cuentas:personal' %}">Miembros</a></li><li class="breadcrumb-item active">{% if persona %}{{ persona.nombre_completo }}{% else %}Nuevo{% endif %}</li></ol></nav>{% endblock %}
 {% block contenido %}
-<div class="pagina-titulo"><h1>{% if persona %}Editar persona{% else %}Nueva persona{% endif %}</h1></div>
+<div class="pagina-titulo"><h1>{% if persona %}Editar usuario{% else %}Nuevo usuario{% endif %}</h1></div>
 <form method="post" novalidate>
   {% csrf_token %}
   {% include "includes/errores_form.html" %}
@@ -20,8 +21,24 @@
             <div class="col-sm-6">{% include "includes/campo.html" with campo=form.cargo %}</div>
             <div class="col-sm-6">{% include "includes/campo.html" with campo=form.telefono %}</div>
           </div>
-          <div class="row">
-            <div class="col-sm-6">{% include "includes/campo.html" with campo=form.horas_diarias %}</div>
+          <div class="mb-3">
+            <div class="form-label">Horas contratadas por día</div>
+            <div class="dias-contrato">
+              {% for viene, horas in form.dias_horas %}
+              <div class="dia-contrato{% if not viene.value %} apagado{% endif %}">
+                <div class="form-check">
+                  {{ viene|bs }}
+                  <label class="form-check-label" for="{{ viene.id_for_label }}">{{ viene.label }}</label>
+                </div>
+                <div class="input-group input-group-sm">
+                  {{ horas|bs }}
+                  <span class="input-group-text">h</span>
+                </div>
+                {% for e in horas.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+              </div>
+              {% endfor %}
+            </div>
+            <div class="form-text">Tildá los días que viene y cuántas horas. En Time Report, lo que pase de eso se carga como horas extra.</div>
           </div>
           {% include "includes/campo.html" with campo=form.is_active %}
           <hr>
@@ -38,7 +55,7 @@
           {% for campo in form.campos_areas %}
           <div class="row align-items-center mb-2">
             <label class="col-sm-6 col-form-label" for="{{ campo.id_for_label }}">{{ campo.label }}</label>
-            <div class="col-sm-6">{% load core_tags %}{{ campo|bs }}</div>
+            <div class="col-sm-6">{{ campo|bs }}</div>
           </div>
           {% endfor %}
         </div>
@@ -50,4 +67,17 @@
     <a href="{% url 'cuentas:personal' %}" class="btn btn-outline-secondary">Cancelar</a>
   </div>
 </form>
+<script>
+document.querySelectorAll(".dia-contrato").forEach(function (dia) {
+  var casilla = dia.querySelector("input[type=checkbox]");
+  var horas = dia.querySelector("input[type=number]");
+  function actualizar() {
+    dia.classList.toggle("apagado", !casilla.checked);
+    horas.disabled = !casilla.checked;
+    if (casilla.checked && !horas.value) { horas.value = 8; }
+  }
+  casilla.addEventListener("change", actualizar);
+  actualizar();
+});
+</script>
 {% endblock %}

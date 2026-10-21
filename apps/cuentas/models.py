@@ -1,4 +1,5 @@
 from datetime import date
+from decimal import Decimal
 
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
@@ -65,10 +66,12 @@ class Usuario(AbstractUser):
         Cliente, null=True, blank=True, on_delete=models.PROTECT, related_name="usuarios",
         help_text="Solo para usuarios de tipo cliente.",
     )
-    horas_diarias = models.DecimalField(
-        "horas contratadas por día", max_digits=3, decimal_places=1, default=8,
-        help_text="De lunes a viernes. En Time Report, lo que pase de esto se carga como horas extra.",
-    )
+    # Horas contratadas de cada día hábil (0 = ese día no viene). En Time Report, lo que pase de esto es extra.
+    horas_lun = models.DecimalField("lunes", max_digits=3, decimal_places=1, default=8)
+    horas_mar = models.DecimalField("martes", max_digits=3, decimal_places=1, default=8)
+    horas_mie = models.DecimalField("miércoles", max_digits=3, decimal_places=1, default=8)
+    horas_jue = models.DecimalField("jueves", max_digits=3, decimal_places=1, default=8)
+    horas_vie = models.DecimalField("viernes", max_digits=3, decimal_places=1, default=8)
     notif_email = models.BooleanField("recibir avisos por email", default=True)
     notif_whatsapp = models.BooleanField("recibir avisos por WhatsApp", default=True)
 
@@ -83,6 +86,18 @@ class Usuario(AbstractUser):
 
     def __str__(self):
         return self.nombre_completo
+
+    DIAS_HABILES = ["lun", "mar", "mie", "jue", "vie"]
+
+    def horas_del_dia(self, fecha):
+        """Horas contratadas para ese día de la semana (0 los sábados y domingos)."""
+        if fecha.weekday() >= 5:
+            return Decimal(0)
+        return Decimal(getattr(self, f"horas_{self.DIAS_HABILES[fecha.weekday()]}") or 0)
+
+    @property
+    def horas_semanales(self):
+        return sum((Decimal(getattr(self, f"horas_{d}") or 0) for d in self.DIAS_HABILES), Decimal(0))
 
     @property
     def nombre_completo(self):
