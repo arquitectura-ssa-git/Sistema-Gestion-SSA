@@ -56,7 +56,7 @@ h1, h2, h3, h4, h5 { font-weight: 400; letter-spacing: -.01em; }
 .app-logo img { display: block; width: 135px; max-width: 100%; height: auto; }
 .marca-sistema { font-weight: 400; letter-spacing: .35em; font-size: .8rem; margin-top: .6rem; }
 .app-logo .marca-sistema { display: block; color: var(--lateral-texto); font-size: .62rem; text-align: center; width: 135px; margin-top: .9rem; }
-.subtitulo-ingreso { font-size: .7rem; white-space: nowrap; letter-spacing: .01em; }
+.subtitulo-ingreso { font-size: .68rem; white-space: nowrap; text-transform: uppercase; letter-spacing: .18em; line-height: 1.7; }
 @media (max-width: 440px) { .subtitulo-ingreso { white-space: normal; } }
 .logo-ingreso { display: block; width: 100%; max-width: 210px; height: auto; margin: 1.25rem auto .75rem; }
 
