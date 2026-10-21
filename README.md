@@ -52,6 +52,15 @@ Proyectos y Gestión de Obras; las tareas de cada obra las editan sus responsabl
 
 Para tenerlo en un VPS con dirección propia y HTTPS, seguí [docs/INSTALAR-EN-VPS.md](docs/INSTALAR-EN-VPS.md).
 
+## Time Report (horas)
+
+Cada persona carga sus horas del día en **Time Report**: proyecto u obra (o "Estudio / sin proyecto"), tipo de
+tarea (Producción, Gestión, Administración, Compras, Capacitación), horas de a 0,5 y si son extra. Las horas
+normales no pueden pasar la jornada de la persona (se define en Miembros; sábados y domingos todo es extra).
+Solo se puede cargar el día de hoy hasta las 23:59; para un día pasado se pide habilitación y la aprueban
+Gerencia o el coordinador de proyectos (responsable de Gestión de Proyectos). Ellos ven además los reportes por
+proyecto, persona o tipo de tarea, exportables a Excel, y la pestaña **Horas** de cada proyecto.
+
 ## Dónde queda cada cosa
 
 | Qué | Dónde |

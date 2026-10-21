@@ -181,6 +181,34 @@
 {% elif tab == "solicitudes" %}
   {% include "aprobaciones/_pestana_obra.html" %}
 
+{% elif tab == "horas" %}
+<div class="row g-3">
+  <div class="col-lg-6">
+    <div class="tarjeta">
+      <div class="tarjeta-cabecera"><h2>Horas por persona</h2><span class="small text-muted">Total {{ horas_total|floatformat:"-1" }} h · extras {{ horas_extra|floatformat:"-1" }} h</span></div>
+      <table class="table table-tarjeta">
+        <thead><tr><th>Persona</th><th class="text-end">Normales</th><th class="text-end">Extras</th><th class="text-end">Total</th></tr></thead>
+        <tbody>
+        {% for f in horas_por_persona %}<tr><td>{{ f.nombre }}</td><td class="text-end">{{ f.normal|floatformat:"-1" }}</td><td class="text-end">{{ f.extra|floatformat:"-1" }}</td><td class="text-end">{{ f.total|floatformat:"-1" }}</td></tr>
+        {% empty %}<tr><td colspan="4"><div class="lista-vacia">Todavía nadie cargó horas en {% if obra.es_proyecto %}este proyecto{% else %}esta obra{% endif %}.</div></td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="tarjeta">
+      <div class="tarjeta-cabecera"><h2>Horas por tipo de tarea</h2></div>
+      <table class="table table-tarjeta">
+        <thead><tr><th>Tipo</th><th class="text-end">Normales</th><th class="text-end">Extras</th><th class="text-end">Total</th></tr></thead>
+        <tbody>
+        {% for f in horas_por_tipo %}<tr><td>{{ f.nombre }}</td><td class="text-end">{{ f.normal|floatformat:"-1" }}</td><td class="text-end">{{ f.extra|floatformat:"-1" }}</td><td class="text-end">{{ f.total|floatformat:"-1" }}</td></tr>
+        {% empty %}<tr><td colspan="4" class="small text-muted">Sin horas.</td></tr>{% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 {% elif tab == "actividad" %}
 <div class="tarjeta">
   <div class="tarjeta-cabecera"><h2>Todo lo que pasó en {% if obra.es_proyecto %}este proyecto{% else %}esta obra{% endif %}</h2><span class="small text-muted">No se puede editar ni borrar</span></div>

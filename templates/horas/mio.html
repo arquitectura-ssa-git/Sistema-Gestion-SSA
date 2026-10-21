@@ -1,0 +1,111 @@
+{% extends "base.html" %}{% load core_tags %}
+{% block titulo %}Time Report{% endblock %}
+{% block contenido %}
+<div class="pagina-titulo">
+  <div>
+    <h1>Time Report</h1>
+    <div class="small text-muted">Semana del {{ semana.dias.0.fecha|date:"d/m" }} al {{ semana.dias.6.fecha|date:"d/m/Y" }} · jornada de {{ user.horas_diarias|floatformat:"-1" }} h de lunes a viernes</div>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <a href="?dia={{ semana_anterior|date:'Y-m-d' }}" class="btn btn-outline-secondary" title="Semana anterior"><i class="bi bi-chevron-left"></i></a>
+    <a href="?" class="btn btn-outline-secondary">Hoy</a>
+    {% if semana_siguiente <= hoy %}<a href="?dia={{ semana_siguiente|date:'Y-m-d' }}" class="btn btn-outline-secondary" title="Semana siguiente"><i class="bi bi-chevron-right"></i></a>{% endif %}
+    {% if puede_habilitar %}
+      <a href="{% url 'horas:habilitaciones' %}" class="btn btn-outline-dark">Pedidos{% if pendientes %} <span class="badge text-bg-secondary">{{ pendientes }}</span>{% endif %}</a>
+      <a href="{% url 'horas:reportes' %}" class="btn btn-dark">Reportes</a>
+    {% endif %}
+  </div>
+</div>
+
+<div class="tarjeta mb-4">
+  <div class="table-responsive">
+    <table class="table table-tarjeta tabla-semana">
+      <thead>
+        <tr>
+          <th>Proyecto · tarea</th>
+          {% for d in semana.dias %}
+          <th class="text-end{% if d.fecha == dia %} dia-activo{% endif %}">
+            {% if d.fecha <= hoy %}<a href="?dia={{ d.fecha|date:'Y-m-d' }}">{{ d.nombre }} {{ d.fecha|date:"d" }}</a>{% else %}<span class="text-muted">{{ d.nombre }} {{ d.fecha|date:"d" }}</span>{% endif %}
+          </th>
+          {% endfor %}
+          <th class="text-end">Semana</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for f in semana.filas %}
+        <tr>
+          <td>{{ f.obra.nombre|default:"Estudio / sin proyecto" }} <span class="text-muted small">· {{ f.tipo }}</span>{% if f.extra %} <span class="badge area area-gerencia integrante">Extra</span>{% endif %}</td>
+          {% for h in f.celdas %}<td class="text-end">{% if h %}{{ h|pct:1 }}{% else %}<span class="text-muted">—</span>{% endif %}</td>{% endfor %}
+          <td class="text-end">{{ f.total|pct:1 }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="9"><div class="lista-vacia"><i class="bi bi-clock"></i>Sin horas cargadas esta semana.</div></td></tr>
+      {% endfor %}
+      </tbody>
+      <tfoot>
+        <tr class="fila-total"><th>Normales</th>{% for d in semana.dias %}<td class="text-end{% if d.contratadas and d.normal < d.contratadas and d.fecha < hoy %} falta{% endif %}">{{ d.normal|pct:1 }}{% if d.contratadas %}<span class="text-muted">/{{ d.contratadas|pct:1 }}</span>{% endif %}</td>{% endfor %}<td class="text-end">{{ semana.total_normal|pct:1 }}</td></tr>
+        <tr class="fila-total"><th>Extras</th>{% for d in semana.dias %}<td class="text-end">{% if d.extra %}{{ d.extra|pct:1 }}{% else %}<span class="text-muted">—</span>{% endif %}</td>{% endfor %}<td class="text-end">{{ semana.total_extra|pct:1 }}</td></tr>
+      </tfoot>
+    </table>
+  </div>
+</div>
+
+<div class="tarjeta">
+  <div class="tarjeta-cabecera">
+    <h2>{% if dia == hoy %}Hoy, {% endif %}{{ dia|date:"l d/m/Y"|capfirst }}</h2>
+    <span class="small text-muted">
+      {% if dia == hoy %}Se puede cargar hasta las 23:59{% elif vigente %}Habilitado hasta hoy a las 23:59{% elif editable is False %}Solo lectura{% endif %}
+      {% if contratadas %} · jornada {{ contratadas|pct:1 }} h{% else %} · día no laboral: todo va como extra{% endif %}
+    </span>
+  </div>
+  {% if editable %}
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {{ formset.management_form }}
+      {% if formset.non_form_errors %}<div class="alert alert-danger mt-3">{% for e in formset.non_form_errors %}<div>{{ e }}</div>{% endfor %}</div>{% endif %}
+      <div class="table-responsive">
+        <table class="table table-tarjeta tabla-carga">
+          <thead><tr><th style="min-width: 15rem">Proyecto u obra</th><th style="min-width: 10rem">Tipo de tarea</th><th style="width: 7rem">Horas</th><th style="width: 5rem">Extra</th><th>Nota</th><th style="width: 4rem" class="text-end">Quitar</th></tr></thead>
+          <tbody>
+          {% for f in formset %}
+            <tr>
+              <td>{% for h in f.hidden_fields %}{{ h }}{% endfor %}{{ f.obra|bs }}{% for e in f.obra.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}</td>
+              <td>{{ f.tipo|bs }}</td>
+              <td>{{ f.horas|bs }}{% for e in f.horas.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}</td>
+              <td class="text-center">{{ f.extra|bs }}</td>
+              <td>{{ f.nota|bs }}</td>
+              <td class="text-end">{% if f.instance.pk %}{{ f.DELETE|bs }}{% endif %}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="d-flex flex-wrap gap-2 align-items-center py-3">
+        <button class="btn btn-dark"><i class="bi bi-check-lg"></i> Guardar horas</button>
+        <span class="small text-muted">Las filas vacías se ignoran. ¿Necesitás más filas? Guardá y aparecen nuevas.</span>
+      </div>
+    </form>
+    {% if not formset.initial_forms %}
+    <form method="post" action="{% url 'horas:repetir' %}" class="pb-3">{% csrf_token %}
+      <input type="hidden" name="dia" value="{{ dia|date:'Y-m-d' }}">
+      <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-repeat"></i> Repetir lo del último día cargado</button>
+    </form>
+    {% endif %}
+  {% else %}
+    <div class="tarjeta-cuerpo">
+      {% if pedido and pedido.estado == "pendiente" %}
+        <p class="mb-0">Pediste habilitación para este día ({{ pedido.motivo }}). Está <strong>pendiente</strong>.</p>
+      {% else %}
+        {% if pedido and pedido.estado == "rechazada" %}<p class="text-muted small">Tu pedido anterior para este día fue rechazado.</p>{% endif %}
+        {% if pedido and pedido.estado == "aprobada" %}<p class="text-muted small">La habilitación para este día ya venció.</p>{% endif %}
+        <p class="small text-muted">Este día ya cerró. Para cargarlo o corregirlo pedí habilitación a Gerencia o al coordinador de proyectos.</p>
+        <form method="post" action="{% url 'horas:pedir' %}" class="row g-2" style="max-width: 40rem">{% csrf_token %}
+          <input type="hidden" name="dia" value="{{ dia|date:'Y-m-d' }}">
+          <div class="col-sm-8">{{ form_pedido.motivo|bs }}</div>
+          <div class="col-sm-4"><button class="btn btn-outline-dark w-100">Pedir habilitación</button></div>
+        </form>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

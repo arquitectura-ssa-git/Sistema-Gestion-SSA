@@ -108,6 +108,13 @@ def puede_editar_obra(u, obra):
     return es_gerencia(u) or (es_personal(u) and obra.asignaciones.filter(usuario=u, es_responsable=True).exists())
 
 
+# --- Time Report -------------------------------------------------------------
+
+def puede_habilitar_horas(u):
+    """Habilita la carga tardía de horas y ve los reportes: Gerencia y el coordinador de proyectos."""
+    return es_gerencia(u) or es_responsable_de(u, A.GESTION_PROYECTOS)
+
+
 # --- Plantillas de tareas ---------------------------------------------------
 
 def puede_gestionar_plantillas(u):

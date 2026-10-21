@@ -30,10 +30,11 @@ PESTANAS = [
     ("hitos", "Hitos", "flag"),
     ("archivos", "Archivos", "folder2-open"),
     ("solicitudes", "Solicitudes", "check2-square"),
+    ("horas", "Horas", "clock"),
     ("actividad", "Actividad", "journal-text"),
 ]
 # Pestañas que dependen de secciones que todavía pueden no estar activas.
-PESTANA_APP = {"archivos": "apps.documentos", "solicitudes": "apps.aprobaciones"}
+PESTANA_APP = {"archivos": "apps.documentos", "solicitudes": "apps.aprobaciones", "horas": "apps.horas"}
 
 
 def _marcar_menu(request, tipo):
@@ -135,6 +136,8 @@ def detalle(request, pk):
     obra = _obra_visible(request, pk)
     puede_editar = permisos.puede_editar_obra(request.user, obra)
     pestanas = [p for p in PESTANAS if p[0] not in PESTANA_APP or apps.is_installed(PESTANA_APP[p[0]])]
+    if not (puede_editar or permisos.puede_habilitar_horas(request.user)):
+        pestanas = [p for p in pestanas if p[0] != "horas"]  # las horas del proyecto: responsables y quienes habilitan
     tab = request.GET.get("tab", "resumen")
     if tab not in {p[0] for p in pestanas}:
         tab = "resumen"
@@ -160,6 +163,10 @@ def detalle(request, pk):
         from apps.documentos.views import contexto_pestana_obra
 
         contexto.update(contexto_pestana_obra(request, obra))
+    if tab == "horas":
+        from apps.horas.views import horas_de_obra
+
+        contexto.update(horas_de_obra(obra))
     if tab == "actividad":
         pagina = Paginator(obra.actividad.select_related("usuario"), 40).get_page(request.GET.get("pagina"))
         contexto["pagina"] = pagina

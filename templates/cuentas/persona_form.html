@@ -20,6 +20,9 @@
             <div class="col-sm-6">{% include "includes/campo.html" with campo=form.cargo %}</div>
             <div class="col-sm-6">{% include "includes/campo.html" with campo=form.telefono %}</div>
           </div>
+          <div class="row">
+            <div class="col-sm-6">{% include "includes/campo.html" with campo=form.horas_diarias %}</div>
+          </div>
           {% include "includes/campo.html" with campo=form.is_active %}
           <hr>
           {% include "includes/campo.html" with campo=form.clave_inicial %}
