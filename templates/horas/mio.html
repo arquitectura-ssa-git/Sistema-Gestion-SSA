@@ -4,7 +4,7 @@
 <div class="pagina-titulo">
   <div>
     <h1>Time Report</h1>
-    <div class="small text-muted">Semana del {{ semana.dias.0.fecha|date:"d/m" }} al {{ semana.dias.6.fecha|date:"d/m/Y" }} · jornada de {{ user.horas_diarias|floatformat:"-1" }} h de lunes a viernes</div>
+    <div class="small text-muted">Semana del {{ semana.dias.0.fecha|date:"d/m" }} al {{ semana.dias.6.fecha|date:"d/m/Y" }} · {{ user.horas_semanales|floatformat:"-1" }} h contratadas por semana</div>
   </div>
   <div class="d-flex flex-wrap gap-2">
     <a href="?dia={{ semana_anterior|date:'Y-m-d' }}" class="btn btn-outline-secondary" title="Semana anterior"><i class="bi bi-chevron-left"></i></a>

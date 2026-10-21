@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django import forms
 from django.contrib.auth.password_validation import validate_password
 
@@ -46,11 +48,23 @@ class _ConClaveInicial(forms.ModelForm):
 class PersonaForm(_ConClaveInicial):
     class Meta:
         model = Usuario
-        fields = ["first_name", "last_name", "email", "cargo", "telefono", "horas_diarias", "is_active"]
+        fields = ["first_name", "last_name", "email", "cargo", "telefono",
+                  "horas_lun", "horas_mar", "horas_mie", "horas_jue", "horas_vie", "is_active"]
         labels = {"first_name": "Nombre", "last_name": "Apellido", "is_active": "Activo (puede ingresar)"}
+
+    DIAS = [("lun", "Lun"), ("mar", "Mar"), ("mie", "Mié"), ("jue", "Jue"), ("vie", "Vie")]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        # Cada día hábil: una casilla "viene" y sus horas. Sin tildar, ese día no tiene horas contratadas.
+        for dia, nombre in self.DIAS:
+            horas = self.fields[f"horas_{dia}"]
+            horas.required = False
+            horas.widget.attrs.update({"min": "0.5", "max": "24", "step": "0.5"})
+            valor = getattr(self.instance, f"horas_{dia}")
+            self.fields[f"viene_{dia}"] = forms.BooleanField(label=nombre, required=False, initial=bool(valor))
+            if not valor:
+                self.initial[f"horas_{dia}"] = ""
         self.areas = list(Area.objects.all())
         actuales = {}
         if self.instance.pk:
@@ -66,8 +80,23 @@ class PersonaForm(_ConClaveInicial):
     def campos_areas(self):
         return [self[f"area_{area.codigo}"] for area in self.areas]
 
+    def dias_horas(self):
+        return [(self[f"viene_{dia}"], self[f"horas_{dia}"]) for dia, _ in self.DIAS]
+
     def clean(self):
         datos = super().clean()
+        for dia, _ in self.DIAS:
+            campo = f"horas_{dia}"
+            if not datos.get(f"viene_{dia}"):
+                datos[campo] = Decimal(0)
+                self.errors.pop(campo, None)
+                continue
+            horas = datos.get(campo)
+            if horas is None:
+                if campo not in self.errors:
+                    self.add_error(campo, "Poné cuántas horas viene.")
+            elif horas <= 0 or horas > 24 or (horas * 2) % 1:
+                self.add_error(campo, "Entre 0,5 y 24, en medias horas.")
         if not any(datos.get(f"area_{a.codigo}") for a in self.areas):
             raise forms.ValidationError("Asigná la persona al menos a un área.")
         return datos

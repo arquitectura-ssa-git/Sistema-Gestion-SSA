@@ -28,20 +28,18 @@ def feriados_en(desde, hasta):
 
 
 def horas_contratadas(usuario, fecha, feriados=None):
-    """Horas normales que se pueden cargar ese día: la jornada de lunes a viernes; 0 los fines de semana
-    y feriados (ahí todo lo que se cargue es extra)."""
+    """Horas normales que se pueden cargar ese día: la jornada contratada de ese día de la semana; 0 los fines
+    de semana y feriados (ahí todo lo que se cargue es extra)."""
     es_feriado = (fecha in feriados) if feriados is not None else feriado(fecha) is not None
-    if fecha.weekday() >= 5 or es_feriado:
+    if es_feriado:
         return Decimal(0)
-    return Decimal(usuario.horas_diarias or 0)
+    return usuario.horas_del_dia(fecha)
 
 
 def jornada_feriado(usuario, fecha, feriados=None):
     """Horas pagas que se computan solas en un feriado que cae de lunes a viernes."""
     es_feriado = (fecha in feriados) if feriados is not None else feriado(fecha) is not None
-    if es_feriado and fecha.weekday() < 5:
-        return Decimal(usuario.horas_diarias or 0)
-    return Decimal(0)
+    return usuario.horas_del_dia(fecha) if es_feriado else Decimal(0)
 
 
 def habilitacion_vigente(usuario, fecha):

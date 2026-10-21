@@ -1,16 +1,18 @@
 {% extends "base.html" %}
-{% block titulo %}Miembros{% endblock %}
+{% block titulo %}Equipo{% endblock %}
 {% block contenido %}
 <div class="pagina-titulo">
-  <h1>Miembros del estudio</h1>
+  <h1>Equipo</h1>
+  {% if puede_gestionar %}
   <div class="d-flex gap-2">
     {% if request.GET.inactivos == "1" %}
       <a href="?" class="btn btn-outline-secondary">Ocultar inactivos</a>
     {% else %}
       <a href="?inactivos=1" class="btn btn-outline-secondary">Ver también inactivos</a>
     {% endif %}
-    <a href="{% url 'cuentas:persona_nueva' %}" class="btn btn-dark"><i class="bi bi-person-plus"></i> Nueva persona</a>
+    <a href="{% url 'cuentas:persona_nueva' %}" class="btn btn-dark"><i class="bi bi-person-plus"></i> Agregar usuario</a>
   </div>
+  {% endif %}
 </div>
 <div class="leyenda-areas mb-3">
   {% for a in areas %}<span class="badge area area-{{ a.codigo }}">{{ a.nombre }}</span>{% endfor %}
@@ -38,6 +40,7 @@
           </td>
           <td class="small">{{ p.telefono|default:"—" }}</td>
           <td class="text-end">
+            {% if puede_gestionar %}
             <div class="dropdown">
               <button class="btn btn-sm btn-acciones" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Acciones de {{ p.nombre_completo }}"><i class="bi bi-three-dots"></i></button>
               <ul class="dropdown-menu dropdown-menu-end">
@@ -51,6 +54,7 @@
                 {% endif %}
               </ul>
             </div>
+            {% endif %}
           </td>
         </tr>
         {% endfor %}

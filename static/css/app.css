@@ -296,3 +296,15 @@ input[type=radio], input[type=checkbox], input[type=range] { accent-color: var(-
 }
 .tabla-semana .dia-feriado a, .tabla-semana .dia-feriado span { color: var(--ssa-gris); }
 .etiqueta-feriado { font-size: .6rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ssa-gris); font-weight: 400; }
+
+/* Alta de usuario: horas contratadas por día de la semana */
+.dias-contrato { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: .5rem; }
+.dia-contrato { border: 1px solid var(--ssa-platino); border-radius: .5rem; padding: .5rem; background: var(--ssa-papel); }
+.dia-contrato .form-check { margin-bottom: .35rem; }
+.dia-contrato .form-control { min-width: 0; }
+.dia-contrato.apagado { background: transparent; opacity: .6; }
+@media (max-width: 575.98px) {
+  .dias-contrato { grid-template-columns: 1fr; }
+  .dia-contrato { display: flex; align-items: center; gap: .75rem; }
+  .dia-contrato .form-check { margin: 0; width: 4rem; }
+}
