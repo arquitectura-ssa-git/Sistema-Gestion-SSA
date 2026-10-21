@@ -65,6 +65,10 @@ class Usuario(AbstractUser):
         Cliente, null=True, blank=True, on_delete=models.PROTECT, related_name="usuarios",
         help_text="Solo para usuarios de tipo cliente.",
     )
+    horas_diarias = models.DecimalField(
+        "horas contratadas por día", max_digits=3, decimal_places=1, default=8,
+        help_text="De lunes a viernes. En Time Report, lo que pase de esto se carga como horas extra.",
+    )
     notif_email = models.BooleanField("recibir avisos por email", default=True)
     notif_whatsapp = models.BooleanField("recibir avisos por WhatsApp", default=True)
 

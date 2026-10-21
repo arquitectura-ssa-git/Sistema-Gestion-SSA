@@ -273,3 +273,26 @@ input[type=radio], input[type=checkbox], input[type=range] { accent-color: var(-
 .marca-area.area-gestion_administrativa { --area: #a6a6a6; }
 .descripcion-area { font-size: .78rem; text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--ssa-gris); margin-top: .3rem; }
 .table-hover > tbody > tr.grupo-miembros:hover > * { --bs-table-bg-state: transparent; --bs-table-color-state: inherit; }
+
+/* Time Report */
+.tabla-semana th a { text-decoration: none; color: var(--ssa-plomo); }
+.tabla-semana .dia-activo { border-bottom: 2px solid var(--ssa-plomo); }
+.tabla-semana .dia-activo a { color: var(--ssa-negro); font-weight: 500; }
+.tabla-semana tfoot th, .tabla-semana tfoot td { font-size: .82rem; background: transparent; }
+.tabla-semana .falta { color: #b02a37; }
+.tabla-carga td { vertical-align: top; }
+.tabla-carga .form-check-input { margin-top: .6rem; }
+@media (max-width: 767px) {
+  .tabla-carga thead { display: none; }
+  .tabla-carga, .tabla-carga tbody, .tabla-carga tr, .tabla-carga td { display: block; width: 100%; }
+  .tabla-carga tr { display: grid; grid-template-columns: 1fr 1fr; gap: .5rem; padding: .9rem 0; border-bottom: 1px solid var(--ssa-platino); }
+  .tabla-carga td { padding: 0 !important; border: 0; }
+  .tabla-carga td:nth-child(1), .tabla-carga td:nth-child(5) { grid-column: 1 / -1; }
+  .tabla-carga td:nth-child(4), .tabla-carga td:nth-child(6) { display: flex; align-items: center; gap: .4rem; font-size: .85rem; text-align: left !important; }
+  .tabla-carga td:nth-child(4)::before { content: "Extra"; order: 2; }
+  .tabla-carga td:nth-child(6):not(:empty)::before { content: "Quitar"; order: 2; }
+  .tabla-carga .form-check-input { margin-top: 0; }
+  .table-responsive:has(.tabla-carga) { overflow: visible; }
+}
+.tabla-semana .dia-feriado a, .tabla-semana .dia-feriado span { color: var(--ssa-gris); }
+.etiqueta-feriado { font-size: .6rem; letter-spacing: .08em; text-transform: uppercase; color: var(--ssa-gris); font-weight: 400; }

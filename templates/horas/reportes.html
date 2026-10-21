@@ -1,0 +1,58 @@
+{% extends "base.html" %}{% load core_tags %}
+{% block titulo %}Reportes de horas{% endblock %}
+{% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'horas:mio' %}">Time Report</a></li><li class="breadcrumb-item active">Reportes</li></ol></nav>{% endblock %}
+{% block contenido %}
+<div class="pagina-titulo">
+  <div>
+    <h1>Reportes de horas</h1>
+    <div class="small text-muted">Del {{ desde|date:"d/m/Y" }} al {{ hasta|date:"d/m/Y" }}</div>
+  </div>
+  <a href="?{% query_con formato='xlsx' %}" class="btn btn-outline-dark"><i class="bi bi-file-earmark-spreadsheet"></i> Exportar a Excel</a>
+</div>
+<form method="get" class="row g-2 align-items-end mb-4">
+  <div class="col-sm-3"><label class="form-label">Desde</label>{{ form.desde|bs }}</div>
+  <div class="col-sm-3"><label class="form-label">Hasta</label>{{ form.hasta|bs }}</div>
+  <div class="col-sm-4"><label class="form-label">Agrupar</label>{{ form.agrupar|bs }}</div>
+  <div class="col-sm-2"><button class="btn btn-dark w-100">Ver</button></div>
+  {% for campo in form %}{% for e in campo.errors %}<div class="col-12 small text-danger">{{ e }}</div>{% endfor %}{% endfor %}
+</form>
+<div class="row g-4">
+  <div class="col-xl-8">
+    <div class="tarjeta">
+      <div class="tarjeta-cabecera"><h2>Horas</h2><span class="small text-muted">{{ totales.total|pct:1 }} h en total · {{ totales.extra|pct:1 }} h extra{% if horas_feriado_total and agrupar != "persona" %} · además {{ horas_feriado_total|pct:1 }} h de feriados pagos (ver «Por persona»){% endif %}</span></div>
+      <table class="table table-tarjeta">
+        <thead><tr><th></th><th class="text-end">Normales</th>{% if agrupar == "persona" %}<th class="text-end">Feriados</th>{% endif %}<th class="text-end">Extras</th><th class="text-end">Total</th><th style="width: 30%"></th></tr></thead>
+        <tbody>
+        {% for f in filas %}
+          <tr>
+            <td>{{ f.nombre }}</td>
+            <td class="text-end">{{ f.normal|pct:1 }}</td>
+            {% if agrupar == "persona" %}<td class="text-end">{{ f.feriado|pct:1 }}</td>{% endif %}
+            <td class="text-end">{{ f.extra|pct:1 }}</td>
+            <td class="text-end">{{ f.total|pct:1 }}</td>
+            <td>{% if totales.total %}<div class="progress" style="height: 6px"><div class="progress-bar" style="width: {% widthratio f.total totales.total 100 %}%"></div></div>{% endif %}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="6"><div class="lista-vacia">No hay horas cargadas en ese período.</div></td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-xl-4">
+    <div class="tarjeta">
+      <div class="tarjeta-cabecera"><h2>Días sin completar</h2></div>
+      <div class="tarjeta-cuerpo pt-2">
+        <p class="small text-muted">Días hábiles (hasta ayer, sin contar feriados) con menos horas normales que la jornada.</p>
+        {% for f in faltantes %}
+          <div class="mb-2"><strong>{{ f.persona.nombre_completo }}</strong> <span class="text-muted small">· {{ f.dias|length }} día{{ f.dias|length|pluralize }}</span>
+            <div class="small text-muted">{% for d in f.dias|slice:":8" %}{{ d|date:"d/m" }}{% if not forloop.last %}, {% endif %}{% endfor %}{% if f.dias|length > 8 %}…{% endif %}</div>
+          </div>
+        {% empty %}
+          <p class="small mb-0">Todos completaron sus horas.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

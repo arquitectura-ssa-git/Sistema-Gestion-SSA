@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block titulo %}Pedidos de habilitación{% endblock %}
+{% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'horas:mio' %}">Time Report</a></li><li class="breadcrumb-item active">Pedidos</li></ol></nav>{% endblock %}
+{% block contenido %}
+<div class="pagina-titulo">
+  <div>
+    <h1>Pedidos para cargar horas</h1>
+    <div class="small text-muted">Al aprobar, la persona puede cargar o corregir ese día hasta hoy a las 23:59.</div>
+  </div>
+</div>
+<div class="tarjeta mb-4">
+  <div class="tarjeta-cabecera"><h2>Pendientes</h2></div>
+  <table class="table table-tarjeta">
+    <thead><tr><th>Persona</th><th>Día a cargar</th><th>Motivo</th><th>Pedido</th><th></th></tr></thead>
+    <tbody>
+    {% for p in pendientes %}
+      <tr>
+        <td>{{ p.usuario.nombre_completo }}</td>
+        <td>{{ p.fecha|date:"D d/m/Y" }}</td>
+        <td class="small">{{ p.motivo }}</td>
+        <td class="small text-muted">{{ p.pedida|date:"d/m H:i" }}</td>
+        <td class="text-end text-nowrap">
+          <form method="post" action="{% url 'horas:resolver' p.pk %}" class="d-inline">{% csrf_token %}
+            <button name="accion" value="aprobar" class="btn btn-sm btn-dark">Habilitar</button>
+            <button name="accion" value="rechazar" class="btn btn-sm btn-outline-secondary">Rechazar</button>
+          </form>
+        </td>
+      </tr>
+    {% empty %}
+      <tr><td colspan="5"><div class="lista-vacia">No hay pedidos pendientes.</div></td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="tarjeta">
+  <div class="tarjeta-cabecera"><h2>Resueltos recientes</h2></div>
+  <table class="table table-tarjeta">
+    <thead><tr><th>Persona</th><th>Día</th><th>Estado</th><th>Resolvió</th></tr></thead>
+    <tbody>
+    {% for p in resueltas %}
+      <tr><td>{{ p.usuario.nombre_completo }}</td><td>{{ p.fecha|date:"d/m/Y" }}</td><td>{{ p.get_estado_display }}</td><td class="small text-muted">{{ p.resuelta_por.nombre_completo|default:"—" }} · {{ p.resuelta|date:"d/m H:i" }}</td></tr>
+    {% empty %}
+      <tr><td colspan="4" class="small text-muted">Todavía no hay pedidos resueltos.</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

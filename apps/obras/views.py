@@ -18,8 +18,9 @@ from apps.cuentas import permisos
 
 from apps.plantillas import arbol
 from apps.plantillas.forms import AplicarPlantillaForm, leer_estructura
+from apps.plantillas.models import Plantilla, TareaPlantilla
 
-from .forms import AsignacionForm, HitoForm, ObraForm
+from .forms import AsignacionForm, DuplicarObraForm, GuardarPlantillaForm, HitoForm, ObraForm
 from .models import AsignacionObra, Hito, Obra, TareaObra
 
 PESTANAS = [
@@ -29,10 +30,11 @@ PESTANAS = [
     ("hitos", "Hitos", "flag"),
     ("archivos", "Archivos", "folder2-open"),
     ("solicitudes", "Solicitudes", "check2-square"),
+    ("horas", "Horas", "clock"),
     ("actividad", "Actividad", "journal-text"),
 ]
 # Pestañas que dependen de secciones que todavía pueden no estar activas.
-PESTANA_APP = {"archivos": "apps.documentos", "solicitudes": "apps.aprobaciones"}
+PESTANA_APP = {"archivos": "apps.documentos", "solicitudes": "apps.aprobaciones", "horas": "apps.horas"}
 
 
 def _marcar_menu(request, tipo):
@@ -87,7 +89,7 @@ def obra_form(request, pk=None, tipo=Obra.Tipo.OBRA):
     else:
         permisos.exigir(permisos.puede_crear_obra(request.user))
         _marcar_menu(request, tipo)
-    form = ObraForm(request.POST or None, instance=obra, initial={} if obra else {
+    form = ObraForm(request.POST or None, instance=obra, usuario=request.user, initial={} if obra else {
         "cliente": request.GET.get("cliente"), "tipo": tipo})
     if request.method == "POST" and form.is_valid():
         es_alta = obra is None
@@ -96,17 +98,18 @@ def obra_form(request, pk=None, tipo=Obra.Tipo.OBRA):
         if es_alta:
             obra.creada_por = request.user
         plantilla = form.cleaned_data.get("plantilla") if es_alta else None
+        origen = form.cleaned_data.get("copiar_de") if es_alta else None
         with transaction.atomic():
             obra.save()
-            if plantilla:
-                arbol.copiar(plantilla.tareas.all(), TareaObra, {"obra": obra})
+            if plantilla or origen:
+                arbol.copiar((plantilla or origen).tareas.all(), TareaObra, {"obra": obra})
                 obra.recalcular_avance()
         if es_alta:
-            registrar("obra.alta", f"Alta de {obra.etiqueta}: {obra}"
-                      + (f" con la plantilla «{plantilla}»" if plantilla else ""), objeto=obra)
-            if plantilla:
+            fuente = f"la plantilla «{plantilla}»" if plantilla else f"las tareas de «{origen}»" if origen else ""
+            registrar("obra.alta", f"Alta de {obra.etiqueta}: {obra}" + (f" con {fuente}" if fuente else ""), objeto=obra)
+            if fuente:
                 messages.success(request, f"{'Proyecto' if obra.es_proyecto else 'Obra'} {obra.codigo} "
-                                          f"{'creado' if obra.es_proyecto else 'creada'} con la plantilla «{plantilla}». "
+                                          f"{'creado' if obra.es_proyecto else 'creada'} con {fuente}. "
                                           "Ajustá las etapas, rubros e ítems para este caso y guardá.")
                 return redirect(f"{obra_url(obra)}?tab=tareas&editar=1")
             messages.success(request, f"{'Proyecto' if obra.es_proyecto else 'Obra'} {obra.codigo} "
@@ -133,6 +136,8 @@ def detalle(request, pk):
     obra = _obra_visible(request, pk)
     puede_editar = permisos.puede_editar_obra(request.user, obra)
     pestanas = [p for p in PESTANAS if p[0] not in PESTANA_APP or apps.is_installed(PESTANA_APP[p[0]])]
+    if not (puede_editar or permisos.puede_habilitar_horas(request.user)):
+        pestanas = [p for p in pestanas if p[0] != "horas"]  # las horas del proyecto: responsables y quienes habilitan
     tab = request.GET.get("tab", "resumen")
     if tab not in {p[0] for p in pestanas}:
         tab = "resumen"
@@ -152,11 +157,16 @@ def detalle(request, pk):
         contexto["form_hito"] = HitoForm()
     if tab == "tareas":
         contexto.update(_contexto_tareas(obra, puede_editar))
+        contexto["puede_crear_plantilla"] = permisos.puede_gestionar_plantillas(request.user)
         contexto["editando_tareas"] = puede_editar and request.GET.get("editar") == "1"
     if tab == "archivos":
         from apps.documentos.views import contexto_pestana_obra
 
         contexto.update(contexto_pestana_obra(request, obra))
+    if tab == "horas":
+        from apps.horas.views import horas_de_obra
+
+        contexto.update(horas_de_obra(obra))
     if tab == "actividad":
         pagina = Paginator(obra.actividad.select_related("usuario"), 40).get_page(request.GET.get("pagina"))
         contexto["pagina"] = pagina
@@ -349,4 +359,55 @@ def tareas_aplicar_plantilla(request, pk):
               + (f" (reemplazó {reemplazadas} tareas)" if reemplazadas else ""), objeto=obra)
     messages.success(request, f"Se cargaron las tareas de «{plantilla}». Ajustalas si hace falta y "
                               "andá cargando el avance con las barras.")
+    return redirect(f"{obra_url(obra)}?tab=tareas")
+
+
+# --- Duplicar y reutilizar ---------------------------------------------------
+
+@permisos.solo_personal
+def duplicar(request, pk):
+    """Crea un proyecto u obra nuevo con las mismas tareas (avance en 0) y, si se pide, el mismo equipo."""
+    original = _obra_visible(request, pk)
+    permisos.exigir(permisos.puede_crear_obra(request.user))
+    form = DuplicarObraForm(request.POST or None, initial={
+        "nombre": f"{original.nombre} (copia)", "cliente": original.cliente_id})
+    if request.method == "POST" and form.is_valid():
+        with transaction.atomic():
+            nueva = Obra.objects.create(
+                tipo=original.tipo, nombre=form.cleaned_data["nombre"], cliente=form.cleaned_data["cliente"],
+                descripcion=original.descripcion, superficie_m2=original.superficie_m2, creada_por=request.user,
+            )
+            arbol.copiar(original.tareas.all(), TareaObra, {"obra": nueva})
+            nueva.recalcular_avance()
+            if form.cleaned_data["copiar_equipo"]:
+                AsignacionObra.objects.bulk_create([
+                    AsignacionObra(obra=nueva, usuario_id=a.usuario_id, area_id=a.area_id, funcion=a.funcion,
+                                   es_responsable=a.es_responsable)
+                    for a in original.asignaciones.filter(usuario__is_active=True)
+                ])
+        registrar("obra.alta", f"Alta de {nueva.etiqueta}: {nueva} (duplicado de {original})", objeto=nueva)
+        messages.success(request, f"Se creó {nueva.codigo} a partir de «{original.nombre}». "
+                                  "Revisá las tareas y completá los datos que cambien.")
+        return redirect(f"{obra_url(nueva)}?tab=tareas&editar=1")
+    return render(request, "obras/duplicar.html", {"obra": original, "form": form})
+
+
+@permisos.solo_personal
+@require_POST
+def tareas_a_plantilla(request, pk):
+    """Guarda las tareas de este proyecto u obra (ya ajustadas) como una plantilla nueva."""
+    obra = _obra_visible(request, pk)
+    permisos.exigir(permisos.puede_gestionar_plantillas(request.user))
+    form = GuardarPlantillaForm(request.POST)
+    if not obra.tareas.exists():
+        messages.error(request, "No hay tareas para guardar como plantilla.")
+    elif not form.is_valid():
+        messages.error(request, " ".join(e for errores in form.errors.values() for e in errores))
+    else:
+        with transaction.atomic():
+            plantilla = Plantilla.objects.create(nombre=form.cleaned_data["nombre"], uso=obra.tipo,
+                                                 descripcion=f"Creada a partir de {obra}.", creada_por=request.user)
+            arbol.copiar(obra.tareas.all(), TareaPlantilla, {"plantilla": plantilla})
+        registrar("plantilla.alta", f"Nueva plantilla: {plantilla} (desde {obra})", objeto=plantilla)
+        messages.success(request, f"Se guardó la plantilla «{plantilla}». Ya la podés elegir al crear proyectos.")
     return redirect(f"{obra_url(obra)}?tab=tareas")

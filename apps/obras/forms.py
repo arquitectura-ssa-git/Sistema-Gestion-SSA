@@ -25,7 +25,7 @@ class ObraForm(forms.ModelForm):
             "avance": forms.NumberInput(attrs={"min": 0, "max": 100, "step": 1}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, usuario=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["tipo"].widget = forms.RadioSelect(choices=Obra.Tipo.choices)
         self.fields["tipo"].help_text = ("Proyecto: trabajo de diseño, planos o trámites. "
@@ -38,6 +38,15 @@ class ObraForm(forms.ModelForm):
                 empty_label="Sin plantilla (cargar las tareas después)",
                 help_text="Se copian sus etapas, rubros e ítems; después los ajustás para este proyecto.")
             self.fields["plantilla"].label_from_instance = lambda p: f"{p.nombre} · {p.get_uso_display()}"
+            if usuario is not None:
+                from apps.cuentas import permisos
+
+                con_tareas = permisos.obras_visibles(usuario).filter(tareas__isnull=False).distinct().order_by("nombre")
+                self.fields["copiar_de"] = forms.ModelChoiceField(
+                    queryset=con_tareas, required=False, label="O copiar las tareas de un proyecto u obra",
+                    empty_label="No copiar",
+                    help_text="Toma las etapas, rubros e ítems tal como quedaron ajustados (con el avance en 0).")
+                self.fields["copiar_de"].label_from_instance = lambda o: f"{o.nombre} · {o.codigo}"
         if self.instance.pk and self.instance.tareas.exists():
             self.fields["avance"].disabled = True
             self.fields["avance"].help_text = "Se calcula solo con el avance de las tareas (pestaña Tareas)."
@@ -48,6 +57,8 @@ class ObraForm(forms.ModelForm):
     def clean(self):
         datos = super().clean()
         plantilla, tipo = datos.get("plantilla"), datos.get("tipo")
+        if plantilla and datos.get("copiar_de"):
+            self.add_error("copiar_de", "Elegí una plantilla o un proyecto para copiar, no los dos.")
         if plantilla and tipo and not plantilla.sirve_para(tipo):
             self.add_error("plantilla", f"«{plantilla}» es una plantilla para {plantilla.get_uso_display().lower()}.")
         inicio, fin = datos.get("fecha_inicio"), datos.get("fecha_fin_estimada")
@@ -93,3 +104,26 @@ class HitoForm(forms.ModelForm):
         model = Hito
         fields = ["titulo", "fecha", "visible_cliente"]
         widgets = {"fecha": FechaInput()}
+
+
+class DuplicarObraForm(forms.Form):
+    nombre = forms.CharField(max_length=200)
+    cliente = forms.ModelChoiceField(queryset=None, required=False, empty_label="Sin cliente por ahora")
+    copiar_equipo = forms.BooleanField(label="Copiar el equipo (personas, áreas y responsables)", required=False,
+                                       initial=True)
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        from apps.cuentas.models import Cliente
+
+        self.fields["cliente"].queryset = Cliente.objects.all()
+
+
+class GuardarPlantillaForm(forms.Form):
+    nombre = forms.CharField(label="Nombre de la plantilla", max_length=150)
+
+    def clean_nombre(self):
+        nombre = self.cleaned_data["nombre"].strip()
+        if Plantilla.objects.filter(nombre__iexact=nombre).exists():
+            raise forms.ValidationError("Ya hay una plantilla con ese nombre.")
+        return nombre

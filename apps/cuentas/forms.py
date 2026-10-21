@@ -46,7 +46,7 @@ class _ConClaveInicial(forms.ModelForm):
 class PersonaForm(_ConClaveInicial):
     class Meta:
         model = Usuario
-        fields = ["first_name", "last_name", "email", "cargo", "telefono", "is_active"]
+        fields = ["first_name", "last_name", "email", "cargo", "telefono", "horas_diarias", "is_active"]
         labels = {"first_name": "Nombre", "last_name": "Apellido", "is_active": "Activo (puede ingresar)"}
 
     def __init__(self, *args, **kwargs):
