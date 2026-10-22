@@ -154,7 +154,38 @@ class ContactoClienteForm(_ConClaveInicial):
         return usuario
 
 
+FOTO_LADO = 256  # px: la foto de perfil se guarda cuadrada y chica
+
+
+def preparar_foto(archivo):
+    """Recorta la foto al centro en un cuadrado de 256 px y la guarda como JPG liviano."""
+    from io import BytesIO
+
+    from django.core.files.base import ContentFile
+    from PIL import Image, ImageOps
+
+    try:
+        from pillow_heif import register_heif_opener
+
+        register_heif_opener()  # fotos de iPhone
+    except ImportError:
+        pass
+    try:
+        imagen = ImageOps.exif_transpose(Image.open(archivo))
+        imagen = ImageOps.fit(imagen.convert("RGB"), (FOTO_LADO, FOTO_LADO), Image.LANCZOS)
+    except Exception:
+        raise forms.ValidationError("No se pudo leer la imagen. Probá con una foto JPG o PNG.")
+    salida = BytesIO()
+    imagen.save(salida, "JPEG", quality=85, optimize=True)
+    return ContentFile(salida.getvalue(), name="foto.jpg")
+
+
 class PerfilForm(forms.ModelForm):
+    foto_nueva = forms.FileField(label="Foto de perfil", required=False,
+                                 widget=forms.FileInput(attrs={"accept": "image/*"}),
+                                 help_text="Una foto tuya, de frente. Se recorta cuadrada.")
+    quitar_foto = forms.BooleanField(label="Quitar la foto", required=False)
+
     class Meta:
         model = Usuario
         fields = ["first_name", "last_name", "cargo", "telefono", "notif_email", "notif_whatsapp"]
@@ -164,3 +195,24 @@ class PerfilForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.instance.es_cliente:
             del self.fields["cargo"]
+
+    def clean_foto_nueva(self):
+        archivo = self.cleaned_data.get("foto_nueva")
+        if not archivo:
+            return None
+        if archivo.size > 15 * 1024 * 1024:
+            raise forms.ValidationError("La foto pesa más de 15 MB.")
+        return preparar_foto(archivo)
+
+    def save(self, commit=True):
+        usuario = super().save(commit=False)
+        anterior = usuario.foto.name if usuario.foto else ""
+        if self.cleaned_data.get("foto_nueva"):
+            usuario.foto.save("foto.jpg", self.cleaned_data["foto_nueva"], save=False)
+        elif self.cleaned_data.get("quitar_foto"):
+            usuario.foto = ""
+        if commit:
+            usuario.save()
+            if anterior and anterior != (usuario.foto.name if usuario.foto else ""):
+                usuario.foto.storage.delete(anterior)
+        return usuario

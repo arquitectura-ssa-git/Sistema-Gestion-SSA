@@ -28,8 +28,13 @@
         {% for p in personas %}
         <tr class="{% if not p.is_active %}text-muted{% endif %}">
           <td>
-            <span class="miembro-nombre">{{ p.nombre_completo }}</span>
-            {% if p.cargo %}<div class="small text-muted">{{ p.cargo }}</div>{% endif %}
+            <div class="d-flex align-items-center gap-2">
+              {% include "includes/avatar.html" with persona=p tam=34 %}
+              <div>
+                <span class="miembro-nombre">{{ p.nombre_completo }}</span>
+                {% if p.cargo %}<div class="small text-muted">{{ p.cargo }}</div>{% endif %}
+              </div>
+            </div>
             {% if not p.is_active %}<span class="badge text-bg-secondary">Inactivo</span>{% endif %}
           </td>
           <td class="miembro-email">{{ p.email }}</td>

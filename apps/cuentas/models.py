@@ -1,8 +1,14 @@
+import uuid
 from datetime import date
 from decimal import Decimal
 
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+
+
+def ruta_foto(usuario, nombre):
+    # Nombre nuevo en cada cambio: así el navegador no muestra la foto vieja guardada.
+    return f"perfiles/{usuario.pk}-{uuid.uuid4().hex[:8]}.jpg"
 
 
 class UsuarioManager(BaseUserManager):
@@ -72,6 +78,7 @@ class Usuario(AbstractUser):
     horas_mie = models.DecimalField("miércoles", max_digits=3, decimal_places=1, default=8)
     horas_jue = models.DecimalField("jueves", max_digits=3, decimal_places=1, default=8)
     horas_vie = models.DecimalField("viernes", max_digits=3, decimal_places=1, default=8)
+    foto = models.ImageField("foto de perfil", upload_to=ruta_foto, blank=True)
     notif_email = models.BooleanField("recibir avisos por email", default=True)
     notif_whatsapp = models.BooleanField("recibir avisos por WhatsApp", default=True)
 
@@ -102,6 +109,11 @@ class Usuario(AbstractUser):
     @property
     def nombre_completo(self):
         return self.get_full_name() or self.email
+
+    @property
+    def iniciales(self):
+        partes = [p for p in (self.first_name, self.last_name) if p]
+        return "".join(p[0] for p in partes).upper() or self.email[:1].upper()
 
     @property
     def es_cliente(self):
