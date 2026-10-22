@@ -34,7 +34,7 @@
     </div>
   </div>
   {% if puede_editar or form_certificado %}
-  <div class="col-xl-3">
+  <div class="col-xl-3 panel-lateral">
     {% if form_certificado %}
     <div class="tarjeta mb-3">
       <div class="tarjeta-cabecera"><h2>Importar certificado</h2></div>
@@ -47,7 +47,7 @@
             <div class="col-5">{% include "includes/campo.html" with campo=form_certificado.numero %}</div>
             <div class="col-7">{% include "includes/campo.html" with campo=form_certificado.fecha %}</div>
           </div>
-          <button class="btn btn-outline-dark w-100"><i class="bi bi-file-earmark-spreadsheet"></i> Importar</button>
+          <button class="btn btn-sm btn-outline-dark w-100"><i class="bi bi-file-earmark-spreadsheet"></i> Importar</button>
         </form>
         <p class="small text-muted mt-2 mb-0">Arma los rubros e ítems con su unidad, cantidad y avance. Con los siguientes certificados se actualiza el avance y queda en el historial con su fecha.</p>
       </div>
@@ -62,7 +62,7 @@
               {% if arbol %}data-confirmar="Esto reemplaza las tareas actuales (y su avance) por las de la plantilla. ¿Seguir?"{% endif %}>
           {% csrf_token %}
           {% include "includes/campo.html" with campo=form_plantilla.plantilla %}
-          <button class="btn btn-outline-dark w-100"><i class="bi bi-download"></i> {% if arbol %}Reemplazar tareas{% else %}Cargar tareas{% endif %}</button>
+          <button class="btn btn-sm btn-outline-dark w-100"><i class="bi bi-download"></i> {% if arbol %}Reemplazar tareas{% else %}Cargar tareas{% endif %}</button>
         </form>
         <p class="small text-muted mt-2 mb-0">Las tareas se copian: lo que ajustes acá no modifica la plantilla.</p>
         {% else %}
@@ -77,10 +77,10 @@
         <form method="post" action="{% url 'obras:tareas_a_plantilla' obra.pk %}">
           {% csrf_token %}
           <label class="form-label" for="nombre-plantilla">Nombre de la plantilla</label>
-          <input type="text" class="form-control mb-2" id="nombre-plantilla" name="nombre" maxlength="150" required placeholder="Ej: Vivienda en country">
-          <button class="btn btn-outline-dark w-100"><i class="bi bi-save"></i> Guardar plantilla</button>
+          <input type="text" class="form-control form-control-sm mb-2" id="nombre-plantilla" name="nombre" maxlength="150" required placeholder="Ej: Vivienda en country">
+          <button class="btn btn-sm btn-outline-dark w-100"><i class="bi bi-save"></i> Guardar plantilla</button>
         </form>
-        <p class="small text-muted mt-2 mb-0">Copia las etapas, rubros, ítems e incidencias de este {{ obra.etiqueta }} (sin el avance) para usarlas en otros.</p>
+        <p class="small text-muted mt-2 mb-0">Copia las etapas, rubros, ítems e incidencias {% if obra.es_proyecto %}de este proyecto{% else %}de esta obra{% endif %} (sin el avance) para usarlas en otros.</p>
       </div>
     </div>
     {% endif %}

@@ -353,3 +353,13 @@ input[type=radio], input[type=checkbox], input[type=range] { accent-color: var(-
 .dropdown-menu form { margin: 0; }
 .dropdown-item .bi { width: 1.25rem; display: inline-block; color: var(--ssa-gris); }
 .dropdown-item.text-danger .bi { color: inherit; }
+
+/* Panel lateral de Tareas (importar, plantillas): información complementaria, más chica y con aire */
+.panel-lateral .tarjeta { background: transparent; margin: 0 0 2.5rem !important; }
+.panel-lateral .tarjeta-cabecera h2 { font-size: .9rem; font-weight: 400; color: var(--ssa-plomo); }
+.panel-lateral .tarjeta-cabecera { padding-bottom: .5rem; border-bottom-color: var(--ssa-platino); }
+.panel-lateral .form-label { font-size: .72rem; color: var(--ssa-gris); margin-bottom: .2rem; }
+.panel-lateral .form-control, .panel-lateral .form-select { font-size: .8rem; padding: .3rem .55rem; min-height: 0; }
+.panel-lateral .form-text, .panel-lateral p.small { font-size: .7rem; color: #9a9a9a !important; line-height: 1.45; }
+.panel-lateral .tarjeta-cuerpo .mb-3 { margin-bottom: .6rem !important; }
+.panel-lateral .btn-sm { font-size: .78rem; padding: .3rem .75rem; }
