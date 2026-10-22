@@ -71,3 +71,14 @@ def test_solo_lo_ve_quien_puede_ver_el_documento(comun, otro, obra):
     doc = Documento.objects.get()
     assert cliente_de(otro).get(f"/documentos/{doc.pk}/").status_code == 403
     assert cliente_de(otro).get(f"/documentos/archivo/{doc.version_actual.pk}/ver/").status_code == 403
+
+
+def test_el_icono_muestra_el_formato_aunque_sea_un_enlace(comun, obra):
+    asignar(comun, obra)
+    c = cliente_de(comun)
+    c.post("/documentos/enlace/", datos(obra))  # plano en Drive → PDF
+    c.post("/documentos/enlace/", datos(obra, enlace=PLANILLA, titulo="Cómputo", tipo="otros", numero=""))
+    formatos = {d.titulo: d.version_actual.formato for d in Documento.objects.all()}
+    assert formatos == {"Planta baja": "pdf", "Cómputo": "xlsx"}
+    html = c.get("/documentos/").content.decode()
+    assert "bi-file-earmark-pdf" in html and "bi-file-earmark-spreadsheet" in html and "bi-google" not in html

@@ -24,7 +24,7 @@ def analizar(enlace):
     if url.hostname == "docs.google.com":
         # /document/d/ID/edit, /spreadsheets/d/ID/..., /presentation/d/ID/...
         if len(partes) >= 3 and partes[0] in DOCS and partes[1] == "d":
-            return {"clase": "documento", "id": partes[2], "descripcion": DOCS[partes[0]],
+            return {"clase": "documento", "id": partes[2], "descripcion": DOCS[partes[0]], "google": partes[0],
                     "vista_previa": f"https://docs.google.com/{partes[0]}/d/{partes[2]}/preview"}
         return None
 

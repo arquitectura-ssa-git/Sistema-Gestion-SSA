@@ -109,7 +109,7 @@
           {% for v in versiones %}
             <tr>
               <td class="font-monospace fw-semibold">{{ v.revision }}</td>
-              <td>{% if v.es_enlace %}<i class="bi bi-google"></i> {{ v.nombre_original }}<div class="text-muted text-truncate" style="max-width: 16rem">{{ v.enlace }}</div>{% else %}{{ v.nombre_original }}<div class="text-muted">{{ v.tamano|tamano }}{% if v.editable %} · editable {{ v.editable_nombre }}{% endif %}</div><div class="text-muted font-monospace" title="Huella SHA-256: identifica el contenido exacto del archivo" style="font-size: .7rem">{{ v.sha256|slice:":16" }}…</div>{% endif %}</td>
+              <td>{% if v.es_enlace %}<i class="bi bi-{{ v.formato|icono_archivo }}"></i> {{ v.nombre_original }}<div class="text-muted text-truncate" style="max-width: 16rem">{{ v.enlace }}</div>{% else %}{{ v.nombre_original }}<div class="text-muted">{{ v.tamano|tamano }}{% if v.editable %} · editable {{ v.editable_nombre }}{% endif %}</div><div class="text-muted font-monospace" title="Huella SHA-256: identifica el contenido exacto del archivo" style="font-size: .7rem">{{ v.sha256|slice:":16" }}…</div>{% endif %}</td>
               <td>{{ v.comentario|default:"—" }}</td>
               <td class="text-nowrap">{{ v.subido_en|date:"d/m/Y H:i" }}<div class="text-muted">{{ v.subido_por.nombre_completo|default:"—" }}</div></td>
               <td>

@@ -175,6 +175,22 @@ class VersionDocumento(models.Model):
 
         return analizar(self.enlace) if self.enlace else None
 
+    # Formato que se muestra para un enlace de Drive (el enlace no lo dice): los de Google por su clase, y los
+    # archivos de Drive según el tipo de documento.
+    FORMATO_GOOGLE = {"document": "docx", "spreadsheets": "xlsx", "presentation": "pptx"}
+    FORMATO_POR_TIPO = {"planos": "pdf", "reportes": "pdf", "permisos": "pdf", "normativas": "pdf", "contratos": "pdf",
+                        "fotos": "jpg", "planillas": "xlsx", "presupuestos": "xlsx", "cronogramas": "xlsx"}
+
+    @property
+    def formato(self):
+        """Extensión del archivo (o la que corresponde, si es un enlace de Drive): define el ícono."""
+        if not self.enlace:
+            return self.extension
+        datos = self.drive or {}
+        if datos.get("clase") == "carpeta":
+            return "carpeta"
+        return self.FORMATO_GOOGLE.get(datos.get("google")) or self.FORMATO_POR_TIPO.get(self.documento.tipo, "")
+
     @property
     def extension(self):
         if self.enlace:
