@@ -31,7 +31,7 @@
 
 <div class="tarjeta">
   {% if arbol %}
-  <div class="tarjeta-cabecera"><h2>Etapas, rubros e ítems</h2><button type="button" class="btn btn-sm btn-outline-secondary" data-plegar-todo><i class="bi bi-arrows-collapse"></i> <span>Ver solo rubros</span></button></div>
+  <div class="tarjeta-cabecera"><h2>Etapas, rubros e ítems</h2><button type="button" class="btn-plegar-todo" data-plegar-todo title="Ver solo rubros" aria-label="Ver solo rubros"><i class="bi bi-arrows-collapse"></i></button></div>
   <div class="ta-fila ta-cabecera"><div class="ta-num">#</div><div class="ta-nombre">Etapa / rubro / ítem</div><div class="ta-inc">En su grupo</div><div class="ta-avance">Peso en el total</div></div>
   <div class="ta-lista" data-plegables data-clave="plantilla-{{ plantilla.pk }}">{% for nodo in arbol %}{% include "plantillas/_nodo.html" %}{% endfor %}</div>
   {% else %}

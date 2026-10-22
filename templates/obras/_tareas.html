@@ -19,8 +19,7 @@
         <div class="d-flex align-items-center gap-3 flex-wrap">
           <span data-estado-guardado class="small text-muted"></span>
           <span class="d-flex align-items-center gap-2"><span class="small text-muted">Avance total</span> <span class="fs-5 fw-semibold" data-avance-obra>{{ obra.avance }}%</span></span>
-          {% if arbol %}<button type="button" class="btn btn-sm btn-outline-secondary" data-plegar-todo><i class="bi bi-arrows-collapse"></i> <span>Ver solo rubros</span></button>{% endif %}
-          {% if puede_editar and arbol %}<a href="?tab=tareas&editar=1" class="btn btn-sm btn-outline-dark"><i class="bi bi-pencil"></i> Editar rubros e ítems</a>{% endif %}
+          {% if arbol %}<button type="button" class="btn-plegar-todo" data-plegar-todo title="Ver solo rubros" aria-label="Ver solo rubros"><i class="bi bi-arrows-collapse"></i></button>{% endif %}
         </div>
       </div>
       {% if arbol %}

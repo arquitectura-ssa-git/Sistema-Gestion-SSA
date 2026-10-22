@@ -17,7 +17,7 @@ Tiene que ir dentro de un <form> y necesita {% block scripts %} con tareas.js.
     <div class="d-flex flex-wrap gap-2">
       <button type="button" class="btn btn-sm btn-outline-dark" data-agregar="etapa"><i class="bi bi-plus-lg"></i> Etapa</button>
       <button type="button" class="btn btn-sm btn-outline-dark" data-agregar="rubro"><i class="bi bi-plus-lg"></i> Rubro suelto</button>
-      <button type="button" class="btn btn-sm btn-outline-secondary" data-plegar-todo><i class="bi bi-arrows-collapse"></i> <span>Ver solo rubros</span></button>
+      <button type="button" class="btn-plegar-todo" data-plegar-todo title="Ver solo rubros" aria-label="Ver solo rubros"><i class="bi bi-arrows-collapse"></i></button>
     </div>
     {% if con_avance %}<div>Avance total: <strong data-avance-total>0%</strong></div>{% endif %}
   </div>
