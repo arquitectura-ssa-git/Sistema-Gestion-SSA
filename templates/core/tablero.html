@@ -42,34 +42,6 @@
     </div>
     {% endfor %}
 
-    {% if horas_por_obra %}
-    <div class="tarjeta mb-3">
-      <div class="tarjeta-cabecera">
-        <h2><i class="bi bi-clock-history"></i> Horas invertidas por proyecto <span class="badge text-bg-light border">{{ horas_por_obra.total|pct:1 }} h</span></h2>
-        <a href="{% url 'horas:reportes' %}" class="small">Ver reportes</a>
-      </div>
-      {% if horas_por_obra.filas %}
-      <div class="table-responsive">
-        <table class="table table-tarjeta tabla-horas-obra">
-          <thead><tr><th>Proyecto u obra</th><th style="width: 42%">Horas totales</th><th class="text-end">Extra</th><th class="text-end">{{ horas_por_obra.mes|date:"F"|capfirst }}</th></tr></thead>
-          <tbody>
-          {% for f in horas_por_obra.filas %}
-            <tr>
-              <td>{% if f.obra_id %}<a href="{% url 'obras:detalle' f.obra_id %}" class="nombre-obra">{{ f.obra__nombre }}</a><div class="small text-muted">{{ f.obra__codigo }}</div>{% else %}<span class="text-muted">Estudio / sin proyecto</span>{% endif %}</td>
-              <td><div class="d-flex align-items-center gap-2"><div class="progress flex-grow-1" style="height: 8px"><div class="progress-bar" style="width: {{ f.pct|stringformat:'.1f' }}%"></div></div><span class="text-nowrap small fw-semibold">{{ f.total|pct:1 }} h</span></div></td>
-              <td class="text-end small text-muted text-nowrap">{% if f.extra %}{{ f.extra|pct:1 }} h{% else %}—{% endif %}</td>
-              <td class="text-end small text-nowrap">{% if f.mes %}{{ f.mes|pct:1 }} h{% else %}<span class="text-muted">—</span>{% endif %}</td>
-            </tr>
-          {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {% else %}
-      <div class="lista-vacia"><i class="bi bi-clock-history"></i>Todavía no hay horas cargadas en el Time Report.</div>
-      {% endif %}
-    </div>
-    {% endif %}
-
     {% if esperando_cliente is not None %}
     <div class="tarjeta mb-3">
       <div class="tarjeta-cabecera"><h2><i class="bi bi-hourglass-split"></i> Esperando respuesta del cliente</h2></div>
@@ -104,7 +76,27 @@
   </div>
 
   <div class="col-xl-4">
-    {% if horas_hoy is not None %}
+    {% if horas_por_obra %}
+    <div class="tarjeta mb-3 resumen-tr">
+      <div class="tarjeta-cabecera">
+        <h2>Resumen TR <span class="badge text-bg-light border">{{ horas_por_obra.total|pct:1 }} h</span></h2>
+        <a href="{% url 'horas:reportes' %}" class="small">Ver reportes</a>
+      </div>
+      {% for f in horas_por_obra.filas %}
+      <div class="resumen-tr-fila">
+        <div class="d-flex justify-content-between gap-2">
+          {% if f.obra_id %}<a href="{% url 'obras:detalle' f.obra_id %}" class="nombre-obra text-truncate">{{ f.obra__nombre }}</a>{% else %}<span class="text-muted">Estudio / sin proyecto</span>{% endif %}
+          <span class="fw-semibold text-nowrap">{{ f.total|pct:1 }} h</span>
+        </div>
+        <div class="progress" style="height: 4px"><div class="progress-bar" style="width: {{ f.pct|stringformat:'.1f' }}%"></div></div>
+        <div class="resumen-tr-detalle">{{ horas_por_obra.mes|date:"F"|capfirst }}: {% if f.mes %}{{ f.mes|pct:1 }} h{% else %}—{% endif %}{% if f.extra %} · extra {{ f.extra|pct:1 }} h{% endif %}</div>
+      </div>
+      {% empty %}
+      <div class="small text-muted py-2">Todavía no hay horas cargadas en el Time Report.</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    {% if horas_hoy is not None and not perm.gerencia %}
     <div class="tarjeta mb-3">
       <div class="tarjeta-cabecera"><h2>Time Report de hoy</h2><a href="{% url 'horas:mio' %}" class="small">Cargar horas</a></div>
       <div class="tarjeta-cuerpo">

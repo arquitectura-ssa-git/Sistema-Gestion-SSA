@@ -219,7 +219,10 @@ def _faltantes(desde, hasta):
     cargado = {(r["usuario_id"], r["fecha"]): r["total"] for r in RegistroHoras.objects.filter(
         fecha__range=(desde, hasta), extra=False).values("usuario_id", "fecha").annotate(total=Sum("horas"))}
     resultado = []
-    for u in Usuario.objects.filter(tipo=Usuario.Tipo.PERSONAL, is_active=True).order_by("first_name", "last_name"):
+    # Gerencia (DIR) no carga Time Report: no figura entre los días sin completar.
+    personas = (Usuario.objects.filter(tipo=Usuario.Tipo.PERSONAL, is_active=True)
+                .exclude(membresias__area__codigo="gerencia").order_by("first_name", "last_name"))
+    for u in personas:
         dias = [d for d in habiles if cargado.get((u.pk, d), CERO) < u.horas_del_dia(d)]
         if dias:
             resultado.append({"persona": u, "dias": dias})
