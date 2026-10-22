@@ -40,6 +40,7 @@ Qué puede hacer cada uno:
 | Editar datos, tareas y avance de un proyecto u obra | Sus responsables y DIR |
 | Crear proyectos y obras | DIR |
 | Ver **montos** (presupuesto, certificados, saldos) | Solo DIR y el responsable de Gestión Administrativa |
+| Ver el **historial de avance** | DIR, Coordinación y el responsable de Gestión Administrativa |
 | Importar un certificado de avance (Excel) | Responsables de la obra, DIR y el responsable de Gestión Administrativa |
 | Subir archivos | A un proyecto u obra: su equipo asignado, Coordinación y DIR. A la Biblioteca general: todo el personal |
 | Aprobar planos para obra | Dirección Técnica |
@@ -161,3 +162,4 @@ aprobación. Cada cambio se anota abajo con fecha y motivo.
 |---|---|---|---|
 | 22/10/2026 | Primera versión | Ordenar las reglas del sistema según el manual de buenas prácticas | Pendiente |
 | 22/10/2026 | Montos solo para DIR y Gestión Administrativa; historial de avance; certificados de obra | Pedido para la obra MZ (certificados quincenales) | Pablo Saez (lo pidió) |
+| 22/10/2026 | El historial de avance lo ven solo DIR, Coordinación y el responsable de Gestión Administrativa | Pedido de Pablo | Pablo Saez (lo pidió) |

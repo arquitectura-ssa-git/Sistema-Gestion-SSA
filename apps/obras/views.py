@@ -149,6 +149,8 @@ def detalle(request, pk):
     ver_montos = permisos.puede_ver_montos(request.user)
     if not (ver_montos and (obra.certificados.exists() or obra.tipo == Obra.Tipo.OBRA)):
         pestanas = [p for p in pestanas if p[0] != "certificados"]  # montos: Gerencia y Gestión Administrativa
+    if not permisos.puede_ver_historial_avance(request.user):
+        pestanas = [p for p in pestanas if p[0] != "historial"]
     tab = request.GET.get("tab", "resumen")
     if tab not in {p[0] for p in pestanas}:
         tab = "resumen"

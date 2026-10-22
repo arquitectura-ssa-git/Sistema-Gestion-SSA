@@ -60,3 +60,11 @@ def test_montos_solo_dir_y_administracion(dir_, administracion, coordinador, com
         html = cliente_de(u).get(f"/obras/{obra.pk}/?tab=certificados").content.decode()
         assert "tab=certificados" not in html
         assert "Presupuesto total" not in html
+
+
+def test_historial_de_avance_solo_dir_coordinacion_y_administracion(dir_, coordinador, administracion, comun, obra):
+    asignar(comun, obra, responsable=True)
+    for u in (dir_, coordinador, administracion):
+        assert "tab=historial" in cliente_de(u).get(f"/obras/{obra.pk}/").content.decode(), u
+    html = cliente_de(comun).get(f"/obras/{obra.pk}/?tab=historial").content.decode()
+    assert "tab=historial" not in html and "Historial de avance" not in html

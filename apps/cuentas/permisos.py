@@ -94,6 +94,11 @@ def puede_ver_montos(u):
     return es_gerencia(u) or es_responsable_de(u, A.GESTION_ADMINISTRATIVA)
 
 
+def puede_ver_historial_avance(u):
+    """Historial de avance de las tareas: Gerencia, Coordinación y el responsable de Gestión Administrativa."""
+    return es_gerencia(u) or es_coordinador(u) or puede_ver_montos(u)
+
+
 def puede_importar_certificado(u, obra):
     return puede_editar_obra(u, obra) or puede_ver_montos(u)
 
