@@ -18,7 +18,7 @@ from apps.cuentas.models import Area
 from apps.obras.models import Obra
 
 from . import formatos, procesar, services
-from .forms import DocumentoForm, SubirForm, VersionForm
+from .forms import DocumentoForm, EnlaceForm, SubirForm, VersionForm
 from .models import Documento, VersionDocumento
 
 T = Documento.Tipo
@@ -95,6 +95,29 @@ def papelera(request):
 # --- Subir ---------------------------------------------------------------------
 
 @permisos.solo_personal
+def agregar_enlace(request):
+    """Documento que vive en Google Drive: se guarda el enlace, no se sube ni se duplica el archivo."""
+    u = request.user
+    inicial = {"tipo": request.GET.get("tipo") or T.PLANOS}
+    if request.GET.get("obra", "").isdigit():
+        inicial["obra"] = request.GET["obra"]
+    form = EnlaceForm(request.POST or None, usuario=u, initial=inicial)
+    if request.method == "POST" and form.is_valid():
+        d = form.cleaned_data
+        previo = services.enlace_repetido(d["obra"], d["enlace"])
+        if previo:
+            messages.warning(request, f"Ese enlace ya está cargado como «{previo.documento}».")
+            return redirect("documentos:detalle", pk=previo.documento_id)
+        doc, _ = services.crear_documento_enlace(
+            u, d["enlace"], obra=d["obra"], tipo=d["tipo"], titulo=d["titulo"], area=d["area"], acceso=d["acceso"],
+            etiquetas=d["etiquetas"], comentario=d["comentario"],
+            numero=d["numero"] if d["tipo"] == T.PLANOS else "")
+        messages.success(request, f"Se agregó «{doc}» con su enlace de Drive.")
+        return redirect("documentos:detalle", pk=doc.pk)
+    return render(request, "documentos/enlace.html", {"form": form})
+
+
+@permisos.solo_personal
 def subir(request):
     u = request.user
     inicial = {"tipo": request.GET.get("tipo") or T.PLANOS}
@@ -131,7 +154,7 @@ def detalle(request, pk):
     versiones = list(doc.versiones.select_related("subido_por", "aprobada_por"))
     vigente = versiones[0] if versiones else None
     hojas = None
-    if vigente and vigente.es_planilla:
+    if vigente and vigente.es_planilla and not vigente.es_enlace:
         try:
             hojas = procesar.leer_planilla(vigente)
         except Exception:  # noqa: BLE001
@@ -177,6 +200,11 @@ def nueva_version(request, pk):
     form = VersionForm(request.POST, request.FILES, documento=doc)
     if form.is_valid():
         d = form.cleaned_data
+        if d["enlace"]:
+            version = services.agregar_version_enlace(doc, request.user, d["enlace"], comentario=d["comentario"],
+                                                      revision=d["revision"])
+            messages.success(request, f"Se agregó la Rev {version.revision} (enlace de Drive).")
+            return _volver(doc)
         sha = procesar.huella(d["archivo"])
         previo = services.duplicado_en_obra(doc.obra, sha)
         if previo:
@@ -301,6 +329,9 @@ def _respuesta(archivo, nombre, descarga):
 @xframe_options_sameorigin
 def ver(request, version_pk):
     version = _version_accesible(request, version_pk)
+    if version.es_enlace:
+        services.registrar_acceso(version, request.user, descarga=False)
+        return redirect(version.enlace)
     if version.vista_previa and version.extension in ("heic", "heif"):
         archivo, nombre = version.vista_previa, version.nombre_original.rsplit(".", 1)[0] + ".jpg"
     elif version.se_ve_en_navegador:
@@ -314,6 +345,9 @@ def ver(request, version_pk):
 @login_required
 def descargar(request, version_pk):
     version = _version_accesible(request, version_pk)
+    if version.es_enlace:  # el archivo vive en Drive: se abre ahí (Drive tiene su propio botón de descarga)
+        services.registrar_acceso(version, request.user, descarga=False)
+        return redirect(version.enlace)
     services.registrar_acceso(version, request.user, descarga=True)
     return _respuesta(version.archivo, version.nombre_original, descarga=True)
 

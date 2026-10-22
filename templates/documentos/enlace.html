@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block titulo %}Agregar enlace de Drive{% endblock %}
+{% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'documentos:lista' %}">Documentos</a></li><li class="breadcrumb-item active">Enlace de Drive</li></ol></nav>{% endblock %}
+{% block contenido %}
+<div class="pagina-titulo"><h1>Agregar enlace de Drive</h1></div>
+<form method="post" novalidate>
+  {% csrf_token %}
+  {% include "includes/errores_form.html" %}
+  <div class="row g-3">
+    <div class="col-lg-7">
+      <div class="tarjeta">
+        <div class="tarjeta-cuerpo">
+          {% include "includes/campo.html" with campo=form.enlace %}
+          {% include "includes/campo.html" with campo=form.titulo %}
+          <div id="campo-numero">{% include "includes/campo.html" with campo=form.numero %}</div>
+          {% include "includes/campo.html" with campo=form.comentario %}
+          <div class="small text-muted">
+            El archivo queda en Drive: no se sube ni se duplica. En SOPHIA se ve con la vista previa de Google.
+            <strong>Para verlo, cada persona tiene que tener acceso en Drive</strong>: compartí la carpeta o el
+            archivo con el equipo (en Drive: Compartir → con las personas o «Cualquier persona con el enlace»).
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-5 panel-lateral">
+      <div class="tarjeta">
+        <div class="tarjeta-cuerpo">
+          {% include "includes/campo.html" with campo=form.obra %}
+          {% include "includes/campo.html" with campo=form.tipo %}
+          {% include "includes/campo.html" with campo=form.area %}
+          {% include "includes/campo.html" with campo=form.acceso %}
+          {% include "includes/campo.html" with campo=form.etiquetas %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="mt-3 d-flex gap-2">
+    <button class="btn btn-dark"><i class="bi bi-link-45deg"></i> Agregar</button>
+    <a href="{% url 'documentos:lista' %}" class="btn btn-outline-secondary">Cancelar</a>
+  </div>
+</form>
+{% endblock %}
+{% block scripts %}
+<script>
+(function () {
+  const tipo = document.getElementById("id_tipo");
+  function actualizar() { document.getElementById("campo-numero").hidden = tipo.value !== "planos"; }
+  tipo.addEventListener("change", actualizar);
+  actualizar();
+})();
+</script>
+{% endblock %}

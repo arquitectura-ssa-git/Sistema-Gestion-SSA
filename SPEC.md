@@ -68,7 +68,9 @@ activo (ver sección 5).
    prueba (`manage.py cargar_demo`).
 3. El **registro de actividad** no se modifica ni se borra, ni desde la pantalla ni desde el panel técnico.
 4. Los archivos se ven y se descargan **solo** a través del sistema, que controla los permisos en cada pedido. Nunca
-   por una dirección directa.
+   por una dirección directa. Los documentos pueden ser,
+   en lugar de un archivo subido, un **enlace de Google Drive**: no se duplica el archivo, SOPHIA decide a quién le
+   muestra el enlace y **Drive decide quién puede abrirlo** (con quién está compartido).
 5. Nada se borra de entrada: los documentos van a la **papelera**. Solo DIR puede borrarlos definitivamente, y el
    registro de actividad conserva que existieron. Los proyectos y obras eliminados también van a una papelera: no
    aparecen en ningún lado, pero no se borran y DIR los puede restaurar.
@@ -166,3 +168,4 @@ aprobación. Cada cambio se anota abajo con fecha y motivo.
 | 22/10/2026 | Montos solo para DIR y Gestión Administrativa; historial de avance; certificados de obra | Pedido para la obra MZ (certificados quincenales) | Pablo Saez (lo pidió) |
 | 22/10/2026 | El historial de avance lo ven solo DIR, Coordinación y el responsable de Gestión Administrativa | Pedido de Pablo | Pablo Saez (lo pidió) |
 | 22/10/2026 | DIR puede eliminar proyectos y obras (papelera con restaurar) | Borrar lo cargado por error o de prueba | Pablo Saez (lo pidió) |
+| 22/10/2026 | Documentos con enlace de Google Drive en lugar de subir el archivo | No duplicar archivos ni imágenes | Pablo Saez (lo pidió) |

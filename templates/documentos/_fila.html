@@ -1,19 +1,20 @@
 {% load core_tags %}{% with v=doc.version_actual %}
 <tr>
-  <td style="width: 2.2rem" class="fs-4"><i class="bi bi-{{ v.extension|icono_archivo }}"></i></td>
+  <td style="width: 2.2rem" class="fs-4">{% if v.es_enlace %}<i class="bi bi-google" title="Enlace de Google Drive"></i>{% else %}<i class="bi bi-{{ v.extension|icono_archivo }}"></i>{% endif %}</td>
   <td>
     <a href="{% url 'documentos:detalle' doc.pk %}" class="fw-semibold">{% if doc.numero %}{{ doc.numero }} · {% endif %}{{ doc.titulo }}</a>
     {% if v %}<span class="badge text-bg-light border font-monospace">Rev {{ v.revision }}</span>{% endif %}
     {% if doc.es_plano %}{% include "documentos/_estado_plano.html" %}{% endif %}
     <div class="small text-muted">
-      {% if mostrar_obra %}{{ doc.obra.nombre|default:"Biblioteca general" }} · {% endif %}{{ doc.get_tipo_display }}{% if v %} · {{ v.extension|upper }} {{ v.tamano|tamano }}{% if v.editable %} + {{ v.editable_nombre|slice:"-3:"|upper }}{% endif %}{% endif %}
+      {% if mostrar_obra %}{{ doc.obra.nombre|default:"Biblioteca general" }} · {% endif %}{{ doc.get_tipo_display }}{% if v.es_enlace %} · {{ v.nombre_original }}{% elif v %} · {{ v.extension|upper }} {{ v.tamano|tamano }}{% if v.editable %} + {{ v.editable_nombre|slice:"-3:"|upper }}{% endif %}{% endif %}
       {% if doc.vencimiento %} · vence {{ doc.vencimiento|date:"d/m/Y" }}{% endif %}
     </div>
   </td>
   <td>{% include "documentos/_acceso.html" %}</td>
   <td class="small text-muted text-nowrap">{{ doc.actualizado|date:"d/m/Y" }}</td>
   <td class="text-end text-nowrap">
-    {% if v %}<a href="{% url 'documentos:descargar' v.pk %}" class="btn btn-sm btn-outline-secondary" title="Descargar"><i class="bi bi-download"></i></a>{% endif %}
+    {% if v.es_enlace %}<a href="{% url 'documentos:ver' v.pk %}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary" title="Abrir en Drive"><i class="bi bi-box-arrow-up-right"></i></a>
+    {% elif v %}<a href="{% url 'documentos:descargar' v.pk %}" class="btn btn-sm btn-outline-secondary" title="Descargar"><i class="bi bi-download"></i></a>{% endif %}
   </td>
 </tr>
 {% endwith %}

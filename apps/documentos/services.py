@@ -106,6 +106,63 @@ def agregar_version(documento, usuario, archivo, *, comentario="", revision="", 
     return version
 
 
+def enlace_repetido(obra, enlace):
+    """Documento de la misma obra (o de la biblioteca) que ya usa ese enlace de Drive."""
+    from .drive import analizar
+
+    datos = analizar(enlace)
+    versiones = VersionDocumento.objects.select_related("documento").filter(
+        documento__obra=obra, documento__en_papelera=False).exclude(enlace="")
+    for v in versiones:
+        otro = v.drive
+        if v.enlace == enlace or (datos and otro and otro["id"] == datos["id"]):
+            return v
+    return None
+
+
+def _version_enlace(documento, usuario, enlace, *, comentario="", revision=""):
+    from .drive import analizar
+
+    datos = analizar(enlace) or {}
+    return VersionDocumento.objects.create(
+        documento=documento,
+        numero=(documento.versiones.order_by("-numero").values_list("numero", flat=True).first() or 0) + 1,
+        revision=(revision or _siguiente_revision(documento))[:10],
+        comentario=comentario[:300], enlace=enlace,
+        nombre_original=(datos.get("descripcion") or "Enlace de Drive")[:255],
+        tamano=0, sha256="", subido_por=usuario,
+    )
+
+
+@transaction.atomic
+def crear_documento_enlace(usuario, enlace, *, obra, tipo, titulo, area=None, acceso=Documento.Acceso.EQUIPO,
+                           etiquetas="", comentario="", numero="", revision=""):
+    documento = Documento.objects.create(
+        obra=obra, tipo=tipo, area=area, acceso=acceso, etiquetas=etiquetas, creado_por=usuario,
+        titulo=titulo[:200], numero=numero,
+        estado_plano=Documento.EstadoPlano.ELABORACION if tipo == Documento.Tipo.PLANOS else "",
+    )
+    version = _version_enlace(documento, usuario, enlace, comentario=comentario, revision=revision)
+    registrar("documento.alta", f"Agregó el enlace de Drive «{documento}» ({documento.get_tipo_display()}, "
+              f"Rev {version.revision})", usuario=usuario, objeto=documento,
+              detalle={"version": version.revision, "enlace": enlace, "acceso": documento.get_acceso_display()})
+    return documento, version
+
+
+@transaction.atomic
+def agregar_version_enlace(documento, usuario, enlace, *, comentario="", revision=""):
+    version = _version_enlace(documento, usuario, enlace, comentario=comentario, revision=revision)
+    campos = ["actualizado"]
+    if documento.es_plano:
+        documento.estado_plano = Documento.EstadoPlano.ELABORACION
+        campos.append("estado_plano")
+    documento.save(update_fields=campos)
+    registrar("documento.version", f"Nueva versión de «{documento}» (enlace de Drive): Rev {version.revision}",
+              usuario=usuario, objeto=documento,
+              detalle={"version": version.revision, "enlace": enlace, "comentario": comentario})
+    return version
+
+
 def subir_lote(usuario, archivos, *, obra, tipo, area, acceso, etiquetas, comentario):
     """Sube varios archivos de una vez. En planos, un DWG/RVT con el mismo nombre que un PDF va como su
     editable, y un N° de plano que ya existe en la obra entra como versión nueva de ese plano.

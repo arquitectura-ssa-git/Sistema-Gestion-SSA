@@ -133,7 +133,9 @@ class VersionDocumento(models.Model):
     revision = models.CharField("revisión", max_length=10, help_text="A, B, C…")
     comentario = models.CharField("qué cambió", max_length=300, blank=True)
 
-    archivo = models.FileField(upload_to=ruta_archivo, max_length=300)
+    archivo = models.FileField(upload_to=ruta_archivo, max_length=300, blank=True)
+    # En lugar de un archivo subido, la versión puede ser un enlace de Google Drive (no se duplica nada).
+    enlace = models.URLField("enlace de Drive", max_length=500, blank=True)
     nombre_original = models.CharField(max_length=255)
     tamano = models.BigIntegerField("tamaño", default=0)
     sha256 = models.CharField("huella SHA-256", max_length=64, db_index=True)
@@ -164,7 +166,19 @@ class VersionDocumento(models.Model):
         return f"{self.documento} · Rev {self.revision}"
 
     @property
+    def es_enlace(self):
+        return bool(self.enlace)
+
+    @property
+    def drive(self):
+        from .drive import analizar
+
+        return analizar(self.enlace) if self.enlace else None
+
+    @property
     def extension(self):
+        if self.enlace:
+            return ""
         return os.path.splitext(self.nombre_original)[1].lower().lstrip(".")
 
     @property
