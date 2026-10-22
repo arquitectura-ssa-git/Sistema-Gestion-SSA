@@ -22,6 +22,7 @@
   </div>
   <div class="col-auto"><button class="btn btn-outline-secondary"><i class="bi bi-search"></i></button></div>
 </form>
+{% if asignadas %}<p class="small text-muted mb-2"><span class="punto-asignada" aria-hidden="true"></span>En negrita y con punto: {% if es_proyecto %}los proyectos{% else %}las obras{% endif %} donde estás en el equipo.</p>{% endif %}
 
 <div class="tarjeta">
   <div class="table-responsive">
@@ -30,7 +31,7 @@
       <tbody>
       {% for o in obras %}
         <tr>
-          <td><a href="{% url 'obras:detalle' o.pk %}" class="fw-semibold">{{ o.nombre }}</a><div class="small text-muted">{{ o.codigo }}{% if o.localidad %} · {{ o.localidad }}{% endif %}</div></td>
+          <td>{% include "obras/_nombre.html" %}<div class="small text-muted">{{ o.codigo }}{% if o.localidad %} · {{ o.localidad }}{% endif %}</div></td>
           <td>{{ o.cliente|default:"<span class='text-muted'>Sin cliente</span>" }}</td>
           <td>{% include "obras/_etapa.html" with obra=o %}</td>
           <td>{% include "obras/_avance.html" with obra=o %}</td>
@@ -39,7 +40,7 @@
         </tr>
       {% empty %}
         <tr><td colspan="6"><div class="lista-vacia"><i class="bi bi-{% if es_proyecto %}pencil-square{% else %}buildings{% endif %}"></i>
-          {% if es_proyecto %}{% if q or etapa or estado != "activa" %}No hay proyectos con esos filtros.{% elif perm.gerencia %}Todavía no hay proyectos. Creá el primero.{% else %}Todavía no te asignaron a ningún proyecto.{% endif %}{% else %}{% if q or etapa or estado != "activa" %}No hay obras con esos filtros.{% elif perm.gerencia %}Todavía no hay obras. Creá la primera.{% else %}Todavía no te asignaron a ninguna obra.{% endif %}{% endif %}
+          {% if es_proyecto %}{% if q or etapa or estado != "activa" %}No hay proyectos con esos filtros.{% elif perm.gerencia %}Todavía no hay proyectos. Creá el primero.{% else %}Todavía no hay proyectos activos.{% endif %}{% else %}{% if q or etapa or estado != "activa" %}No hay obras con esos filtros.{% elif perm.gerencia %}Todavía no hay obras. Creá la primera.{% else %}Todavía no te asignaron a ninguna obra.{% endif %}{% endif %}
         </div></td></tr>
       {% endfor %}
       </tbody>

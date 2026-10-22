@@ -16,7 +16,7 @@ def inicio(request):
 @permisos.solo_personal
 def tablero(request):
     u = request.user
-    activas = permisos.obras_visibles(u).filter(estado=Obra.Estado.ACTIVA).select_related("cliente")
+    activas = permisos.obras_del_equipo(u).filter(estado=Obra.Estado.ACTIVA).select_related("cliente")
     T = Obra.Tipo
     contexto = {
         "secciones": [
@@ -26,6 +26,7 @@ def tablero(request):
                                              (T.OBRA, "Obras activas", "buildings", "obras:lista")]
         ],
         "mis_areas": u.membresias.select_related("area"),
+        "asignadas": permisos.ids_asignadas(u),
     }
     if apps.is_installed("apps.horas"):
         from django.db.models import Sum

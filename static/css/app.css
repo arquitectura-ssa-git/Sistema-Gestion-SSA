@@ -313,3 +313,8 @@ input[type=radio], input[type=checkbox], input[type=range] { accent-color: var(-
   .dia-contrato { display: flex; align-items: center; gap: .75rem; }
   .dia-contrato .form-check { margin: 0; width: 4rem; }
 }
+
+/* Listados de proyectos y obras: los que tienen a la persona en el equipo, en negrita y con un punto. */
+.nombre-obra { font-weight: 400; }
+.nombre-obra.asignada { font-weight: 700; }
+.punto-asignada { display: inline-block; width: .45rem; height: .45rem; border-radius: 50%; background: var(--ssa-negro); margin-right: .45rem; vertical-align: .1rem; }

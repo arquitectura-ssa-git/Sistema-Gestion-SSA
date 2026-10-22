@@ -69,6 +69,7 @@ def lista(request, tipo=Obra.Tipo.OBRA):
                              | Q(localidad__icontains=q))
     return render(request, "obras/lista.html", {
         "obras": obras.order_by("nombre"),
+        "asignadas": permisos.ids_asignadas(request.user),
         "estado": estado, "etapa": etapa, "q": q,
         "estados": Obra.Estado.choices, "etapas": Obra.Etapa.choices,
         "puede_crear": permisos.puede_crear_obra(request.user),

@@ -24,7 +24,7 @@
           <tbody>
           {% for o in sec.items %}
             <tr>
-              <td><a href="{% url 'obras:detalle' o.pk %}" class="fw-semibold">{{ o.nombre }}</a><div class="small text-muted">{{ o.codigo }}</div></td>
+              <td>{% include "obras/_nombre.html" %}<div class="small text-muted">{{ o.codigo }}</div></td>
               <td>{{ o.cliente|default:"<span class='text-muted'>Sin cliente</span>" }}</td>
               <td><span class="badge text-bg-light border">{{ o.get_etapa_display }}</span></td>
               <td>
