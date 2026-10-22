@@ -1,0 +1,1 @@
+{% if o.pk in asignadas %}<a href="{% url 'obras:detalle' o.pk %}" class="nombre-obra asignada" title="Estás en el equipo"><span class="punto-asignada" aria-hidden="true"></span>{{ o.nombre }}<span class="visually-hidden"> (estás en el equipo)</span></a>{% else %}<a href="{% url 'obras:detalle' o.pk %}" class="nombre-obra">{{ o.nombre }}</a>{% endif %}

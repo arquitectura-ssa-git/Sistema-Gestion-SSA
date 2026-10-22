@@ -1,9 +1,10 @@
 from django.apps import apps
 from django.contrib.auth.decorators import login_required
+from django.db.models import Exists, OuterRef
 from django.shortcuts import redirect, render
 
 from apps.cuentas import permisos
-from apps.obras.models import Obra
+from apps.obras.models import AsignacionObra, Obra
 
 
 @login_required
@@ -16,7 +17,9 @@ def inicio(request):
 @permisos.solo_personal
 def tablero(request):
     u = request.user
-    activas = permisos.obras_visibles(u).filter(estado=Obra.Estado.ACTIVA).select_related("cliente")
+    mias = AsignacionObra.objects.filter(obra=OuterRef("pk"), usuario=u)
+    activas = (permisos.obras_del_equipo(u).filter(estado=Obra.Estado.ACTIVA).select_related("cliente")
+               .annotate(es_mia=Exists(mias)).order_by("-es_mia", "nombre"))
     T = Obra.Tipo
     contexto = {
         "secciones": [
@@ -26,6 +29,7 @@ def tablero(request):
                                              (T.OBRA, "Obras activas", "buildings", "obras:lista")]
         ],
         "mis_areas": u.membresias.select_related("area"),
+        "asignadas": permisos.ids_asignadas(u),
     }
     if apps.is_installed("apps.horas"):
         from django.db.models import Sum

@@ -18,16 +18,29 @@ class RegistroForm(forms.ModelForm):
             "nota": forms.TextInput(attrs={"placeholder": "Opcional"}),
         }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, usuario=None, **kwargs):
         super().__init__(*args, **kwargs)
-        # Proyectos y obras activos; si una carga ya usaba uno que después se pausó o finalizó, se mantiene.
+        # Todos los proyectos y obras activos (se puede colaborar en uno sin estar en el equipo); si una carga
+        # ya usaba uno que después se pausó o finalizó, se mantiene.
         activas = Obra.objects.filter(estado=Obra.Estado.ACTIVA)
         if self.instance.pk and self.instance.obra_id:
             activas = Obra.objects.filter(pk=self.instance.obra_id) | activas
-        self.fields["obra"].queryset = activas.distinct().order_by("tipo", "nombre")
-        self.fields["obra"].empty_label = "Estudio / sin proyecto"
-        self.fields["obra"].label_from_instance = lambda o: f"{o.nombre} · {o.get_tipo_display()}"
-        self.fields["obra"].required = False
+        campo = self.fields["obra"]
+        campo.queryset = activas.distinct().order_by("tipo", "nombre")
+        campo.required = False
+        etiqueta = lambda o: f"{o.nombre} · {o.get_tipo_display()}"  # noqa: E731
+        campo.label_from_instance = etiqueta
+        # Arriba, en su propio grupo, los proyectos y obras donde la persona está en el equipo.
+        mias = set(usuario.asignaciones.values_list("obra_id", flat=True)) if usuario else set()
+        obras = list(campo.queryset)
+        propias = [(o.pk, etiqueta(o)) for o in obras if o.pk in mias]
+        resto = [(o.pk, etiqueta(o)) for o in obras if o.pk not in mias]
+        opciones = [("", "Estudio / sin proyecto")]
+        if propias:
+            opciones += [("Tus proyectos y obras", propias), ("Los demás", resto)]
+        else:
+            opciones += resto
+        campo.choices = opciones
 
     def clean_horas(self):
         horas = self.cleaned_data.get("horas")
@@ -43,6 +56,9 @@ class BaseDiaFormSet(BaseModelFormSet):
         self.usuario, self.fecha = usuario, fecha
         kwargs.setdefault("queryset", RegistroHoras.objects.filter(usuario=usuario, fecha=fecha).select_related("obra"))
         super().__init__(*args, **kwargs)
+
+    def get_form_kwargs(self, index):
+        return {**super().get_form_kwargs(index), "usuario": self.usuario}
 
     def vigentes(self):
         return [f for f in self.forms

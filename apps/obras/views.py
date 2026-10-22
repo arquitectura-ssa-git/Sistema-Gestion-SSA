@@ -6,7 +6,7 @@ from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from django.db import transaction
-from django.db.models import Count, Q
+from django.db.models import Count, Exists, OuterRef, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -67,8 +67,12 @@ def lista(request, tipo=Obra.Tipo.OBRA):
     if q:
         obras = obras.filter(Q(nombre__icontains=q) | Q(codigo__icontains=q) | Q(cliente__nombre__icontains=q)
                              | Q(localidad__icontains=q))
+    # Primero los que tienen a la persona en el equipo, después el resto; cada grupo por nombre.
+    mias = AsignacionObra.objects.filter(obra=OuterRef("pk"), usuario=request.user)
+    obras = obras.annotate(es_mia=Exists(mias)).order_by("-es_mia", "nombre")
     return render(request, "obras/lista.html", {
-        "obras": obras.order_by("nombre"),
+        "obras": obras,
+        "asignadas": permisos.ids_asignadas(request.user),
         "estado": estado, "etapa": etapa, "q": q,
         "estados": Obra.Estado.choices, "etapas": Obra.Etapa.choices,
         "puede_crear": permisos.puede_crear_obra(request.user),

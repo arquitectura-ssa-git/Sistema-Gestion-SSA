@@ -51,7 +51,7 @@ class VariosArchivosField(forms.FileField):
 
 
 def _opciones_obra(usuario, campo):
-    obras = permisos.obras_visibles(usuario).order_by("nombre")
+    obras = permisos.obras_del_equipo(usuario).order_by("nombre")
     campo.queryset = obras
     campo.required = False
     campo.empty_label = "Biblioteca general del estudio (sin obra)"
@@ -68,7 +68,7 @@ def _opciones_acceso(usuario, campo, obra=None, documento=None):
     elif not puede and isinstance(obra, Obra):
         puede = permisos.es_responsable_de_obra(usuario, obra)
     elif not puede:
-        puede = any(permisos.es_responsable_de_obra(usuario, o) for o in permisos.obras_visibles(usuario))
+        puede = any(permisos.es_responsable_de_obra(usuario, o) for o in permisos.obras_del_equipo(usuario))
     campo.choices = [c for c in A.choices if c[0] != A.CLIENTE or puede]
 
 

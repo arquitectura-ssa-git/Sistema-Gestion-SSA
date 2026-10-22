@@ -80,16 +80,46 @@ def puede_gestionar_clientes(u):
 
 # --- Obras -----------------------------------------------------------------
 
+def es_coordinador(u):
+    """Coordinación: responsables de Gestión de Proyectos o de Gestión de Obras. Ven todo, como Gerencia."""
+    return es_responsable_de(u, A.GESTION_PROYECTOS) or es_responsable_de(u, A.GESTION_OBRAS)
+
+
+def ve_todas_las_obras(u):
+    return es_gerencia(u) or es_coordinador(u)
+
+
 def obras_visibles(u):
+    """Lo que se puede abrir: todo el personal ve todos los proyectos; las obras, solo su equipo
+    (Gerencia y Coordinación ven todo)."""
     from apps.obras.models import Obra
 
-    if es_gerencia(u):
+    if ve_todas_las_obras(u):
         return Obra.objects.all()
     if es_cliente(u):
         return Obra.objects.filter(cliente_id=u.cliente_id) if u.cliente_id else Obra.objects.none()
     if es_personal(u):
-        return Obra.objects.filter(asignaciones__usuario=u).distinct()
+        return Obra.objects.filter(Q(tipo=Obra.Tipo.PROYECTO) | Q(asignaciones__usuario=u)).distinct()
     return Obra.objects.none()
+
+
+def obras_del_equipo(u):
+    """Donde la persona trabaja: las asignadas (Gerencia y Coordinación, todas). Define los archivos que ve
+    y lo que aparece en su Dashboard."""
+    from apps.obras.models import Obra
+
+    if ve_todas_las_obras(u):
+        return Obra.objects.all()
+    if es_personal(u):
+        return Obra.objects.filter(asignaciones__usuario=u).distinct()
+    return obras_visibles(u)
+
+
+def ids_asignadas(u):
+    """Proyectos y obras donde la persona está en el equipo (para marcarlos en los listados)."""
+    if not es_personal(u):
+        return set()
+    return set(u.asignaciones.values_list("obra_id", flat=True))
 
 
 def puede_ver_obra(u, obra):
@@ -98,6 +128,10 @@ def puede_ver_obra(u, obra):
 
 def esta_asignado(u, obra):
     return es_personal(u) and obra.asignaciones.filter(usuario=u).exists()
+
+
+def trabaja_en(u, obra):
+    return es_coordinador(u) or esta_asignado(u, obra)
 
 
 def puede_crear_obra(u):
@@ -140,7 +174,7 @@ def documentos_visibles(u):
     if es_cliente(u):
         return qs.filter(obra__in=obras_visibles(u), acceso=A.CLIENTE, archivado=False)
     if es_personal(u):
-        abiertos = Q(acceso__in=[A.EQUIPO, A.CLIENTE]) & (Q(obra__isnull=True) | Q(obra__in=obras_visibles(u)))
+        abiertos = Q(acceso__in=[A.EQUIPO, A.CLIENTE]) & (Q(obra__isnull=True) | Q(obra__in=obras_del_equipo(u)))
         restringidos = Q(acceso=A.RESTRINGIDO, area__codigo__in=codigos_areas(u))
         return qs.filter(abiertos | restringidos)
     return qs.none()
@@ -149,7 +183,7 @@ def documentos_visibles(u):
 def puede_subir_documentos(u, obra=None):
     if not es_personal(u):
         return False
-    return obra is None or es_gerencia(u) or esta_asignado(u, obra)
+    return obra is None or es_gerencia(u) or trabaja_en(u, obra)
 
 
 def es_responsable_de_obra(u, obra):
@@ -192,7 +226,7 @@ def puede_ver_documento(u, doc, incluir_papelera=False):
         return False
     if doc.acceso == Documento.Acceso.RESTRINGIDO:
         return bool(doc.area_id and doc.area.codigo in codigos_areas(u))
-    return doc.obra_id is None or esta_asignado(u, doc.obra)
+    return doc.obra_id is None or trabaja_en(u, doc.obra)
 
 
 def puede_compartir_con_cliente(u, doc):
@@ -227,7 +261,7 @@ def solicitudes_visibles(u):
     if es_gerencia(u):
         return Solicitud.objects.all()
     if es_personal(u):
-        return Solicitud.objects.filter(obra__in=obras_visibles(u))
+        return Solicitud.objects.filter(obra__in=obras_del_equipo(u))
     if es_cliente(u):
         return Solicitud.objects.filter(obra__in=obras_visibles(u)).filter(
             Q(estado__in=Solicitud.ESTADOS_VISIBLES_CLIENTE) | Q(estado=E.CANCELADA, enviada_en__isnull=False)

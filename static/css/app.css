@@ -56,7 +56,11 @@ h1, h2, h3, h4, h5 { font-weight: 400; letter-spacing: -.01em; }
 .app-logo img { display: block; width: 135px; max-width: 100%; height: auto; }
 .marca-sistema { font-weight: 400; letter-spacing: .35em; font-size: .8rem; margin-top: .6rem; }
 .app-logo .marca-sistema { display: block; color: var(--lateral-texto); font-size: .62rem; text-align: center; width: 135px; margin-top: .9rem; }
-.subtitulo-ingreso { font-size: .75rem; white-space: nowrap; letter-spacing: .02em; line-height: 1.6; }
+.subtitulo-ingreso { font-size: .62rem; white-space: nowrap; text-transform: uppercase; letter-spacing: .3em; line-height: 1.9; color: var(--ssa-plomo); margin-right: -.3em; }
+.logo-sophia { display: block; width: 100%; max-width: 250px; height: auto; margin: 1.5rem auto .6rem; }
+/* La marca del estudio, chica, al pie de la tarjeta. */
+.firma-ingreso { margin-top: 1.75rem; padding-top: 1.25rem; border-top: 1px solid var(--ssa-platino); text-align: center; }
+.firma-ingreso img { width: 120px; height: auto; opacity: .75; }
 @media (max-width: 440px) { .subtitulo-ingreso { white-space: normal; } }
 .logo-ingreso { display: block; width: 100%; max-width: 210px; height: auto; margin: 1.25rem auto .75rem; }
 
@@ -309,3 +313,8 @@ input[type=radio], input[type=checkbox], input[type=range] { accent-color: var(-
   .dia-contrato { display: flex; align-items: center; gap: .75rem; }
   .dia-contrato .form-check { margin: 0; width: 4rem; }
 }
+
+/* Listados de proyectos y obras: los que tienen a la persona en el equipo, en negrita y con un punto. */
+.nombre-obra { font-weight: 400; }
+.nombre-obra.asignada { font-weight: 700; }
+.punto-asignada { display: inline-block; width: .45rem; height: .45rem; border-radius: 50%; background: var(--ssa-negro); margin-right: .45rem; vertical-align: .1rem; }

@@ -77,7 +77,7 @@ def lista(request):
     pagina = Paginator(docs.order_by("-actualizado"), 30).get_page(request.GET.get("pagina"))
     return render(request, "documentos/lista.html", {
         "pagina": pagina, "f": f,
-        "obras": permisos.obras_visibles(u).order_by("nombre"),
+        "obras": permisos.obras_del_equipo(u).order_by("nombre"),
         "tipos": T.choices, "areas": Area.objects.all(), "accesos": Documento.Acceso.choices,
         "en_papelera": Documento.objects.filter(en_papelera=True).count() if permisos.es_gerencia(u) else None,
     })
