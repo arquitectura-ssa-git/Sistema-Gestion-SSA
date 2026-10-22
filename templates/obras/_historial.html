@@ -13,13 +13,13 @@
         <tr>
           <td class="small text-muted text-nowrap">{{ f.tarea.codigo|default:f.tarea.numero }}</td>
           <td>{{ f.tarea.nombre }}{% if f.rubro %}<div class="small text-muted">{{ f.rubro.nombre }}</div>{% endif %}</td>
-          <td class="text-end text-nowrap">{{ f.tarea.avance }}%</td>
-          <td class="small text-nowrap">{% if f.inicio %}{{ f.inicio|date:"d/m/Y" }}{% elif f.antes_de %}<span class="text-muted" title="Ya tenía avance en la primera carga">antes del {{ f.antes_de|date:"d/m/Y" }}</span>{% else %}—{% endif %}</td>
-          <td class="small text-nowrap">{% if f.fin %}{{ f.fin|date:"d/m/Y" }}{% elif f.completa_antes %}<span class="text-muted" title="Ya estaba completo en la primera carga">antes del {{ f.antes_de|date:"d/m/Y" }}</span>{% else %}—{% endif %}</td>
+          <td class="text-end text-nowrap small">{{ f.tarea.avance }}%</td>
+          <td class="small text-nowrap">{% if f.inicio %}{{ f.inicio|date:"d/m/Y" }}{% elif f.antes_de %}<span class="text-muted" title="Ya tenía avance cuando se empezó a registrar en SOPHIA">Sin datos al {{ f.antes_de|date:"d/m/Y" }}</span>{% else %}—{% endif %}</td>
+          <td class="small text-nowrap">{% if f.fin %}{{ f.fin|date:"d/m/Y" }}{% elif f.completa_antes %}<span class="text-muted" title="Ya estaba completo cuando se empezó a registrar en SOPHIA">Sin datos al {{ f.antes_de|date:"d/m/Y" }}</span>{% else %}—{% endif %}</td>
           <td class="text-end fw-semibold">{% if f.dias is not None %}{{ f.dias }}{% else %}<span class="text-muted fw-normal">—</span>{% endif %}</td>
           <td>
             <details class="historial-detalle">
-              <summary class="small">{{ f.historial|length }} registro{{ f.historial|length|pluralize:"s" }}</summary>
+              <summary class="small text-nowrap">{{ f.historial|length }} registro{{ f.historial|length|pluralize:"s" }}</summary>
               <ul class="list-unstyled small mb-0 mt-1">
                 {% for r in f.historial %}
                 <li><span class="text-nowrap">{{ r.fecha|date:"d/m/Y" }}</span> · {% if r.anterior is None %}carga inicial{% else %}{{ r.anterior }}%{% endif %} → <strong>{{ r.avance }}%</strong>
@@ -34,8 +34,8 @@
     </table>
   </div>
   <div class="tarjeta-cuerpo border-top small text-muted">
-    «Empezó» es la fecha en que el ítem pasó de 0% a tener avance; «Días» cuenta desde ahí hasta que llegó al 100%. Si un ítem
-    ya tenía avance en la primera carga (por ejemplo, al importar un certificado), no se sabe cuándo empezó.
+    «Empezó» es la fecha en que el ítem pasó de 0% a tener avance; «Días» cuenta desde ahí hasta que llegó al 100%. «Sin datos»:
+    lo que ya tenía avance cuando se empezó a registrar en SOPHIA (por ejemplo, el primer certificado importado).
   </div>
   {% else %}
   <div class="lista-vacia"><i class="bi bi-graph-up-arrow"></i>Todavía no hay cambios de avance registrados. Se anotan solos cada vez que se mueve una barra, se edita el listado o se importa un certificado.</div>

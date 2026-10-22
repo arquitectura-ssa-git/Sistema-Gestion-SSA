@@ -342,3 +342,5 @@ input[type=radio], input[type=checkbox], input[type=range] { accent-color: var(-
 .historial-detalle li + li { margin-top: .15rem; }
 .tabla-resumen td { padding: .2rem .4rem; background: transparent; }
 .dato-valor { font-size: 1.45rem; font-weight: 300; color: var(--ssa-negro); margin-top: .25rem; white-space: nowrap; }
+.tabla-historial { font-size: .8rem; }
+.tabla-historial td .small, .tabla-historial td.small { font-size: .75rem; }
