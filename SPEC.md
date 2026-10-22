@@ -188,7 +188,7 @@ aprobación. Cada cambio se anota abajo con fecha y motivo.
 
 | Fecha | Cambio | Motivo | Aprobó |
 |---|---|---|---|
-| 22/10/2026 | Primera versión | Ordenar las reglas del sistema según el manual de buenas prácticas | Pendiente |
+| 22/10/2026 | Primera versión | Ordenar las reglas del sistema según el manual de buenas prácticas | Pablo Saez (aprobada el 22/10/2026) |
 | 22/10/2026 | Montos solo para DIR y Gestión Administrativa; historial de avance; certificados de obra | Pedido para la obra MZ (certificados quincenales) | Pablo Saez (lo pidió) |
 | 22/10/2026 | El historial de avance lo ven solo DIR, Coordinación y el responsable de Gestión Administrativa | Pedido de Pablo | Pablo Saez (lo pidió) |
 | 22/10/2026 | DIR puede eliminar proyectos y obras (papelera con restaurar) | Borrar lo cargado por error o de prueba | Pablo Saez (lo pidió) |
