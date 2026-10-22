@@ -28,9 +28,9 @@ class Obra(models.Model):
         ENTREGA = "entrega", "Entrega"
 
     class Estado(models.TextChoices):
-        ACTIVA = "activa", "Activa"
-        PAUSADA = "pausada", "Pausada"
-        FINALIZADA = "finalizada", "Finalizada"
+        ACTIVA = "activa", "Activo"
+        PAUSADA = "pausada", "Stand by (suspendido temporalmente)"
+        FINALIZADA = "finalizada", "Superado"
 
     tipo = models.CharField(max_length=10, choices=Tipo.choices, default=Tipo.OBRA)
     codigo = models.CharField("código", max_length=20, unique=True, blank=True,
