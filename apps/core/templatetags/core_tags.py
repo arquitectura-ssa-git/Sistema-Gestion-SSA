@@ -107,3 +107,31 @@ def pct(valor, decimales=2):
     if "." in texto:
         texto = texto.rstrip("0").rstrip(".")
     return texto.replace(".", ",")
+
+
+def _con_miles(entero):
+    return f"{entero:,}".replace(",", ".")
+
+
+@register.filter
+def cantidad(valor):
+    """1234.5 -> '1.234,5'; 182.690 -> '182,69'; 1.000 -> '1'."""
+    try:
+        texto = f"{float(valor):.3f}"
+    except (TypeError, ValueError):
+        return ""
+    entero, decimales = texto.split(".")
+    decimales = decimales.rstrip("0")
+    signo = "-" if entero.startswith("-") else ""
+    resultado = signo + _con_miles(int(entero.lstrip("-")))
+    return resultado + ("," + decimales if decimales else "")
+
+
+@register.filter
+def pesos(valor):
+    """434462600.1 -> '$ 434.462.600'; -2796170.43 -> '−$ 2.796.170'."""
+    try:
+        numero = round(float(valor))
+    except (TypeError, ValueError):
+        return "—"
+    return ("−" if numero < 0 else "") + "$ " + _con_miles(abs(numero))

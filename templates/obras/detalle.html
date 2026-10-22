@@ -8,10 +8,24 @@
     <h1>{{ obra.nombre }}</h1>
     <div class="small text-muted">{% if obra.cliente %}{{ obra.cliente }}{% else %}Sin cliente{% if puede_editar %} · <a href="{% url 'obras:editar' obra.pk %}">asignar</a>{% endif %}{% endif %}{% if obra.direccion %} · {{ obra.direccion }}{% endif %}{% if obra.localidad %}, {{ obra.localidad }}{% endif %}</div>
   </div>
-  <div class="d-flex gap-2">
-    {% if perm.gerencia %}<a href="{% url 'obras:duplicar' obra.pk %}" class="btn btn-outline-dark" title="Crear uno nuevo con las mismas tareas"><i class="bi bi-copy"></i> Duplicar</a>{% endif %}
-    {% if puede_editar %}<a href="{% url 'obras:editar' obra.pk %}" class="btn btn-outline-dark"><i class="bi bi-pencil"></i> Editar datos</a>{% endif %}
+  {% if puede_editar or perm.gerencia or puede_eliminar %}
+  <div class="dropdown">
+    <button class="btn menu-acciones" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Acciones de {{ obra.nombre }}"><i class="bi bi-three-dots"></i></button>
+    <ul class="dropdown-menu dropdown-menu-end">
+      {% if puede_editar %}<li><a class="dropdown-item" href="{% url 'obras:editar' obra.pk %}"><i class="bi bi-pencil"></i> Editar</a></li>{% endif %}
+      {% if perm.gerencia %}<li><a class="dropdown-item" href="{% url 'obras:duplicar' obra.pk %}"><i class="bi bi-copy"></i> Duplicar</a></li>{% endif %}
+      {% if puede_eliminar %}
+      <li><hr class="dropdown-divider"></li>
+      <li>
+        <form method="post" action="{% url 'obras:eliminar' obra.pk %}"
+              data-confirmar="¿Eliminar «{{ obra.nombre }}»? Desaparece de todo el sistema (listados, Dashboard, Time Report). Queda en la papelera y la podés restaurar.">
+          {% csrf_token %}<button class="dropdown-item text-danger"><i class="bi bi-trash3"></i> Eliminar</button>
+        </form>
+      </li>
+      {% endif %}
+    </ul>
   </div>
+  {% endif %}
 </div>
 
 <ul class="nav nav-tabs mb-3">
@@ -126,6 +140,12 @@
 
 {% elif tab == "tareas" %}
   {% include "obras/_tareas.html" %}
+
+{% elif tab == "historial" %}
+  {% include "obras/_historial.html" %}
+
+{% elif tab == "certificados" %}
+  {% include "obras/_certificados.html" %}
 
 {% elif tab == "hitos" %}
 <div class="row g-3">

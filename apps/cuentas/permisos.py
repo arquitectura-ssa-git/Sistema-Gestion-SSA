@@ -86,7 +86,21 @@ def es_coordinador(u):
 
 
 def ve_todas_las_obras(u):
-    return es_gerencia(u) or es_coordinador(u)
+    return es_gerencia(u) or es_coordinador(u) or puede_ver_montos(u)
+
+
+def puede_ver_montos(u):
+    """Presupuestos y certificados de obra: Gerencia y el responsable de Gestión Administrativa."""
+    return es_gerencia(u) or es_responsable_de(u, A.GESTION_ADMINISTRATIVA)
+
+
+def puede_ver_historial_avance(u):
+    """Historial de avance de las tareas: Gerencia, Coordinación y el responsable de Gestión Administrativa."""
+    return es_gerencia(u) or es_coordinador(u) or puede_ver_montos(u)
+
+
+def puede_importar_certificado(u, obra):
+    return puede_editar_obra(u, obra) or puede_ver_montos(u)
 
 
 def obras_visibles(u):
@@ -94,12 +108,13 @@ def obras_visibles(u):
     (Gerencia y Coordinación ven todo)."""
     from apps.obras.models import Obra
 
+    vigentes = Obra.objects.filter(eliminada=False)
     if ve_todas_las_obras(u):
-        return Obra.objects.all()
+        return vigentes
     if es_cliente(u):
-        return Obra.objects.filter(cliente_id=u.cliente_id) if u.cliente_id else Obra.objects.none()
+        return vigentes.filter(cliente_id=u.cliente_id) if u.cliente_id else Obra.objects.none()
     if es_personal(u):
-        return Obra.objects.filter(Q(tipo=Obra.Tipo.PROYECTO) | Q(asignaciones__usuario=u)).distinct()
+        return vigentes.filter(Q(tipo=Obra.Tipo.PROYECTO) | Q(asignaciones__usuario=u)).distinct()
     return Obra.objects.none()
 
 
@@ -108,10 +123,11 @@ def obras_del_equipo(u):
     y lo que aparece en su Dashboard."""
     from apps.obras.models import Obra
 
+    vigentes = Obra.objects.filter(eliminada=False)
     if ve_todas_las_obras(u):
-        return Obra.objects.all()
+        return vigentes
     if es_personal(u):
-        return Obra.objects.filter(asignaciones__usuario=u).distinct()
+        return vigentes.filter(asignaciones__usuario=u).distinct()
     return obras_visibles(u)
 
 
@@ -135,6 +151,11 @@ def trabaja_en(u, obra):
 
 
 def puede_crear_obra(u):
+    return es_gerencia(u)
+
+
+def puede_eliminar_obra(u):
+    """Mandar un proyecto u obra a la papelera (y restaurarlo): Gerencia."""
     return es_gerencia(u)
 
 
@@ -168,7 +189,7 @@ def documentos_visibles(u):
     from apps.documentos.models import Documento
 
     A = Documento.Acceso
-    qs = Documento.objects.filter(en_papelera=False)
+    qs = Documento.objects.filter(en_papelera=False).exclude(obra__eliminada=True)
     if es_gerencia(u):
         return qs
     if es_cliente(u):

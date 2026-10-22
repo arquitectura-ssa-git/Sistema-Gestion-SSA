@@ -127,3 +127,19 @@ class GuardarPlantillaForm(forms.Form):
         if Plantilla.objects.filter(nombre__iexact=nombre).exists():
             raise forms.ValidationError("Ya hay una plantilla con ese nombre.")
         return nombre
+
+
+class ImportarCertificadoForm(forms.Form):
+    archivo = forms.FileField(label="Certificado (Excel .xlsx)")
+    numero = forms.IntegerField(label="N° de certificado", required=False, min_value=1,
+                                help_text="Si lo dejás vacío, se toma del Excel.")
+    fecha = forms.DateField(label="Fecha del certificado", required=False, widget=FechaInput(),
+                            help_text="Si la dejás vacía, se toma del Excel.")
+
+    def clean_archivo(self):
+        archivo = self.cleaned_data["archivo"]
+        if not archivo.name.lower().endswith(".xlsx"):
+            raise forms.ValidationError("Tiene que ser un archivo de Excel (.xlsx).")
+        if archivo.size > 20 * 1024 * 1024:
+            raise forms.ValidationError("El archivo pesa más de 20 MB.")
+        return archivo

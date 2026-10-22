@@ -3,24 +3,29 @@
 {% block contenido %}
 <div class="pagina-titulo">
   <h1>{% if es_proyecto %}Proyectos{% else %}Obras{% endif %}</h1>
+  <div class="d-flex gap-2">
+  {% if en_papelera %}<a href="{% url 'obras:papelera' %}" class="btn btn-outline-secondary"><i class="bi bi-trash3"></i> Papelera ({{ en_papelera }})</a>{% endif %}
   {% if puede_crear %}{% if es_proyecto %}<a href="{% url 'proyectos:nuevo' %}" class="btn btn-dark"><i class="bi bi-plus-lg"></i> Nuevo proyecto</a>{% else %}<a href="{% url 'obras:nueva' %}" class="btn btn-dark"><i class="bi bi-plus-lg"></i> Nueva obra</a>{% endif %}{% endif %}
+  </div>
 </div>
 
-<form class="row g-2 mb-3" method="get">
-  <div class="col-sm-5 col-lg-4"><input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Buscar por nombre, código, cliente o localidad"></div>
-  <div class="col-6 col-sm-3 col-lg-2">
-    <select name="estado" class="form-select" onchange="this.form.submit()">
-      <option value="" {% if not estado %}selected{% endif %}>Todos los estados</option>
+<form class="row g-2 mb-3 align-items-end filtros-obras" method="get">
+  <div class="col-12 col-sm-5 col-lg-4"><label class="form-label small text-muted mb-1" for="buscar">Buscar</label><input type="search" name="q" id="buscar" value="{{ q }}" class="form-control" placeholder="Nombre, código, cliente o localidad"></div>
+  <div class="col-6 col-sm-auto">
+    <label class="form-label small text-muted mb-1" for="filtro-estado">Estado</label>
+    <select name="estado" id="filtro-estado" class="form-select" onchange="this.form.submit()">
+      <option value="" {% if not estado %}selected{% endif %}>Todos</option>
       {% for v, t in estados %}<option value="{{ v }}" {% if v == estado %}selected{% endif %}>{{ t }}</option>{% endfor %}
     </select>
   </div>
-  <div class="col-6 col-sm-3 col-lg-2">
-    <select name="etapa" class="form-select" onchange="this.form.submit()">
-      <option value="">Todas las etapas</option>
+  <div class="col-6 col-sm-auto">
+    <label class="form-label small text-muted mb-1" for="filtro-etapa">Etapa</label>
+    <select name="etapa" id="filtro-etapa" class="form-select" onchange="this.form.submit()">
+      <option value="">Todas</option>
       {% for v, t in etapas %}<option value="{{ v }}" {% if v == etapa %}selected{% endif %}>{{ t }}</option>{% endfor %}
     </select>
   </div>
-  <div class="col-auto"><button class="btn btn-outline-secondary"><i class="bi bi-search"></i></button></div>
+  <div class="col-auto"><button class="btn btn-outline-secondary" aria-label="Buscar"><i class="bi bi-search"></i></button></div>
 </form>
 
 <div class="tarjeta">

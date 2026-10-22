@@ -41,6 +41,8 @@ def tablero(request):
             t=Sum("horas"))["t"] or 0
         contexto["jornada_hoy"] = reglas.horas_contratadas(u, reglas.hoy())
         contexto["feriado_hoy"] = reglas.feriado(reglas.hoy())
+        if permisos.es_gerencia(u):
+            contexto["horas_por_obra"] = _horas_por_obra()
         if permisos.puede_habilitar_horas(u):
             contexto["pedidos_horas"] = Habilitacion.objects.filter(
                 estado=Habilitacion.Estado.PENDIENTE).select_related("usuario").order_by("pedida")[:6]
@@ -72,3 +74,23 @@ def tablero(request):
         contexto["comunicados_sin_leer"] = u.comunicados_recibidos.filter(leido_en__isnull=True).select_related(
             "comunicado__autor")[:5]
     return render(request, "core/tablero.html", contexto)
+
+
+def _horas_por_obra():
+    """Resumen de todo el Time Report para Gerencia: horas por proyecto u obra, de más a menos."""
+    from django.db.models import Q, Sum
+
+    from apps.horas import reglas
+    from apps.horas.models import RegistroHoras
+
+    inicio_mes = reglas.hoy().replace(day=1)
+    filas = (RegistroHoras.objects.exclude(obra__eliminada=True)
+             .values("obra_id", "obra__nombre", "obra__codigo", "obra__tipo")
+             .annotate(total=Sum("horas"), extra=Sum("horas", filter=Q(extra=True)),
+                       mes=Sum("horas", filter=Q(fecha__gte=inicio_mes)))
+             .order_by("-total"))
+    filas = list(filas)
+    maximo = max((f["total"] for f in filas), default=0)
+    for f in filas:
+        f["pct"] = float(f["total"] * 100 / maximo) if maximo else 0
+    return {"filas": filas, "total": sum((f["total"] for f in filas), 0), "mes": inicio_mes}

@@ -252,8 +252,8 @@ input[type=radio], input[type=checkbox], input[type=range] { accent-color: var(-
 .tabla-miembros tbody:first-of-type .grupo-miembros th { padding-top: .75rem; }
 .miembro-nombre { font-size: 1rem; }
 .miembro-email { font-size: .8rem; color: var(--ssa-gris); }
-.btn-acciones { border: 0; border-radius: 50%; width: 2.1rem; height: 2.1rem; padding: 0; color: var(--ssa-plomo); }
-.btn-acciones:hover, .btn-acciones[aria-expanded="true"] { background: var(--ssa-platino); }
+.btn-acciones { border: 0; border-radius: 50%; width: 2.1rem; height: 2.1rem; padding: 0; color: var(--ssa-plomo); background: var(--ssa-platino); }
+.btn-acciones:hover, .btn-acciones[aria-expanded="true"] { background: #d6d6d6; color: var(--ssa-negro); }
 .leyenda-areas { display: flex; flex-wrap: wrap; align-items: center; gap: .35rem; }
 
 .badge.area { --area: var(--ssa-gris); --area-texto: var(--ssa-blanco); background: var(--area); color: var(--area-texto); border: 1px solid var(--area); font-weight: 400; letter-spacing: .02em; padding: .38em .6em; }
@@ -318,3 +318,38 @@ input[type=radio], input[type=checkbox], input[type=range] { accent-color: var(-
 .nombre-obra { font-weight: 400; }
 .nombre-obra.asignada { font-weight: 700; }
 .punto-asignada { display: inline-block; width: .45rem; height: .45rem; border-radius: 50%; background: var(--ssa-negro); margin-right: .45rem; vertical-align: .1rem; }
+
+/* Tareas con código propio (certificados: 1.10.15) y su unidad y cantidad */
+.ta-lista.con-codigos .ta-fila { grid-template-columns: 5rem minmax(0, 1fr) 15rem; }
+.ta-lista.con-codigos .ta-fila:has(.ta-inc) { grid-template-columns: 5rem minmax(0, 1fr) 6rem 15rem; }
+.editor-tareas.con-codigos .te-fila { grid-template-columns: 5rem minmax(12rem, 1fr) 9rem 11.5rem; }
+.editor-tareas.con-codigos.con-avance .te-fila { grid-template-columns: 5rem minmax(12rem, 1fr) 9rem 11rem 11.5rem; }
+/* Unidad y cantidad en su propia columna: la cantidad alineada a la derecha y la unidad a la izquierda. */
+.ta-lista.con-unidades .ta-fila { grid-template-columns: 3.5rem minmax(0, 1fr) 7.5rem 15rem; }
+.ta-lista.con-unidades.con-codigos .ta-fila { grid-template-columns: 5rem minmax(0, 1fr) 7.5rem 15rem; }
+.ta-medida { display: flex; justify-content: flex-end; gap: .35rem; font-size: .75rem; color: var(--ssa-gris); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.ta-medida-un { width: 2.2rem; text-align: left; }
+@media (max-width: 767.98px) {
+  .ta-lista.con-codigos .ta-fila, .ta-lista.con-unidades .ta-fila, .ta-lista.con-unidades.con-codigos .ta-fila,
+  .editor-tareas.con-codigos .te-fila, .editor-tareas.con-codigos.con-avance .te-fila { grid-template-columns: 4rem minmax(0, 1fr); }
+  .ta-medida { grid-column: 2; justify-content: flex-start; }
+  .ta-item .ta-medida { padding-left: 1.25rem; }
+  .ta-medida:empty { display: none; }
+}
+
+/* Historial de avance y certificados */
+.historial-detalle summary { cursor: pointer; color: var(--ssa-plomo); }
+.historial-detalle li + li { margin-top: .15rem; }
+.tabla-resumen td { padding: .2rem .4rem; background: transparent; }
+.dato-valor { font-size: 1.45rem; font-weight: 300; color: var(--ssa-negro); margin-top: .25rem; white-space: nowrap; }
+.tabla-historial { font-size: .8rem; }
+.tabla-historial td .small, .tabla-historial td.small { font-size: .75rem; }
+.filtros-obras .form-select { min-width: 11rem; }
+
+/* Menú de acciones de un proyecto, obra, plantilla, cliente o documento: tres puntos en una burbuja gris */
+.menu-acciones { width: 2.5rem; height: 2.5rem; padding: 0; border: 0; border-radius: 50%; background: var(--ssa-platino);
+  color: var(--ssa-plomo); font-size: 1.15rem; line-height: 1; }
+.menu-acciones:hover, .menu-acciones:focus-visible, .menu-acciones[aria-expanded="true"] { background: #d6d6d6; color: var(--ssa-negro); }
+.dropdown-menu form { margin: 0; }
+.dropdown-item .bi { width: 1.25rem; display: inline-block; color: var(--ssa-gris); }
+.dropdown-item.text-danger .bi { color: inherit; }

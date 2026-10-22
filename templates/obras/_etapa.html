@@ -1,1 +1,1 @@
-<span class="badge text-bg-light border">{{ obra.get_etapa_display }}</span>{% if obra.estado == "pausada" %} <span class="badge text-bg-warning">Pausada</span>{% elif obra.estado == "finalizada" %} <span class="badge text-bg-secondary">Finalizada</span>{% endif %}
+<span class="badge text-bg-light border">{{ obra.get_etapa_display }}</span>{% if obra.estado == "pausada" %} <span class="badge text-bg-warning">Stand by</span>{% elif obra.estado == "finalizada" %} <span class="badge text-bg-secondary">Superado</span>{% endif %}

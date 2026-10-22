@@ -27,12 +27,31 @@
       {% for e in doc.lista_etiquetas %}<span class="badge rounded-pill text-bg-light border">#{{ e }}</span>{% endfor %}
     </div>
   </div>
-  {% if vigente %}
-  <div class="d-flex flex-wrap gap-2">
+  <div class="d-flex flex-wrap align-items-center gap-2">
+    {% if vigente %}
     <a href="{% url 'documentos:descargar' vigente.pk %}" class="btn btn-dark"><i class="bi bi-download"></i> Descargar</a>
     {% if vigente.editable %}<a href="{% url 'documentos:descargar_editable' vigente.pk %}" class="btn btn-outline-dark"><i class="bi bi-{{ vigente.editable_nombre|slice:'-3:'|lower|icono_archivo }}"></i> Editable</a>{% endif %}
+    {% endif %}
+    {% if puede_admin and not doc.en_papelera %}
+    <div class="dropdown">
+      <button class="btn menu-acciones" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Acciones del documento"><i class="bi bi-three-dots"></i></button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><a class="dropdown-item" href="{% url 'documentos:editar' doc.pk %}"><i class="bi bi-pencil"></i> Editar o mover</a></li>
+        <li>
+          <form method="post" action="{% url 'documentos:archivar' doc.pk %}">{% csrf_token %}
+            <button class="dropdown-item"><i class="bi bi-archive"></i> {% if doc.archivado %}Volver a vigente{% else %}Archivar{% endif %}</button>
+          </form>
+        </li>
+        <li><hr class="dropdown-divider"></li>
+        <li>
+          <form method="post" action="{% url 'documentos:a_papelera' doc.pk %}" data-confirmar="¿Mandar «{{ doc }}» a la papelera? Se puede restaurar.">{% csrf_token %}
+            <button class="dropdown-item text-danger"><i class="bi bi-trash3"></i> Eliminar</button>
+          </form>
+        </li>
+      </ul>
+    </div>
+    {% endif %}
   </div>
-  {% endif %}
 </div>
 
 {% if doc.es_plano and para_obra and vigente and para_obra.pk != vigente.pk %}
@@ -155,13 +174,6 @@
               <button class="btn btn-dark w-100">Subir</button>
             </form>
           </div>
-          <a href="{% url 'documentos:editar' doc.pk %}" class="btn btn-outline-dark"><i class="bi bi-pencil"></i> Editar datos o mover</a>
-          <form method="post" action="{% url 'documentos:archivar' doc.pk %}" class="d-grid">{% csrf_token %}
-            <button class="btn btn-outline-secondary"><i class="bi bi-archive"></i> {% if doc.archivado %}Volver a vigente{% else %}Archivar{% endif %}</button>
-          </form>
-          <form method="post" action="{% url 'documentos:a_papelera' doc.pk %}" class="d-grid" data-confirmar="¿Mandar «{{ doc }}» a la papelera? Se puede restaurar.">{% csrf_token %}
-            <button class="btn btn-outline-danger"><i class="bi bi-trash"></i> Mandar a la papelera</button>
-          </form>
         {% endif %}
       </div>
     </div>

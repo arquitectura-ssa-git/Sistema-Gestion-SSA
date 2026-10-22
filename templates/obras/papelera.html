@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block titulo %}Papelera de proyectos y obras{% endblock %}
+{% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'obras:lista' %}">Obras</a></li><li class="breadcrumb-item active">Papelera</li></ol></nav>{% endblock %}
+{% block contenido %}
+<div class="pagina-titulo"><h1>Papelera</h1></div>
+<p class="small text-muted">Proyectos y obras eliminados. No aparecen en ningún lado del sistema (listados, Dashboard, Time Report), pero sus datos y su registro de actividad se conservan. Si alguno se eliminó por error, restauralo.</p>
+<div class="tarjeta">
+  <div class="table-responsive">
+    <table class="table table-tarjeta">
+      <thead><tr><th>Nombre</th><th>Tipo</th><th>Eliminado</th><th></th></tr></thead>
+      <tbody>
+      {% for o in obras %}
+        <tr>
+          <td><span class="nombre-obra">{{ o.nombre }}</span><div class="small text-muted">{{ o.codigo }}{% if o.cliente %} · {{ o.cliente }}{% endif %}</div></td>
+          <td class="small">{{ o.get_tipo_display }}</td>
+          <td class="small">{{ o.eliminada_en|date:"d/m/Y H:i" }}{% if o.eliminada_por %} · {{ o.eliminada_por.nombre_completo }}{% endif %}</td>
+          <td class="text-end">
+            <form method="post" action="{% url 'obras:restaurar' o.pk %}">{% csrf_token %}
+              <button class="btn btn-sm btn-outline-dark"><i class="bi bi-arrow-counterclockwise"></i> Restaurar</button>
+            </form>
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="4"><div class="lista-vacia"><i class="bi bi-trash3"></i>La papelera está vacía.</div></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
