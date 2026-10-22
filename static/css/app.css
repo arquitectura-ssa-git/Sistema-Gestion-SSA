@@ -354,19 +354,28 @@ input[type=radio], input[type=checkbox], input[type=range] { accent-color: var(-
 .dropdown-item .bi { width: 1.25rem; display: inline-block; color: var(--ssa-gris); }
 .dropdown-item.text-danger .bi { color: inherit; }
 
-/* Panel lateral de Tareas (importar, plantillas): información complementaria, más chica y con aire */
+/* Paneles laterales (Dashboard, fichas, formularios al costado): información complementaria, más liviana,
+   con más aire y textos más chicos. */
+.panel-lateral { font-size: .82rem; }
 .panel-lateral .tarjeta { background: transparent; margin: 0 0 2.5rem !important; }
-.panel-lateral .tarjeta-cabecera h2 { font-size: .9rem; font-weight: 400; color: var(--ssa-plomo); }
 .panel-lateral .tarjeta-cabecera { padding-bottom: .5rem; border-bottom-color: var(--ssa-platino); }
-.panel-lateral .form-label { font-size: .72rem; color: var(--ssa-gris); margin-bottom: .2rem; }
+.panel-lateral .tarjeta-cabecera h2 { font-size: .9rem; font-weight: 400; color: var(--ssa-plomo); }
+.panel-lateral .tarjeta-cabecera a, .panel-lateral .tarjeta-cabecera .small { font-size: .72rem; }
+.panel-lateral .form-label, .panel-lateral dt { font-size: .72rem; color: var(--ssa-gris); margin-bottom: .2rem; font-weight: 400; }
+.panel-lateral dd { font-size: .82rem; margin-bottom: .6rem; }
 .panel-lateral .form-control, .panel-lateral .form-select { font-size: .8rem; padding: .3rem .55rem; min-height: 0; }
-.panel-lateral .form-text, .panel-lateral p.small { font-size: .7rem; color: #9a9a9a !important; line-height: 1.45; }
+.panel-lateral .form-check-label { font-size: .8rem; }
+.panel-lateral .form-text, .panel-lateral p.small, .panel-lateral .small.text-muted, .panel-lateral .text-muted.small { font-size: .7rem; color: #9a9a9a !important; line-height: 1.45; }
 .panel-lateral .tarjeta-cuerpo .mb-3 { margin-bottom: .6rem !important; }
-.panel-lateral .btn-sm { font-size: .78rem; padding: .3rem .75rem; }
+.panel-lateral .btn { font-size: .78rem; padding: .3rem .75rem; }
+.panel-lateral .btn-acciones, .panel-lateral .menu-acciones { padding: 0; }
+.panel-lateral .list-group-item { font-size: .82rem; padding-top: .55rem; padding-bottom: .55rem; background: transparent; }
+.panel-lateral .table { font-size: .8rem; }
+.panel-lateral .dato-numero { font-size: 1.9rem; }
+.panel-lateral .dato-valor { font-size: 1.15rem; }
 
 /* Dashboard de DIR: resumen del Time Report en la columna derecha, compacto */
 .resumen-tr { font-size: .8rem; }
-.resumen-tr .tarjeta-cabecera h2 { font-size: 1.05rem; }
 .resumen-tr-fila { padding: .55rem 0; border-bottom: 1px solid var(--ssa-platino); }
 .resumen-tr-fila .progress { margin: .3rem 0 .2rem; }
 .resumen-tr-detalle { font-size: .7rem; color: var(--ssa-gris); }

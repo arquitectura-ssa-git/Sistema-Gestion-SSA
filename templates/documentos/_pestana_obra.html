@@ -1,6 +1,6 @@
 {% load core_tags %}
 <div class="row g-3">
-  <div class="col-lg-3">
+  <div class="col-lg-3 panel-lateral">
     <div class="tarjeta">
       <div class="list-group list-group-flush">
         <a href="?tab=archivos" class="list-group-item list-group-item-action d-flex justify-content-between {% if not tipo_actual %}active{% endif %}"><span><i class="bi bi-folder2-open"></i> Todos</span><span class="badge {% if not tipo_actual %}text-bg-light{% else %}text-bg-secondary{% endif %}">{{ total_documentos }}</span></a>
