@@ -380,3 +380,13 @@ input[type=radio], input[type=checkbox], input[type=range] { accent-color: var(-
 .resumen-tr-fila .progress { margin: .3rem 0 .2rem; }
 .resumen-tr-detalle { font-size: .7rem; color: var(--ssa-gris); }
 .resumen-tr a.nombre-obra { text-decoration: none; color: var(--ssa-negro); }
+
+/* Paneles laterales sobre una franja gris, separada del contenido principal */
+.panel-lateral { position: relative; padding-top: 1.4rem; padding-bottom: .1rem; }
+.panel-lateral::before { content: ""; position: absolute; top: 0; bottom: 0; left: calc(var(--bs-gutter-x, 1.5rem) * .5);
+  right: calc(var(--bs-gutter-x, 1.5rem) * .5); background: #e8e8e8; border-radius: .6rem; z-index: 0; }
+.panel-lateral > * { position: relative; z-index: 1; margin-left: 1.25rem; margin-right: 1.25rem; }
+.panel-lateral .tarjeta-cabecera { border-bottom-color: #d4d4d4; }
+.panel-lateral .progress { --bs-progress-bg: #d6d6d6; }
+.panel-lateral .resumen-tr-fila, .panel-lateral .list-group-item { border-color: #d9d9d9; }
+.panel-lateral .form-control, .panel-lateral .form-select { background-color: #f6f6f6; }
