@@ -41,11 +41,13 @@ Qué puede hacer cada uno:
 | Crear proyectos y obras | DIR |
 | Ver **montos** (presupuesto, certificados, saldos) | Solo DIR y el responsable de Gestión Administrativa |
 | Ver el **historial de avance** | DIR, Coordinación y el responsable de Gestión Administrativa |
-| Importar un certificado de avance (Excel) | Responsables de la obra, DIR y el responsable de Gestión Administrativa |
+| Importar un certificado de avance (Excel) — solo en **obras**, no en proyectos | Responsables de la obra, DIR y el responsable de Gestión Administrativa |
 | Subir archivos | A un proyecto u obra: su equipo asignado, Coordinación y DIR. A la Biblioteca general: todo el personal |
 | Aprobar planos para obra | Dirección Técnica |
 | Crear y editar plantillas de tareas | Gestión de Proyectos, Gestión de Obras y DIR |
-| Cargar sus propias horas (Time Report) | Todo el personal, en cualquier proyecto u obra activo |
+| Cargar sus propias horas (Time Report) | Todo el personal salvo DIR, en cualquier proyecto u obra activo |
+| Ver el **Resumen TR** (horas de todos por proyecto) en el Dashboard | DIR |
+| Cargar o cambiar su **foto de perfil** | Cada persona, la suya, desde Mi perfil |
 | Habilitar carga tardía de horas y ver reportes | Coordinación de Proyectos y DIR |
 | Cargar clientes | Gestión Administrativa y DIR |
 | Dar de alta usuarios y definir sus días y horas | DIR |
@@ -54,7 +56,8 @@ Qué puede hacer cada uno:
 | Eliminar un proyecto u obra (va a la papelera) y restaurarlo | DIR |
 
 En los listados, cada persona ve **primero** los proyectos y obras donde está en el equipo (en negrita y con un
-punto) y después el resto.
+punto, sin texto que lo explique) y después el resto. Lo mismo en el desplegable del Time Report: arriba «Tus
+proyectos y obras» y abajo «Los demás», porque se colabora también en trabajos ajenos.
 
 **Clientes:** existen como fichas con sus contactos. El portal para que el cliente entre al sistema todavía no está
 activo (ver sección 5).
@@ -70,7 +73,8 @@ activo (ver sección 5).
 4. Los archivos se ven y se descargan **solo** a través del sistema, que controla los permisos en cada pedido. Nunca
    por una dirección directa. Los documentos pueden ser,
    en lugar de un archivo subido, un **enlace de Google Drive**: no se duplica el archivo, SOPHIA decide a quién le
-   muestra el enlace y **Drive decide quién puede abrirlo** (con quién está compartido).
+   muestra el enlace y **Drive decide quién puede abrirlo** (con quién está compartido). Las **fotos de perfil**
+   también pasan por el sistema: solo las ve el personal que ingresó.
 5. Nada se borra de entrada: los documentos van a la **papelera**. Solo DIR puede borrarlos definitivamente, y el
    registro de actividad conserva que existieron. Los proyectos y obras eliminados también van a una papelera: no
    aparecen en ningún lado, pero no se borran y DIR los puede restaurar.
@@ -96,15 +100,34 @@ activo (ver sección 5).
     un certificado). Editar el listado **no** borra el historial: cada fila se actualiza en su lugar.
 16. Un certificado importado **manda**: el listado de la obra queda igual al del Excel, con la incidencia de cada rubro
     e ítem según su monto. Las filas con el mismo código y nombre conservan su historial. Un mismo número de
-    certificado no se carga dos veces.
+    certificado no se carga dos veces. Se aceptan los dos formatos de Excel de contratista conocidos (con o sin
+    columnas de material y mano de obra); si el archivo tiene varias pestañas, se usa la del certificado.
 17. Los montos nunca se muestran a quien no tiene permiso: no viajan al editor de tareas ni a otras pantallas.
 18. Aplicar una plantilla a un proyecto **copia** las tareas: cambiar el proyecto no cambia la plantilla.
+19. Lo anterior a que se empezara a registrar en SOPHIA no se inventa: el historial dice **«Sin datos al
+    dd/mm/aaaa»** (la fecha de la primera carga).
+20. Los proyectos y obras tienen tres estados: **Activo**, **Stand by** (suspendido temporalmente) y **Superado**.
 
 **Forma**
-19. Todo el sistema está en **español**, con voseo («cargá», «elegí»).
-20. La estética sigue el manual de marca de Saez Sanchez: **monocromática** (negro, gris plomo, grises y blanco
+21. Todo el sistema está en **español**, con voseo («cargá», «elegí»).
+22. La estética sigue el manual de marca de Saez Sanchez: **monocromática** (negro, gris plomo, grises y blanco
     roto), tipografía Creato Display, sin colores de acento.
-21. Todo tiene que funcionar también en el **celular**.
+23. Todo tiene que funcionar también en el **celular**.
+
+**Criterios de pantalla** (valen para todas las secciones)
+24. **Menú de acciones:** tres puntos en una burbuja gris. Al abrirlo, una lista chica con bordes redondeados, solo
+    texto y sin íconos: Editar datos · Editar tareas · Duplicar · Eliminar (cada uno aparece solo si corresponde y
+    si la persona tiene permiso).
+25. **Paneles laterales livianos:** sobre una franja gris que los separa del contenido, con aire alrededor (los
+    textos no tocan el borde), textos y botones más chicos.
+26. **Síntesis:** se muestra lo justo. En el Dashboard de DIR, proyectos y obras van solo con nombre y avance, y el
+    Resumen TR va compacto en la columna derecha. Para plegar y desplegar se usan flechitas, sin texto.
+27. En las tareas, **unidad y cantidad** van en columnas propias. Los montos del certificado van bajo el título
+    «Certificado Avance Actual».
+28. Los documentos muestran el ícono del **formato del archivo** (PDF, planilla, imagen…), aunque sean de Drive;
+    nunca el logo de Google.
+29. Cada persona aparece con su **foto de perfil** (redonda, recortada cuadrada) o, si no cargó una, con sus
+    **iniciales**.
 
 ## 4. Decisiones fijas
 
@@ -127,16 +150,17 @@ explica por qué.
 
 | Función | Qué hace |
 |---|---|
-| Ingreso | Email y contraseña; pantalla con el logo de SOPHIA |
+| Ingreso | Email y contraseña; pantalla con el logo de SOPHIA («Sistema de Obras y Proyectos / Inteligencia Arquitectónica») |
 | Menú | Dashboard · Proyectos · Obras · Documentos · Equipo · Clientes · Plantillas · Time Report |
-| Dashboard | Proyectos y obras activos de cada uno, horas de hoy, pedidos, permisos por vencer, planos para revisar |
-| Proyectos y Obras | Listas separadas; creación desde plantilla o copiando otro proyecto; duplicar; ficha con pestañas |
-| Tareas | Árbol Etapa → Rubro → Ítem con incidencias, código, unidad y cantidad; barras de avance que se guardan solas; «Ver solo rubros» |
+| Dashboard | Proyectos y obras activos de cada uno, horas de hoy, pedidos, permisos por vencer, planos para revisar. DIR ve el Resumen TR en lugar de sus horas |
+| Proyectos y Obras | Listas separadas con filtros de estado; creación desde plantilla o copiando otro proyecto; duplicar; ficha con pestañas; papelera con restaurar (DIR) |
+| Tareas | Árbol Etapa → Rubro → Ítem con incidencias, código, unidad y cantidad; barras de avance que se guardan solas; flechitas para plegar y desplegar |
 | Historial de avance | Fecha de cada cambio de avance; cuándo empezó y terminó cada ítem y cuántos días tardó |
 | Certificados | Importar el Excel del contratista (uno por quincena); montos por certificado y presupuesto por rubro |
 | Plantillas | Plantilla base «Proyecto de Arquitectura»; guardar un proyecto como plantilla |
-| Documentos | Tipos con datos propios, versiones, estados de planos, tres niveles de acceso, papelera |
-| Equipo | Personal agrupado (DIR, Coordinación, áreas); alta de usuarios con días y horas por día |
+| Documentos | Tipos con datos propios, versiones, estados de planos, tres niveles de acceso, papelera; archivo subido o enlace de Google Drive con vista previa |
+| Equipo | Personal agrupado (DIR, Coordinación, áreas) con foto o iniciales; alta de usuarios con días y horas por día |
+| Mi perfil | Nombre, cargo, WhatsApp, avisos y foto de perfil (se recorta cuadrada y se achica sola; acepta fotos de iPhone) |
 | Clientes | Fichas de clientes y sus contactos |
 | Time Report | Carga diaria, extras, «Repetir», habilitaciones, reportes con exportación a Excel, feriados |
 | Registro de actividad | Guarda cada acción; no se puede modificar |
@@ -169,3 +193,4 @@ aprobación. Cada cambio se anota abajo con fecha y motivo.
 | 22/10/2026 | El historial de avance lo ven solo DIR, Coordinación y el responsable de Gestión Administrativa | Pedido de Pablo | Pablo Saez (lo pidió) |
 | 22/10/2026 | DIR puede eliminar proyectos y obras (papelera con restaurar) | Borrar lo cargado por error o de prueba | Pablo Saez (lo pidió) |
 | 22/10/2026 | Documentos con enlace de Google Drive en lugar de subir el archivo | No duplicar archivos ni imágenes | Pablo Saez (lo pidió) |
+| 22/10/2026 | Estados Activo / Stand by / Superado; criterios de pantalla (menú de 3 puntos, paneles laterales, síntesis); Resumen TR para DIR; certificados solo en obras y con dos formatos; foto de perfil | Ordenar en la SPEC los criterios usados en los últimos cambios | Pablo Saez (lo pidió) |
