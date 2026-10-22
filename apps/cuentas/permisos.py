@@ -100,7 +100,8 @@ def puede_ver_historial_avance(u):
 
 
 def puede_importar_certificado(u, obra):
-    return puede_editar_obra(u, obra) or puede_ver_montos(u)
+    """Los certificados de avance son de obra (no de proyectos)."""
+    return obra.tipo == obra.Tipo.OBRA and (puede_editar_obra(u, obra) or puede_ver_montos(u))
 
 
 def obras_visibles(u):

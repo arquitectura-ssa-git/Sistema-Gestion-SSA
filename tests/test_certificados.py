@@ -135,3 +135,10 @@ def test_importar_y_descargar_requieren_permiso(comun, otro, administracion, obr
     url = f"/obras/{obra.pk}/certificados/{cert.pk}/archivo/"
     assert cliente_de(administracion).get(url).status_code == 200
     assert cliente_de(comun).get(url).status_code == 403  # responsable de la obra, pero sin permiso de montos
+
+
+def test_los_proyectos_no_importan_certificados(dir_, proyectos):
+    proyecto = proyectos[0]
+    c = cliente_de(dir_)
+    assert "Importar certificado" not in c.get(f"/obras/{proyecto.pk}/?tab=tareas").content.decode()
+    assert c.post(f"/obras/{proyecto.pk}/certificados/importar/", {"archivo": archivo()}).status_code == 403
