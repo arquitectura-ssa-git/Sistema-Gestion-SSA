@@ -24,7 +24,7 @@
         </div>
       </div>
       {% if arbol %}
-        <div class="ta-lista{% if con_codigos %} con-codigos{% endif %}" data-plegables data-clave="obra-{{ obra.pk }}">
+        <div class="ta-lista{% if con_codigos %} con-codigos{% endif %}{% if con_unidades %} con-unidades{% endif %}" data-plegables data-clave="obra-{{ obra.pk }}">
           {% for nodo in arbol %}{% include "obras/_tarea_nodo.html" %}{% endfor %}
         </div>
         {% if puede_editar %}<div class="tarjeta-cuerpo border-top small text-muted">Mové la barra de cada ítem: el avance se guarda solo al soltarla, y se recalculan el rubro, la etapa y el total.</div>{% endif %}

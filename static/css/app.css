@@ -324,9 +324,17 @@ input[type=radio], input[type=checkbox], input[type=range] { accent-color: var(-
 .ta-lista.con-codigos .ta-fila:has(.ta-inc) { grid-template-columns: 5rem minmax(0, 1fr) 6rem 15rem; }
 .editor-tareas.con-codigos .te-fila { grid-template-columns: 5rem minmax(12rem, 1fr) 9rem 11.5rem; }
 .editor-tareas.con-codigos.con-avance .te-fila { grid-template-columns: 5rem minmax(12rem, 1fr) 9rem 11rem 11.5rem; }
-.ta-cantidad { margin-left: .5rem; font-size: .75rem; color: var(--ssa-gris); font-weight: 400; white-space: nowrap; }
+/* Unidad y cantidad en su propia columna: la cantidad alineada a la derecha y la unidad a la izquierda. */
+.ta-lista.con-unidades .ta-fila { grid-template-columns: 3.5rem minmax(0, 1fr) 7.5rem 15rem; }
+.ta-lista.con-unidades.con-codigos .ta-fila { grid-template-columns: 5rem minmax(0, 1fr) 7.5rem 15rem; }
+.ta-medida { display: flex; justify-content: flex-end; gap: .35rem; font-size: .75rem; color: var(--ssa-gris); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.ta-medida-un { width: 2.2rem; text-align: left; }
 @media (max-width: 767.98px) {
-  .ta-lista.con-codigos .ta-fila, .editor-tareas.con-codigos .te-fila, .editor-tareas.con-codigos.con-avance .te-fila { grid-template-columns: 4rem minmax(0, 1fr); }
+  .ta-lista.con-codigos .ta-fila, .ta-lista.con-unidades .ta-fila, .ta-lista.con-unidades.con-codigos .ta-fila,
+  .editor-tareas.con-codigos .te-fila, .editor-tareas.con-codigos.con-avance .te-fila { grid-template-columns: 4rem minmax(0, 1fr); }
+  .ta-medida { grid-column: 2; justify-content: flex-start; }
+  .ta-item .ta-medida { padding-left: 1.25rem; }
+  .ta-medida:empty { display: none; }
 }
 
 /* Historial de avance y certificados */

@@ -294,6 +294,7 @@ def _contexto_tareas(obra, puede_editar, estructura=None, errores=None):
     contexto = {
         "arbol": arbol.anotar(tareas),
         "con_codigos": any(t.codigo for t in tareas),
+        "con_unidades": any(t.unidad for t in tareas),
         "estructura_json": estructura if estructura is not None else json.dumps(arbol.a_datos(tareas, con_avance=True)),
         "errores_estructura": errores or [],
     }
