@@ -142,3 +142,48 @@ def test_los_proyectos_no_importan_certificados(dir_, proyectos):
     c = cliente_de(dir_)
     assert "Importar certificado" not in c.get(f"/obras/{proyecto.pk}/?tab=tareas").content.decode()
     assert c.post(f"/obras/{proyecto.pk}/certificados/importar/", {"archivo": archivo()}).status_code == 403
+
+
+def planilla_material_y_mo():
+    """Otro formato de contratista: columnas de material y de mano de obra; el cierre dice
+    «SUBTOTAL - CERTIFICADO N° 04- 091026» y el total, «TOTAL - CERTIFICADO…»."""
+    libro = openpyxl.Workbook()
+    hoja = libro.active
+    hoja.append([None, "PRESUPUESTO OBRA CASA DE PRUEBA - 1° ETAPA"])
+    hoja.append([None, None, "OBRA: CASA DE PRUEBA - "])
+    hoja.append([None] * 17 + ["AVANCE [%]", None, None, "AVANCE [$]"])
+    hoja.append([None, "Nº", " ITEM", " UN.", " CANTIDAD", " PU Material", " PF Material", "Precio final\nMaterial",
+                 " PU MO", " PF MO", "Precio final\nMO", "Precio final\nMAT - MO", "Incidencia", "Var\nMAT",
+                 "materiales", "MO", "Var\nMO", "ANTERIOR", "ACUM", "ACTUAL", "ANTERIOR", "ACUM", "ACTUAL"])
+
+    def f(codigo, nombre, unidad=None, cant=None, pf_mo=None, rubro_mo=None, rubro_total=None, acum=None,
+          acum_monto=None, actual=None):
+        return [None, codigo, nombre, unidad, cant, None, 999, None, None, pf_mo, rubro_mo, rubro_total, None,
+                None, None, None, None, None, acum, None, None, acum_monto, actual]
+
+    for fila_ in [
+        f(1, "TAREAS PRELIMINARES", rubro_mo=300, rubro_total=900),
+        f("1.1", "Obrador", "gl", 1, 300, acum=1, acum_monto=300, actual=100),
+        f("31", "HORMIGON COMPLEMENTARIO"),
+        f("31.1", "Llenado de pilotes", "m³", 10, 700, acum=0.5, acum_monto=350, actual=150),
+        [None, None, "SUBTOTAL   - CERTIFICADO N° 04- 091026"] + [None] * 19 + [250],
+        [None, None, "FONDO DE REPARO 5 % - CERTIFICADO N° 04- 091026"] + [None] * 19 + [-12.5],
+        [None, None, "DEVOLUCION ANTICIPO N°1 -  CUOTA 04"] + [None] * 19 + [-30],
+        [None, None, "TOTAL   -  CERTIFICADO N° 04- 091026"] + [None] * 19 + [207.5],
+    ]:
+        hoja.append(fila_)
+    salida = BytesIO()
+    libro.save(salida)
+    return salida.getvalue()
+
+
+def test_lee_el_formato_con_material_y_mano_de_obra():
+    datos = certificados.leer(BytesIO(planilla_material_y_mo()))
+    assert (datos["numero"], datos["fecha"]) == (4, date(2026, 10, 9))
+    preliminares, hormigon = datos["rubros"]
+    assert preliminares["monto"] == Decimal("300.00")  # mano de obra, no material + mano de obra
+    assert [(h["codigo"], h["avance"]) for h in hormigon["hijos"]] == [("31.1", 50)]
+    assert (datos["presupuesto"], datos["acumulado"], datos["periodo"], datos["saldo"]) == (
+        Decimal("1000.00"), Decimal("650.00"), Decimal("250.00"), Decimal("207.50"))
+    assert [c for c, _ in datos["resumen"]] == ["SUBTOTAL", "FONDO DE REPARO 5 %", "DEVOLUCION ANTICIPO N°1 - CUOTA 04",
+                                                 "TOTAL"]
