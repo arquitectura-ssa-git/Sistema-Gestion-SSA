@@ -170,7 +170,8 @@
       if (todo) {
         const todos = rubrosConItems.length && rubrosConItems.every((n) => n._plegado);
         todo.classList.toggle("d-none", !rubrosConItems.length);
-        todo.querySelector("span").textContent = todos ? "Ver ítems" : "Ver solo rubros";
+        todo.title = todos ? "Ver ítems" : "Ver solo rubros";
+        todo.setAttribute("aria-label", todo.title);
         todo.querySelector("i").className = "bi " + (todos ? "bi-arrows-expand" : "bi-arrows-collapse");
       }
       const total = caja.querySelector("[data-avance-total]");
@@ -249,7 +250,8 @@
       botones.forEach((b) => b.setAttribute("aria-expanded", plegados.has(b.dataset.plegar) ? "false" : "true"));
       if (todo) {
         const todos = botones.length && botones.every((b) => plegados.has(b.dataset.plegar));
-        todo.querySelector("span").textContent = todos ? "Ver ítems" : "Ver solo rubros";
+        todo.title = todos ? "Ver ítems" : "Ver solo rubros";
+        todo.setAttribute("aria-label", todo.title);
         todo.querySelector("i").className = "bi " + (todos ? "bi-arrows-expand" : "bi-arrows-collapse");
       }
       try { localStorage.setItem(clave, JSON.stringify(Array.from(plegados))); } catch (e) { /* sin almacenamiento */ }
