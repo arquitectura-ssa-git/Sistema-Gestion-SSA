@@ -11,6 +11,13 @@
   <div class="d-flex gap-2">
     {% if perm.gerencia %}<a href="{% url 'obras:duplicar' obra.pk %}" class="btn btn-outline-dark" title="Crear uno nuevo con las mismas tareas"><i class="bi bi-copy"></i> Duplicar</a>{% endif %}
     {% if puede_editar %}<a href="{% url 'obras:editar' obra.pk %}" class="btn btn-outline-dark"><i class="bi bi-pencil"></i> Editar datos</a>{% endif %}
+    {% if puede_eliminar %}
+    <form method="post" action="{% url 'obras:eliminar' obra.pk %}"
+          data-confirmar="¿Eliminar «{{ obra.nombre }}»? Desaparece de todo el sistema (listados, Dashboard, Time Report). Queda en la papelera y la podés restaurar.">
+      {% csrf_token %}
+      <button class="btn btn-outline-danger"><i class="bi bi-trash3"></i> Eliminar</button>
+    </form>
+    {% endif %}
   </div>
 </div>
 

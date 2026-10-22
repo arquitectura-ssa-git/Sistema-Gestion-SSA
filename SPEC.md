@@ -51,6 +51,7 @@ Qué puede hacer cada uno:
 | Dar de alta usuarios y definir sus días y horas | DIR |
 | Editar el calendario de feriados | DIR |
 | Borrar un documento definitivamente (desde la papelera) | DIR |
+| Eliminar un proyecto u obra (va a la papelera) y restaurarlo | DIR |
 
 En los listados, cada persona ve **primero** los proyectos y obras donde está en el equipo (en negrita y con un
 punto) y después el resto.
@@ -69,7 +70,8 @@ activo (ver sección 5).
 4. Los archivos se ven y se descargan **solo** a través del sistema, que controla los permisos en cada pedido. Nunca
    por una dirección directa.
 5. Nada se borra de entrada: los documentos van a la **papelera**. Solo DIR puede borrarlos definitivamente, y el
-   registro de actividad conserva que existieron.
+   registro de actividad conserva que existieron. Los proyectos y obras eliminados también van a una papelera: no
+   aparecen en ningún lado, pero no se borran y DIR los puede restaurar.
 6. Antes de cada actualización del servidor se hace una copia de seguridad (`sophia-actualizar` la hace sola), y hay
    una copia automática todas las noches.
 7. Nunca se borra el historial de GitHub ni se fuerza una subida.
@@ -163,3 +165,4 @@ aprobación. Cada cambio se anota abajo con fecha y motivo.
 | 22/10/2026 | Primera versión | Ordenar las reglas del sistema según el manual de buenas prácticas | Pendiente |
 | 22/10/2026 | Montos solo para DIR y Gestión Administrativa; historial de avance; certificados de obra | Pedido para la obra MZ (certificados quincenales) | Pablo Saez (lo pidió) |
 | 22/10/2026 | El historial de avance lo ven solo DIR, Coordinación y el responsable de Gestión Administrativa | Pedido de Pablo | Pablo Saez (lo pidió) |
+| 22/10/2026 | DIR puede eliminar proyectos y obras (papelera con restaurar) | Borrar lo cargado por error o de prueba | Pablo Saez (lo pidió) |

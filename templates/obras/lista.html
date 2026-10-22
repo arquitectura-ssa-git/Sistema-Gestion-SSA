@@ -3,7 +3,10 @@
 {% block contenido %}
 <div class="pagina-titulo">
   <h1>{% if es_proyecto %}Proyectos{% else %}Obras{% endif %}</h1>
+  <div class="d-flex gap-2">
+  {% if en_papelera %}<a href="{% url 'obras:papelera' %}" class="btn btn-outline-secondary"><i class="bi bi-trash3"></i> Papelera ({{ en_papelera }})</a>{% endif %}
   {% if puede_crear %}{% if es_proyecto %}<a href="{% url 'proyectos:nuevo' %}" class="btn btn-dark"><i class="bi bi-plus-lg"></i> Nuevo proyecto</a>{% else %}<a href="{% url 'obras:nueva' %}" class="btn btn-dark"><i class="bi bi-plus-lg"></i> Nueva obra</a>{% endif %}{% endif %}
+  </div>
 </div>
 
 <form class="row g-2 mb-3" method="get">

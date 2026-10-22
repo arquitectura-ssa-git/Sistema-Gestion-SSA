@@ -50,6 +50,12 @@ class Obra(models.Model):
     equipo = models.ManyToManyField(settings.AUTH_USER_MODEL, through="AsignacionObra", related_name="obras")
     creada_por = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL,
                                    related_name="+")
+    # Papelera: una obra eliminada desaparece de todo el sistema pero no se borra (el registro de actividad la
+    # conserva) y Gerencia la puede restaurar.
+    eliminada = models.BooleanField(default=False, db_index=True)
+    eliminada_en = models.DateTimeField(null=True, blank=True)
+    eliminada_por = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL,
+                                      related_name="+")
     creada = models.DateTimeField(auto_now_add=True)
     actualizada = models.DateTimeField(auto_now=True)
 

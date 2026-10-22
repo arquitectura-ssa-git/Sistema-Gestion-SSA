@@ -22,7 +22,7 @@ class RegistroForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         # Todos los proyectos y obras activos (se puede colaborar en uno sin estar en el equipo); si una carga
         # ya usaba uno que después se pausó o finalizó, se mantiene.
-        activas = Obra.objects.filter(estado=Obra.Estado.ACTIVA)
+        activas = Obra.objects.filter(estado=Obra.Estado.ACTIVA, eliminada=False)
         if self.instance.pk and self.instance.obra_id:
             activas = Obra.objects.filter(pk=self.instance.obra_id) | activas
         campo = self.fields["obra"]

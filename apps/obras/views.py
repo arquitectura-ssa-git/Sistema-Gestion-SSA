@@ -11,6 +11,7 @@ from django.db.models import Count, Exists, OuterRef, Q
 from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
+from django.utils import timezone
 from django.views.decorators.http import require_POST
 
 from apps.auditoria.services import registrar
@@ -81,6 +82,8 @@ def lista(request, tipo=Obra.Tipo.OBRA):
         "estados": Obra.Estado.choices, "etapas": Obra.Etapa.choices,
         "puede_crear": permisos.puede_crear_obra(request.user),
         "es_proyecto": tipo == Obra.Tipo.PROYECTO,
+        "en_papelera": (Obra.objects.filter(tipo=tipo, eliminada=True).count()
+                        if permisos.puede_eliminar_obra(request.user) else 0),
     })
 
 
@@ -159,6 +162,7 @@ def detalle(request, pk):
     hitos = obra.hitos.all()
     contexto = {
         "obra": obra, "tab": tab, "pestanas": pestanas, "puede_editar": puede_editar, "hoy": date.today(),
+        "puede_eliminar": permisos.puede_eliminar_obra(request.user),
         "asignaciones": asignaciones, "hitos": hitos,
         "personas_equipo": len({a.usuario_id for a in asignaciones}),
         "proximo_hito": hitos.filter(completado=False).first(),
@@ -510,3 +514,39 @@ def certificado_archivo(request, pk, cert_pk):
         raise Http404
     nombre = f"{obra.codigo or obra.nombre} - Certificado {cert.numero}.xlsx"
     return FileResponse(cert.archivo.open("rb"), as_attachment=True, filename=nombre)
+
+
+# --- Papelera (Gerencia) ---------------------------------------------------------------------------------------
+
+@permisos.solo_personal
+@require_POST
+def eliminar(request, pk):
+    """Manda el proyecto u obra a la papelera: desaparece de todo el sistema, pero no se borra."""
+    permisos.exigir(permisos.puede_eliminar_obra(request.user))
+    obra = get_object_or_404(Obra, pk=pk, eliminada=False)
+    obra.eliminada, obra.eliminada_en, obra.eliminada_por = True, timezone.now(), request.user
+    obra.save(update_fields=["eliminada", "eliminada_en", "eliminada_por"])
+    registrar("obra.eliminada", f"{obra.get_tipo_display()} enviado a la papelera: {obra}", objeto=obra)
+    messages.success(request, f"«{obra.nombre}» se envió a la papelera. Desde ahí la podés restaurar.")
+    return redirect("proyectos:lista" if obra.es_proyecto else "obras:lista")
+
+
+@permisos.solo_personal
+@require_POST
+def restaurar(request, pk):
+    permisos.exigir(permisos.puede_eliminar_obra(request.user))
+    obra = get_object_or_404(Obra, pk=pk, eliminada=True)
+    obra.eliminada, obra.eliminada_en, obra.eliminada_por = False, None, None
+    obra.save(update_fields=["eliminada", "eliminada_en", "eliminada_por"])
+    registrar("obra.restaurada", f"{obra.get_tipo_display()} restaurado de la papelera: {obra}", objeto=obra)
+    messages.success(request, f"«{obra.nombre}» volvió a estar disponible.")
+    return redirect(obra_url(obra))
+
+
+@permisos.solo_personal
+def papelera(request):
+    permisos.exigir(permisos.puede_eliminar_obra(request.user))
+    request.menu_activo = "obras:lista"
+    return render(request, "obras/papelera.html", {
+        "obras": Obra.objects.filter(eliminada=True).select_related("cliente", "eliminada_por").order_by("-eliminada_en"),
+    })
