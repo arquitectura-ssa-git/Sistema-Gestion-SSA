@@ -28,7 +28,9 @@
     </div>
   </div>
   <div class="d-flex flex-wrap align-items-center gap-2">
-    {% if vigente %}
+    {% if vigente.es_enlace %}
+    <a href="{% url 'documentos:ver' vigente.pk %}" target="_blank" rel="noopener" class="btn btn-dark"><i class="bi bi-box-arrow-up-right"></i> Abrir en Drive</a>
+    {% elif vigente %}
     <a href="{% url 'documentos:descargar' vigente.pk %}" class="btn btn-dark"><i class="bi bi-download"></i> Descargar</a>
     {% if vigente.editable %}<a href="{% url 'documentos:descargar_editable' vigente.pk %}" class="btn btn-outline-dark"><i class="bi bi-{{ vigente.editable_nombre|slice:'-3:'|lower|icono_archivo }}"></i> Editable</a>{% endif %}
     {% endif %}
@@ -63,6 +65,9 @@
     <div class="tarjeta">
       {% if not vigente %}
         <div class="lista-vacia"><i class="bi bi-file-earmark-x"></i>Este documento no tiene archivos.</div>
+      {% elif vigente.es_enlace %}
+        <iframe src="{{ vigente.drive.vista_previa }}" title="Vista previa de {{ doc }}" style="width: 100%; height: 75vh; border: 0; border-radius: .6rem" allow="autoplay"></iframe>
+        <div class="small text-muted pt-2">{{ vigente.drive.descripcion }} · Si no se ve, puede que no tengas acceso en Drive: pedile a quien lo compartió que te sume, o <a href="{% url 'documentos:ver' vigente.pk %}" target="_blank" rel="noopener">abrilo en Drive</a>.</div>
       {% elif vigente.es_pdf %}
         <iframe src="{% url 'documentos:ver' vigente.pk %}" title="Vista previa de {{ doc }}" style="width: 100%; height: 75vh; border: 0; border-radius: .6rem"></iframe>
       {% elif vigente.es_imagen and vigente.vista_previa %}
@@ -104,7 +109,7 @@
           {% for v in versiones %}
             <tr>
               <td class="font-monospace fw-semibold">{{ v.revision }}</td>
-              <td>{{ v.nombre_original }}<div class="text-muted">{{ v.tamano|tamano }}{% if v.editable %} · editable {{ v.editable_nombre }}{% endif %}</div><div class="text-muted font-monospace" title="Huella SHA-256: identifica el contenido exacto del archivo" style="font-size: .7rem">{{ v.sha256|slice:":16" }}…</div></td>
+              <td>{% if v.es_enlace %}<i class="bi bi-{{ v.formato|icono_archivo }}"></i> {{ v.nombre_original }}<div class="text-muted text-truncate" style="max-width: 16rem">{{ v.enlace }}</div>{% else %}{{ v.nombre_original }}<div class="text-muted">{{ v.tamano|tamano }}{% if v.editable %} · editable {{ v.editable_nombre }}{% endif %}</div><div class="text-muted font-monospace" title="Huella SHA-256: identifica el contenido exacto del archivo" style="font-size: .7rem">{{ v.sha256|slice:":16" }}…</div>{% endif %}</td>
               <td>{{ v.comentario|default:"—" }}</td>
               <td class="text-nowrap">{{ v.subido_en|date:"d/m/Y H:i" }}<div class="text-muted">{{ v.subido_por.nombre_completo|default:"—" }}</div></td>
               <td>
@@ -112,8 +117,9 @@
                 {% if v.aprobada_en %}<div class="text-success small">Aprobada {{ v.aprobada_en|date:"d/m/Y" }}<br>{{ v.aprobada_por.nombre_completo }}</div>{% endif %}
               </td>
               <td class="text-end text-nowrap">
+                {% if v.es_enlace %}<a href="{% url 'documentos:ver' v.pk %}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-secondary" title="Abrir en Drive"><i class="bi bi-box-arrow-up-right"></i></a>{% else %}
                 {% if v.se_ve_en_navegador or v.vista_previa %}<a href="{% url 'documentos:ver' v.pk %}" target="_blank" class="btn btn-sm btn-outline-secondary" title="Abrir"><i class="bi bi-eye"></i></a>{% endif %}
-                <a href="{% url 'documentos:descargar' v.pk %}" class="btn btn-sm btn-outline-secondary" title="Descargar"><i class="bi bi-download"></i></a>
+                <a href="{% url 'documentos:descargar' v.pk %}" class="btn btn-sm btn-outline-secondary" title="Descargar"><i class="bi bi-download"></i></a>{% endif %}
                 {% if v.editable %}<a href="{% url 'documentos:descargar_editable' v.pk %}" class="btn btn-sm btn-outline-secondary" title="Descargar editable"><i class="bi bi-file-earmark-ruled"></i></a>{% endif %}
               </td>
             </tr>
@@ -164,14 +170,15 @@
           </form>
         {% endif %}
         {% if puede_admin %}
-          <button class="btn btn-dark" data-bs-toggle="collapse" data-bs-target="#nuevaVersion"><i class="bi bi-file-earmark-arrow-up"></i> Subir versión nueva</button>
+          <button class="btn btn-dark" data-bs-toggle="collapse" data-bs-target="#nuevaVersion"><i class="bi bi-file-earmark-arrow-up"></i> Versión nueva</button>
           <div class="collapse" id="nuevaVersion">
             <form method="post" action="{% url 'documentos:nueva_version' doc.pk %}" enctype="multipart/form-data" class="border rounded p-2" novalidate>{% csrf_token %}
               {% include "includes/campo.html" with campo=form_version.archivo %}
+              {% include "includes/campo.html" with campo=form_version.enlace %}
               {% if form_version.editable %}{% include "includes/campo.html" with campo=form_version.editable %}{% endif %}
               {% include "includes/campo.html" with campo=form_version.comentario %}
               {% include "includes/campo.html" with campo=form_version.revision %}
-              <button class="btn btn-dark w-100">Subir</button>
+              <button class="btn btn-dark w-100">Guardar versión</button>
             </form>
           </div>
         {% endif %}

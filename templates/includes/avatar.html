@@ -1,0 +1,1 @@
+{% comment %}Foto de perfil (o las iniciales). Parámetros: persona, tam (px, por defecto 32).{% endcomment %}<span class="avatar" style="--tam: {{ tam|default:32 }}px">{% if persona.foto %}<img src="{% url 'cuentas:foto' persona.pk %}?v={{ persona.foto.name|urlencode }}" alt="" loading="lazy">{% else %}{{ persona.iniciales }}{% endif %}</span>

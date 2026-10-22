@@ -11,7 +11,8 @@
         {% endfor %}
       </div>
     </div>
-    {% if puede_subir %}<a href="{% url 'documentos:subir' %}?obra={{ obra.pk }}{% if tipo_actual %}&tipo={{ tipo_actual }}{% endif %}" class="btn btn-dark w-100 mt-3"><i class="bi bi-upload"></i> Subir archivos</a>{% endif %}
+    {% if puede_subir %}<a href="{% url 'documentos:subir' %}?obra={{ obra.pk }}{% if tipo_actual %}&tipo={{ tipo_actual }}{% endif %}" class="btn btn-dark w-100 mt-3"><i class="bi bi-upload"></i> Subir archivos</a>
+    <a href="{% url 'documentos:agregar_enlace' %}?obra={{ obra.pk }}{% if tipo_actual %}&tipo={{ tipo_actual }}{% endif %}" class="btn btn-outline-dark w-100 mt-2"><i class="bi bi-link-45deg"></i> Enlace de Drive</a>{% endif %}
   </div>
 
   <div class="col-lg-9">

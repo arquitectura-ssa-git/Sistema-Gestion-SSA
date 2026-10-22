@@ -77,6 +77,7 @@ ICONOS = {
     "doc": "file-earmark-word text-primary", "docx": "file-earmark-word text-primary",
     "dwg": "file-earmark-ruled", "dxf": "file-earmark-ruled", "rvt": "box", "ifc": "box", "skp": "box",
     "mpp": "calendar3-range",
+    "ppt": "file-earmark-slides", "pptx": "file-earmark-slides", "carpeta": "folder2",
 }
 
 

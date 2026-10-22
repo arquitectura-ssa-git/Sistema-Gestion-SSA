@@ -4,10 +4,20 @@
 <div class="pagina-titulo"><h1>Mi perfil</h1></div>
 <div class="tarjeta" style="max-width: 640px">
   <div class="tarjeta-cuerpo">
-    <p class="small text-muted mb-3">Ingresás con <strong>{{ user.email }}</strong>.</p>
-    <form method="post" novalidate>
+    <form method="post" enctype="multipart/form-data" novalidate>
       {% csrf_token %}
       {% include "includes/errores_form.html" %}
+      <div class="d-flex align-items-center gap-3 mb-4">
+        {% include "includes/avatar.html" with persona=user tam=88 %}
+        <div class="flex-grow-1">
+          <p class="small text-muted mb-2">Ingresás con <strong>{{ user.email }}</strong>.</p>
+          <label class="form-label small mb-1" for="{{ form.foto_nueva.id_for_label }}">{% if user.foto %}Cambiar la foto{% else %}Foto de perfil{% endif %}</label>
+          <input type="file" name="foto_nueva" id="{{ form.foto_nueva.id_for_label }}" accept="image/*" class="form-control form-control-sm{% if form.foto_nueva.errors %} is-invalid{% endif %}">
+          {% for e in form.foto_nueva.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}
+          <div class="form-text">{{ form.foto_nueva.help_text }}</div>
+          {% if user.foto %}<div class="form-check mt-1"><input class="form-check-input" type="checkbox" name="quitar_foto" id="quitar-foto"><label class="form-check-label small" for="quitar-foto">Quitar la foto</label></div>{% endif %}
+        </div>
+      </div>
       <div class="row">
         <div class="col-sm-6">{% include "includes/campo.html" with campo=form.first_name %}</div>
         <div class="col-sm-6">{% include "includes/campo.html" with campo=form.last_name %}</div>

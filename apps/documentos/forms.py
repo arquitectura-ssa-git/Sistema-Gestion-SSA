@@ -110,6 +110,30 @@ class SubirForm(forms.Form):
         return datos
 
 
+def _validar_enlace(enlace):
+    from .drive import analizar
+
+    enlace = (enlace or "").strip()
+    if not analizar(enlace):
+        raise forms.ValidationError("Tiene que ser un enlace de Google Drive (drive.google.com o docs.google.com). "
+                                    "En Drive: botón derecho sobre el archivo → Compartir → Copiar enlace.")
+    return enlace
+
+
+class EnlaceForm(SubirForm):
+    """Como «Subir archivos», pero con un enlace de Drive en lugar del archivo."""
+
+    archivos = None
+    enlace = forms.CharField(label="Enlace de Google Drive", max_length=500,
+                             widget=forms.URLInput(attrs={"placeholder": "https://drive.google.com/file/d/…"}))
+    titulo = forms.CharField(label="Título", max_length=200, help_text="Ej: «Planta baja» o «Permiso de obra».")
+    numero = forms.CharField(label="N° de plano", max_length=40, required=False, help_text="Solo para planos. Ej: A-101.")
+    field_order = ["enlace", "titulo", "numero", "obra", "tipo", "area", "acceso", "etiquetas", "comentario"]
+
+    def clean_enlace(self):
+        return _validar_enlace(self.cleaned_data.get("enlace"))
+
+
 class DocumentoForm(forms.ModelForm):
     class Meta:
         model = Documento
@@ -146,7 +170,8 @@ class DocumentoForm(forms.ModelForm):
                     self.usuario):
                 self.add_error("acceso", "Solo los responsables de la obra y Gerencia comparten con el cliente.")
         _validar_acceso(self, datos, self.usuario)
-        if datos.get("tipo") and datos["tipo"] != self.instance.tipo and self.instance.versiones.exists():
+        if (datos.get("tipo") and datos["tipo"] != self.instance.tipo and self.instance.versiones.exists()
+                and not self.instance.version_actual.es_enlace):
             version = self.instance.version_actual
             from django.core.files.uploadedfile import SimpleUploadedFile
 
@@ -157,7 +182,9 @@ class DocumentoForm(forms.ModelForm):
 
 
 class VersionForm(forms.Form):
-    archivo = forms.FileField(label="Archivo nuevo")
+    archivo = forms.FileField(label="Archivo nuevo", required=False)
+    enlace = forms.CharField(label="…o enlace de Google Drive", max_length=500, required=False,
+                             widget=forms.URLInput(attrs={"placeholder": "https://drive.google.com/file/d/…"}))
     editable = forms.FileField(label="Archivo editable (opcional)", required=False,
                                help_text="DWG, DXF, RVT, IFC o SKP. Nunca se comparte con el cliente.")
     revision = forms.CharField(label="Revisión", required=False, max_length=10,
@@ -172,11 +199,24 @@ class VersionForm(forms.Form):
             del self.fields["editable"]
 
     def clean_archivo(self):
-        archivo = self.cleaned_data["archivo"]
-        error = formatos.validar(self.documento.tipo, archivo)
-        if error:
-            raise forms.ValidationError(error)
+        archivo = self.cleaned_data.get("archivo")
+        if archivo:
+            error = formatos.validar(self.documento.tipo, archivo)
+            if error:
+                raise forms.ValidationError(error)
         return archivo
+
+    def clean_enlace(self):
+        enlace = self.cleaned_data.get("enlace")
+        return _validar_enlace(enlace) if enlace else ""
+
+    def clean(self):
+        datos = super().clean()
+        if not self.errors and bool(datos.get("archivo")) == bool(datos.get("enlace")):
+            raise forms.ValidationError("Elegí un archivo o pegá un enlace de Drive (uno de los dos).")
+        if datos.get("enlace") and datos.get("editable"):
+            self.add_error("editable", "Con un enlace de Drive no se adjunta el editable.")
+        return datos
 
     def clean_editable(self):
         editable = self.cleaned_data.get("editable")

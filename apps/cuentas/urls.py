@@ -17,4 +17,5 @@ urlpatterns = [
     path("clientes/<int:cliente_pk>/contactos/nuevo/", views.contacto_form, name="contacto_nuevo"),
     path("clientes/<int:cliente_pk>/contactos/<int:pk>/", views.contacto_form, name="contacto_editar"),
     path("mi-perfil/", views.perfil, name="perfil"),
+    path("<int:pk>/foto/", views.foto, name="foto"),
 ]

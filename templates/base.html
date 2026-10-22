@@ -51,7 +51,7 @@
       {% endif %}
       <div class="dropdown">
         <button class="btn btn-light dropdown-toggle" data-bs-toggle="dropdown">
-          <i class="bi bi-person-circle"></i> <span class="d-none d-sm-inline">{{ user.first_name|default:user.email }}</span>
+          {% include "includes/avatar.html" with persona=user tam=26 %} <span class="d-none d-sm-inline">{{ user.first_name|default:user.email }}</span>
         </button>
         <ul class="dropdown-menu dropdown-menu-end">
           <li><span class="dropdown-item-text small text-muted">{{ user.email }}</span></li>

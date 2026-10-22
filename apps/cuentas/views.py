@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Prefetch
+from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 
@@ -179,10 +180,21 @@ def contacto_form(request, cliente_pk, pk=None):
 
 @login_required
 def perfil(request):
-    form = PerfilForm(request.POST or None, instance=request.user)
+    form = PerfilForm(request.POST or None, request.FILES or None, instance=request.user)
     if request.method == "POST" and form.is_valid():
         form.save()
         registrar("perfil.edicion", "Actualizó su perfil", objeto=request.user, detalle={"campos": form.changed_data})
         messages.success(request, "Tus datos quedaron guardados.")
         return redirect("cuentas:perfil")
     return render(request, "cuentas/perfil.html", {"form": form})
+
+
+@login_required
+def foto(request, pk):
+    """Foto de perfil (los archivos subidos no se sirven directo: siempre pasan por el sistema)."""
+    usuario = get_object_or_404(Usuario, pk=pk)
+    if not (request.user.pk == usuario.pk or permisos.es_personal(request.user)) or not usuario.foto:
+        raise Http404
+    respuesta = FileResponse(usuario.foto.open("rb"), content_type="image/jpeg")
+    respuesta["Cache-Control"] = "private, max-age=86400"
+    return respuesta
