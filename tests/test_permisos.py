@@ -79,7 +79,9 @@ def test_dashboard_de_dir_resume_las_horas_por_proyecto(dir_, comun, proyectos):
         RegistroHoras.objects.create(usuario=comun, fecha=date.today(), obra=p, horas=horas)
     RegistroHoras.objects.create(usuario=comun, fecha=date.today(), obra=proyectos[0], horas=1.5, extra=True)
     html = cliente_de(dir_).get("/tablero/").content.decode()
-    assert "Horas invertidas por proyecto" in html
+    assert "Resumen TR" in html
+    assert "Time Report de hoy" not in html  # DIR no carga horas
     assert html.index("Casa Lago") < html.index("Edificio Sur")  # de más a menos horas
     assert "7,5 h" in html and "1,5 h" in html
-    assert "Horas invertidas por proyecto" not in cliente_de(comun).get("/tablero/").content.decode()
+    html_comun = cliente_de(comun).get("/tablero/").content.decode()
+    assert "Resumen TR" not in html_comun and "Time Report de hoy" in html_comun
