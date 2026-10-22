@@ -9,14 +9,22 @@
     {% if plantilla.descripcion %}<div class="small text-muted">{{ plantilla.descripcion }}</div>{% endif %}
   </div>
   {% if puede_gestionar %}
-  <div class="d-flex gap-2">
-    <a href="{% url 'plantillas:editar' plantilla.pk %}" class="btn btn-outline-dark"><i class="bi bi-pencil"></i> Editar</a>
-    <form method="post" action="{% url 'plantillas:duplicar' plantilla.pk %}">{% csrf_token %}
-      <button class="btn btn-outline-dark" title="Crear una plantilla nueva a partir de esta"><i class="bi bi-copy"></i> Duplicar</button>
-    </form>
-    <form method="post" action="{% url 'plantillas:borrar' plantilla.pk %}" data-confirmar="¿Borrar la plantilla «{{ plantilla }}»? Los proyectos y obras que ya la usaron conservan sus tareas.">{% csrf_token %}
-      <button class="btn btn-outline-danger"><i class="bi bi-trash"></i> Borrar</button>
-    </form>
+  <div class="dropdown">
+    <button class="btn menu-acciones" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Acciones de la plantilla"><i class="bi bi-three-dots"></i></button>
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li><a class="dropdown-item" href="{% url 'plantillas:editar' plantilla.pk %}"><i class="bi bi-pencil"></i> Editar</a></li>
+      <li>
+        <form method="post" action="{% url 'plantillas:duplicar' plantilla.pk %}">{% csrf_token %}
+          <button class="dropdown-item"><i class="bi bi-copy"></i> Duplicar</button>
+        </form>
+      </li>
+      <li><hr class="dropdown-divider"></li>
+      <li>
+        <form method="post" action="{% url 'plantillas:borrar' plantilla.pk %}" data-confirmar="¿Eliminar la plantilla «{{ plantilla }}»? Los proyectos y obras que ya la usaron conservan sus tareas.">{% csrf_token %}
+          <button class="dropdown-item text-danger"><i class="bi bi-trash3"></i> Eliminar</button>
+        </form>
+      </li>
+    </ul>
   </div>
   {% endif %}
 </div>

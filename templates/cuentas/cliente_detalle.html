@@ -4,7 +4,12 @@
 {% block contenido %}
 <div class="pagina-titulo">
   <h1>{{ cliente }}</h1>
-  <a href="{% url 'cuentas:cliente_editar' cliente.pk %}" class="btn btn-outline-dark"><i class="bi bi-pencil"></i> Editar datos</a>
+  <div class="dropdown">
+    <button class="btn menu-acciones" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Acciones de {{ cliente }}"><i class="bi bi-three-dots"></i></button>
+    <ul class="dropdown-menu dropdown-menu-end">
+      <li><a class="dropdown-item" href="{% url 'cuentas:cliente_editar' cliente.pk %}"><i class="bi bi-pencil"></i> Editar</a></li>
+    </ul>
+  </div>
 </div>
 <div class="row g-3">
   <div class="col-lg-4">
