@@ -1,0 +1,80 @@
+{% load core_tags %}
+{% if certificados %}
+<div class="row g-3 mb-3">
+  <div class="col-sm-6 col-xl-3"><div class="tarjeta h-100"><div class="tarjeta-cuerpo">
+    <div class="dato-etiqueta">Presupuesto total</div>
+    <div class="dato-valor">{{ ultimo_certificado.presupuesto|default:presupuesto_tareas|pesos }}</div>
+  </div></div></div>
+  <div class="col-sm-6 col-xl-3"><div class="tarjeta h-100"><div class="tarjeta-cuerpo">
+    <div class="dato-etiqueta">Certificado acumulado</div>
+    <div class="dato-valor">{{ ultimo_certificado.acumulado|default:certificado_tareas|pesos }}</div>
+    {% if pct_certificado is not None %}<div class="small text-muted">{{ pct_certificado|pct:1 }}% del presupuesto</div>{% endif %}
+  </div></div></div>
+  <div class="col-sm-6 col-xl-3"><div class="tarjeta h-100"><div class="tarjeta-cuerpo">
+    <div class="dato-etiqueta">Último certificado · N° {{ ultimo_certificado.numero }}</div>
+    <div class="dato-valor">{{ ultimo_certificado.periodo|pesos }}</div>
+    <div class="small text-muted">{% if ultimo_certificado.desde %}{{ ultimo_certificado.desde|date:"d/m" }} al {% endif %}{{ ultimo_certificado.fecha|date:"d/m/Y" }}</div>
+  </div></div></div>
+  <div class="col-sm-6 col-xl-3"><div class="tarjeta h-100"><div class="tarjeta-cuerpo">
+    <div class="dato-etiqueta">Saldo a pagar del último</div>
+    <div class="dato-valor">{{ ultimo_certificado.saldo|pesos }}</div>
+    <div class="small text-muted">con actualizaciones, impuestos y anticipos</div>
+  </div></div></div>
+</div>
+
+<div class="tarjeta mb-3">
+  <div class="tarjeta-cabecera"><h2><i class="bi bi-receipt"></i> Certificados</h2></div>
+  <div class="table-responsive">
+    <table class="table table-tarjeta">
+      <thead><tr><th>N°</th><th>Período</th><th class="text-end">En el período</th><th class="text-end">Acumulado</th><th class="text-end">Saldo a pagar</th><th>Detalle</th><th></th></tr></thead>
+      <tbody>
+      {% for c in certificados %}
+        <tr>
+          <td class="fw-semibold">{{ c.numero }}</td>
+          <td class="small text-nowrap">{% if c.desde %}{{ c.desde|date:"d/m/Y" }} al {% endif %}{{ c.fecha|date:"d/m/Y" }}</td>
+          <td class="text-end text-nowrap">{{ c.periodo|pesos }}</td>
+          <td class="text-end text-nowrap">{{ c.acumulado|pesos }}</td>
+          <td class="text-end text-nowrap fw-semibold">{{ c.saldo|pesos }}</td>
+          <td>
+            {% if c.resumen %}
+            <details class="historial-detalle">
+              <summary class="small">Ver montos</summary>
+              <table class="table table-sm small mb-0 mt-1 tabla-resumen">
+                {% for concepto, monto in c.resumen %}<tr><td>{{ concepto }}</td><td class="text-end text-nowrap">{{ monto|pesos }}</td></tr>{% endfor %}
+              </table>
+            </details>
+            {% endif %}
+          </td>
+          <td class="text-end">{% if c.archivo %}<a href="{% url 'obras:certificado_archivo' obra.pk c.pk %}" class="btn btn-sm btn-outline-secondary" title="Descargar el Excel"><i class="bi bi-download"></i></a>{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if rubros_montos %}
+<div class="tarjeta">
+  <div class="tarjeta-cabecera"><h2>Presupuesto por rubro</h2><span class="small text-muted">certificado según el último certificado</span></div>
+  <div class="table-responsive">
+    <table class="table table-tarjeta">
+      <thead><tr><th>#</th><th>Rubro</th><th class="text-end">Presupuesto</th><th class="text-end">Certificado</th><th style="width: 22%">Avance</th></tr></thead>
+      <tbody>
+      {% for r in rubros_montos %}
+        <tr>
+          <td class="small text-muted">{{ r.nodo.codigo|default:r.nodo.numero }}</td>
+          <td>{{ r.nodo.nombre }}</td>
+          <td class="text-end text-nowrap">{{ r.monto|pesos }}</td>
+          <td class="text-end text-nowrap{% if r.excedido %} fw-semibold{% endif %}">{{ r.hecho|pesos }}</td>
+          <td><div class="d-flex align-items-center gap-2"><div class="progress flex-grow-1" style="height: 6px"><div class="progress-bar" style="width: {% if r.excedido or r.pct is None %}100{% else %}{{ r.pct|stringformat:'.1f' }}{% endif %}%"></div></div><span class="small text-nowrap{% if r.excedido %} fw-semibold{% endif %}">{% if r.pct is not None %}{{ r.pct|pct:0 }}%{% else %}—{% endif %}</span></div>{% if r.excedido %}<div class="small text-muted">Se pasó del presupuesto en <span class="text-nowrap">{{ r.exceso|pesos }}</span></div>{% endif %}</td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endif %}
+{% else %}
+<div class="tarjeta"><div class="lista-vacia"><i class="bi bi-receipt"></i>Todavía no hay certificados. Se cargan desde la pestaña <a href="?tab=tareas">Tareas</a> con «Importar certificado».</div></div>
+{% endif %}
+<p class="small text-muted mt-3 mb-0"><i class="bi bi-lock"></i> Los montos solo los ven Gerencia y el responsable de Gestión Administrativa.</p>

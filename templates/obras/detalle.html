@@ -127,6 +127,12 @@
 {% elif tab == "tareas" %}
   {% include "obras/_tareas.html" %}
 
+{% elif tab == "historial" %}
+  {% include "obras/_historial.html" %}
+
+{% elif tab == "certificados" %}
+  {% include "obras/_certificados.html" %}
+
 {% elif tab == "hitos" %}
 <div class="row g-3">
   <div class="{% if puede_editar %}col-lg-8{% else %}col-12{% endif %}">

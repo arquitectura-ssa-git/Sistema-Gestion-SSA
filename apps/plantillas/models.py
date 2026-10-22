@@ -47,6 +47,10 @@ class NodoTarea(models.Model):
     tipo = models.CharField(max_length=5, choices=Tipo.choices, default=Tipo.RUBRO)
     padre = models.ForeignKey("self", null=True, blank=True, on_delete=models.CASCADE, related_name="hijos")
     nombre = models.CharField(max_length=300)
+    codigo = models.CharField("código", max_length=20, blank=True,
+                              help_text="Número propio, ej. el del certificado (1.9.3). Si está vacío se numera solo.")
+    unidad = models.CharField(max_length=15, blank=True, help_text="Ej: m², m³, gl, ml.")
+    cantidad = models.DecimalField(max_digits=14, decimal_places=3, null=True, blank=True)
     incidencia = models.DecimalField("incidencia (%)", max_digits=6, decimal_places=3,
                                      validators=[MinValueValidator(Decimal("0.001")), MaxValueValidator(100)])
     orden = models.PositiveIntegerField(default=0)

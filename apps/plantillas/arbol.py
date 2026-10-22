@@ -5,7 +5,10 @@ grupo sume 100%, así agregar o quitar filas nunca deja el total descuadrado. El
 las hojas; el de cada rama es el promedio ponderado de sus hijos.
 
 El editor de pantalla trabaja con una lista de diccionarios:
-    {"id": 12, "tipo": "rubro", "nombre": "...", "incidencia": 25.0, "avance": 40, "hijos": [...]}
+    {"id": 12, "tipo": "rubro", "nombre": "...", "codigo": "1.9", "unidad": "m²", "cantidad": 12.5,
+     "incidencia": 25.0, "avance": 40, "hijos": [...]}
+Los montos (precio unitario y monto) no viajan al editor: solo los ven Gerencia y Gestión Administrativa, y al
+guardar se conservan porque cada fila se actualiza en su lugar.
 """
 
 from decimal import ROUND_HALF_UP, Decimal
@@ -77,8 +80,9 @@ def a_datos(nodos, con_avance=False):
     """Árbol listo para el editor de pantalla (JSON)."""
 
     def convertir(n):
-        d = {"id": n.id, "tipo": n.tipo, "nombre": n.nombre, "incidencia": float(n.incidencia),
-             "hijos": [convertir(h) for h in n.hijos_lista]}
+        d = {"id": n.id, "tipo": n.tipo, "nombre": n.nombre, "codigo": n.codigo, "unidad": n.unidad,
+             "cantidad": float(n.cantidad) if n.cantidad is not None else None,
+             "incidencia": float(n.incidencia), "hijos": [convertir(h) for h in n.hijos_lista]}
         if con_avance:
             d["avance"] = int(getattr(n, "avance", 0) or 0)
         return d
@@ -117,6 +121,10 @@ def validar(datos, con_avance=False):
                 errores.append(f"«{donde}» tiene que tener una incidencia mayor a 0%.")
                 incidencia = Decimal(1)
             nodo = {"tipo": tipo, "nombre": nombre, "incidencia": incidencia,
+                    "id": d["id"] if isinstance(d.get("id"), int) else None,
+                    "codigo": str(d.get("codigo") or "").strip()[:20],
+                    "unidad": str(d.get("unidad") or "").strip()[:15],
+                    "cantidad": _cantidad(d.get("cantidad")),
                     "hijos": limpiar(d.get("hijos") or [], tipo, donde)}
             if con_avance:
                 try:
@@ -136,6 +144,14 @@ def validar(datos, con_avance=False):
     return limpio
 
 
+def _cantidad(valor):
+    try:
+        cantidad = Decimal(str(valor)).quantize(Decimal("0.001"))
+    except Exception:
+        return None
+    return cantidad if cantidad.is_finite() and abs(cantidad) < Decimal("1e11") else None
+
+
 def normalizar(hermanos):
     """Incidencias de un grupo llevadas a sumar exactamente 100 (con 3 decimales)."""
     total = sum((h["incidencia"] for h in hermanos), Decimal(0))
@@ -148,19 +164,45 @@ def normalizar(hermanos):
     hermanos[-1]["incidencia"] = max(CIEN - acumulado, Decimal("0.001"))
 
 
+CAMPOS_OPCIONALES = ("codigo", "unidad", "cantidad", "precio_unitario", "monto", "monto_certificado")
+
+
 def guardar(modelo, dueño, datos, con_avance=False):
-    """Reemplaza el listado de `dueño` (ej. {"plantilla": p} u {"obra": o}) por `datos` ya validados."""
-    modelo.objects.filter(**dueño).delete()
+    """Deja el listado de `dueño` (ej. {"plantilla": p} u {"obra": o}) igual a `datos` ya validados.
+
+    Las filas que traen el `id` de una existente se actualizan en su lugar (así no se pierde su historial de
+    avance ni sus montos); las nuevas se crean y las que ya no están se borran. Devuelve {id: avance anterior}
+    de las filas existentes, para saber qué avances cambiaron.
+    """
+    existentes = {n.pk: n for n in modelo.objects.filter(**dueño)}
+    antes = {pk: getattr(n, "avance", None) for pk, n in existentes.items()}
+    vistos = set()
+    campos = [c for c in CAMPOS_OPCIONALES if hasattr(modelo, c)]
 
     def crear(lista, padre):
         normalizar(lista)
         for orden, d in enumerate(lista):
-            extra = {"avance": d.get("avance", 0)} if con_avance else {}
-            nodo = modelo.objects.create(tipo=d["tipo"], nombre=d["nombre"], incidencia=d["incidencia"],
-                                         orden=orden, padre=padre, **dueño, **extra)
+            nodo = existentes.get(d.get("id")) if d.get("id") not in vistos else None
+            if nodo is None:
+                nodo = modelo(**dueño)
+            nodo.tipo, nodo.nombre, nodo.incidencia, nodo.orden, nodo.padre = (
+                d["tipo"], d["nombre"], d["incidencia"], orden, padre)
+            for campo in campos:
+                if campo in d:
+                    valor = d[campo]
+                    setattr(nodo, campo, "" if valor is None and campo in ("codigo", "unidad") else valor)
+            if con_avance:
+                nodo.avance = d.get("avance", 0)
+            nodo.save()
+            vistos.add(nodo.pk)
+            d["id"] = nodo.pk
             crear(d["hijos"], nodo)
 
     crear(datos, None)
+    sobrantes = [pk for pk in existentes if pk not in vistos]
+    if sobrantes:
+        modelo.objects.filter(pk__in=sobrantes).delete()
+    return antes
 
 
 def copiar(nodos_origen, modelo, dueño):
@@ -169,6 +211,7 @@ def copiar(nodos_origen, modelo, dueño):
 
     def a_validos(lista):
         return [{"tipo": d["tipo"], "nombre": d["nombre"], "incidencia": Decimal(str(d["incidencia"])),
+                 "codigo": d["codigo"], "unidad": d["unidad"], "cantidad": _cantidad(d["cantidad"]),
                  "avance": 0, "hijos": a_validos(d["hijos"])} for d in lista]
 
     guardar(modelo, dueño, a_validos(datos), con_avance=hasattr(modelo, "avance"))

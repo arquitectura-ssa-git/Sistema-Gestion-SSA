@@ -35,10 +35,12 @@ Qué puede hacer cada uno:
 | Qué | Quién |
 |---|---|
 | Ver todos los **proyectos** | Todo el personal |
-| Ver una **obra** | Su equipo asignado; Coordinación y DIR ven todas |
-| Ver los archivos de un proyecto u obra | Su equipo asignado; Coordinación y DIR ven todos |
+| Ver una **obra** | Su equipo asignado; Coordinación, el responsable de Gestión Administrativa y DIR ven todas |
+| Ver los archivos de un proyecto u obra | Su equipo asignado; Coordinación, el responsable de Gestión Administrativa y DIR ven todos |
 | Editar datos, tareas y avance de un proyecto u obra | Sus responsables y DIR |
 | Crear proyectos y obras | DIR |
+| Ver **montos** (presupuesto, certificados, saldos) | Solo DIR y el responsable de Gestión Administrativa |
+| Importar un certificado de avance (Excel) | Responsables de la obra, DIR y el responsable de Gestión Administrativa |
 | Subir archivos | A un proyecto u obra: su equipo asignado, Coordinación y DIR. A la Biblioteca general: todo el personal |
 | Aprobar planos para obra | Dirección Técnica |
 | Crear y editar plantillas de tareas | Gestión de Proyectos, Gestión de Obras y DIR |
@@ -85,13 +87,19 @@ activo (ver sección 5).
 13. Las tareas se organizan en **Etapas → Rubros → Ítems**. Las incidencias de cada grupo suman siempre **100%**:
     al cambiar una, las demás se reajustan.
 14. El avance de rubros, etapas y del proyecto se **calcula solo** a partir del avance de los ítems. No se carga a mano.
-15. Aplicar una plantilla a un proyecto **copia** las tareas: cambiar el proyecto no cambia la plantilla.
+15. Cada cambio de avance de un ítem queda en el **historial** con su fecha y quién lo hizo (por la barra, el editor o
+    un certificado). Editar el listado **no** borra el historial: cada fila se actualiza en su lugar.
+16. Un certificado importado **manda**: el listado de la obra queda igual al del Excel, con la incidencia de cada rubro
+    e ítem según su monto. Las filas con el mismo código y nombre conservan su historial. Un mismo número de
+    certificado no se carga dos veces.
+17. Los montos nunca se muestran a quien no tiene permiso: no viajan al editor de tareas ni a otras pantallas.
+18. Aplicar una plantilla a un proyecto **copia** las tareas: cambiar el proyecto no cambia la plantilla.
 
 **Forma**
-16. Todo el sistema está en **español**, con voseo («cargá», «elegí»).
-17. La estética sigue el manual de marca de Saez Sanchez: **monocromática** (negro, gris plomo, grises y blanco
+19. Todo el sistema está en **español**, con voseo («cargá», «elegí»).
+20. La estética sigue el manual de marca de Saez Sanchez: **monocromática** (negro, gris plomo, grises y blanco
     roto), tipografía Creato Display, sin colores de acento.
-18. Todo tiene que funcionar también en el **celular**.
+21. Todo tiene que funcionar también en el **celular**.
 
 ## 4. Decisiones fijas
 
@@ -118,7 +126,9 @@ explica por qué.
 | Menú | Dashboard · Proyectos · Obras · Documentos · Equipo · Clientes · Plantillas · Time Report |
 | Dashboard | Proyectos y obras activos de cada uno, horas de hoy, pedidos, permisos por vencer, planos para revisar |
 | Proyectos y Obras | Listas separadas; creación desde plantilla o copiando otro proyecto; duplicar; ficha con pestañas |
-| Tareas | Árbol Etapa → Rubro → Ítem con incidencias, barras de avance que se guardan solas, «Ver solo rubros» |
+| Tareas | Árbol Etapa → Rubro → Ítem con incidencias, código, unidad y cantidad; barras de avance que se guardan solas; «Ver solo rubros» |
+| Historial de avance | Fecha de cada cambio de avance; cuándo empezó y terminó cada ítem y cuántos días tardó |
+| Certificados | Importar el Excel del contratista (uno por quincena); montos por certificado y presupuesto por rubro |
 | Plantillas | Plantilla base «Proyecto de Arquitectura»; guardar un proyecto como plantilla |
 | Documentos | Tipos con datos propios, versiones, estados de planos, tres niveles de acceso, papelera |
 | Equipo | Personal agrupado (DIR, Coordinación, áreas); alta de usuarios con días y horas por día |
@@ -150,3 +160,4 @@ aprobación. Cada cambio se anota abajo con fecha y motivo.
 | Fecha | Cambio | Motivo | Aprobó |
 |---|---|---|---|
 | 22/10/2026 | Primera versión | Ordenar las reglas del sistema según el manual de buenas prácticas | Pendiente |
+| 22/10/2026 | Montos solo para DIR y Gestión Administrativa; historial de avance; certificados de obra | Pedido para la obra MZ (certificados quincenales) | Pablo Saez (lo pidió) |

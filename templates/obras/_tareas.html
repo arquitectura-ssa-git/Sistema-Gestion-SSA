@@ -12,7 +12,7 @@
 </form>
 {% else %}
 <div class="row g-3">
-  <div class="{% if puede_editar %}col-xl-9{% else %}col-12{% endif %}">
+  <div class="{% if puede_editar or form_certificado %}col-xl-9{% else %}col-12{% endif %}">
     <div class="tarjeta" data-barras-avance data-url-avance="{% url 'obras:tarea_avance' obra.pk 0 %}" data-csrf="{{ csrf_token }}">
       <div class="tarjeta-cabecera flex-wrap">
         <h2><i class="bi bi-list-check"></i> Tareas y avance</h2>
@@ -24,7 +24,7 @@
         </div>
       </div>
       {% if arbol %}
-        <div class="ta-lista" data-plegables data-clave="obra-{{ obra.pk }}">
+        <div class="ta-lista{% if con_codigos %} con-codigos{% endif %}" data-plegables data-clave="obra-{{ obra.pk }}">
           {% for nodo in arbol %}{% include "obras/_tarea_nodo.html" %}{% endfor %}
         </div>
         {% if puede_editar %}<div class="tarjeta-cuerpo border-top small text-muted">Mové la barra de cada ítem: el avance se guarda solo al soltarla, y se recalculan el rubro, la etapa y el total.</div>{% endif %}
@@ -33,8 +33,27 @@
       {% endif %}
     </div>
   </div>
-  {% if puede_editar %}
+  {% if puede_editar or form_certificado %}
   <div class="col-xl-3">
+    {% if form_certificado %}
+    <div class="tarjeta mb-3">
+      <div class="tarjeta-cabecera"><h2>Importar certificado</h2></div>
+      <div class="tarjeta-cuerpo">
+        <form method="post" action="{% url 'obras:certificado_importar' obra.pk %}" enctype="multipart/form-data" novalidate
+              {% if arbol %}data-confirmar="El listado de tareas va a quedar igual al del certificado (lo que tenga el mismo código y nombre conserva su historial). ¿Seguir?"{% endif %}>
+          {% csrf_token %}
+          {% include "includes/campo.html" with campo=form_certificado.archivo %}
+          <div class="row g-2">
+            <div class="col-5">{% include "includes/campo.html" with campo=form_certificado.numero %}</div>
+            <div class="col-7">{% include "includes/campo.html" with campo=form_certificado.fecha %}</div>
+          </div>
+          <button class="btn btn-outline-dark w-100"><i class="bi bi-file-earmark-spreadsheet"></i> Importar</button>
+        </form>
+        <p class="small text-muted mt-2 mb-0">Arma los rubros e ítems con su unidad, cantidad y avance. Con los siguientes certificados se actualiza el avance y queda en el historial con su fecha.</p>
+      </div>
+    </div>
+    {% endif %}
+    {% if puede_editar %}
     <div class="tarjeta">
       <div class="tarjeta-cabecera"><h2>Cargar desde plantilla</h2></div>
       <div class="tarjeta-cuerpo">
@@ -64,6 +83,7 @@
         <p class="small text-muted mt-2 mb-0">Copia las etapas, rubros, ítems e incidencias de este {{ obra.etiqueta }} (sin el avance) para usarlas en otros.</p>
       </div>
     </div>
+    {% endif %}
     {% endif %}
   </div>
   {% endif %}

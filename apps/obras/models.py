@@ -144,7 +144,69 @@ class TareaObra(NodoTarea):
 
     obra = models.ForeignKey(Obra, on_delete=models.CASCADE, related_name="tareas")
     avance = models.PositiveSmallIntegerField("avance (%)", default=0, validators=[MaxValueValidator(100)])
+    # Montos del presupuesto (vienen del certificado). Solo los ven Gerencia y Gestión Administrativa.
+    precio_unitario = models.DecimalField("precio unitario", max_digits=16, decimal_places=2, null=True, blank=True)
+    monto = models.DecimalField("monto presupuestado", max_digits=16, decimal_places=2, null=True, blank=True)
+    monto_certificado = models.DecimalField("monto certificado acumulado", max_digits=16, decimal_places=2,
+                                            null=True, blank=True,
+                                            help_text="Lo certificado hasta el último certificado; puede pasar el presupuesto.")
     actualizada = models.DateTimeField(auto_now=True)
 
     class Meta(NodoTarea.Meta):
         verbose_name = "tarea"
+
+
+class Certificado(models.Model):
+    """Certificado de avance de una obra (en general, uno por quincena). Sus montos solo los ven Gerencia y
+    Gestión Administrativa."""
+
+    obra = models.ForeignKey(Obra, on_delete=models.CASCADE, related_name="certificados")
+    numero = models.PositiveIntegerField("número")
+    fecha = models.DateField()
+    presupuesto = models.DecimalField("presupuesto total", max_digits=16, decimal_places=2, null=True, blank=True)
+    acumulado = models.DecimalField("certificado acumulado", max_digits=16, decimal_places=2, null=True, blank=True)
+    periodo = models.DecimalField("certificado en el período", max_digits=16, decimal_places=2, null=True, blank=True)
+    saldo = models.DecimalField("saldo a pagar", max_digits=16, decimal_places=2, null=True, blank=True)
+    resumen = models.JSONField("detalle de montos", default=list, blank=True,
+                               help_text="Renglones del final del certificado: [concepto, monto].")
+    archivo = models.FileField(upload_to="certificados/%Y/", blank=True)
+    cargado_por = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL,
+                                    related_name="+")
+    creado = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-fecha", "-numero"]
+        constraints = [models.UniqueConstraint(fields=["obra", "numero"], name="certificado_unico")]
+
+    def __str__(self):
+        return f"Certificado N° {self.numero} · {self.fecha:%d/%m/%Y}"
+
+
+class AvanceTarea(models.Model):
+    """Cada cambio de avance de una tarea, con su fecha: sirve para ver cuánto tardó cada una de 0 a 100%.
+    Los cambios a mano de un mismo día y una misma persona se juntan en un solo registro."""
+
+    class Origen(models.TextChoices):
+        MANUAL = "manual", "Cargado a mano"
+        CERTIFICADO = "certificado", "Certificado"
+
+    tarea = models.ForeignKey(TareaObra, on_delete=models.CASCADE, related_name="historial")
+    obra = models.ForeignKey(Obra, on_delete=models.CASCADE, related_name="historial_avance")
+    fecha = models.DateField(db_index=True)
+    anterior = models.PositiveSmallIntegerField("avance anterior (%)", null=True, blank=True,
+                                                help_text="Vacío: carga inicial (no se sabe cuándo empezó).")
+    avance = models.PositiveSmallIntegerField("avance (%)", validators=[MaxValueValidator(100)])
+    origen = models.CharField(max_length=12, choices=Origen.choices, default=Origen.MANUAL)
+    certificado = models.ForeignKey(Certificado, null=True, blank=True, on_delete=models.SET_NULL,
+                                    related_name="avances")
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL,
+                                related_name="+")
+    creado = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["fecha", "id"]
+        verbose_name = "avance de tarea"
+        verbose_name_plural = "historial de avance"
+
+    def __str__(self):
+        return f"{self.tarea.nombre}: {self.anterior}% → {self.avance}% ({self.fecha:%d/%m/%Y})"

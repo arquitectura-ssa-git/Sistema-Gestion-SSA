@@ -1,0 +1,43 @@
+{% load core_tags %}
+<div class="tarjeta">
+  <div class="tarjeta-cabecera flex-wrap">
+    <h2><i class="bi bi-graph-up-arrow"></i> Historial de avance</h2>
+    {% if retrospectiva %}<span class="small text-muted">{{ retrospectiva|length }} ítem{{ retrospectiva|length|pluralize:"s" }} con cambios · {{ terminadas_medidas|length }} con el tiempo de 0 a 100% medido</span>{% endif %}
+  </div>
+  {% if retrospectiva %}
+  <div class="table-responsive">
+    <table class="table table-hover table-tarjeta tabla-historial">
+      <thead><tr><th>#</th><th>Ítem</th><th class="text-end">Avance</th><th>Empezó</th><th>Llegó al 100%</th><th class="text-end">Días</th><th>Cambios</th></tr></thead>
+      <tbody>
+      {% for f in retrospectiva %}
+        <tr>
+          <td class="small text-muted text-nowrap">{{ f.tarea.codigo|default:f.tarea.numero }}</td>
+          <td>{{ f.tarea.nombre }}{% if f.rubro %}<div class="small text-muted">{{ f.rubro.nombre }}</div>{% endif %}</td>
+          <td class="text-end text-nowrap">{{ f.tarea.avance }}%</td>
+          <td class="small text-nowrap">{% if f.inicio %}{{ f.inicio|date:"d/m/Y" }}{% elif f.antes_de %}<span class="text-muted" title="Ya tenía avance en la primera carga">antes del {{ f.antes_de|date:"d/m/Y" }}</span>{% else %}—{% endif %}</td>
+          <td class="small text-nowrap">{% if f.fin %}{{ f.fin|date:"d/m/Y" }}{% elif f.completa_antes %}<span class="text-muted" title="Ya estaba completo en la primera carga">antes del {{ f.antes_de|date:"d/m/Y" }}</span>{% else %}—{% endif %}</td>
+          <td class="text-end fw-semibold">{% if f.dias is not None %}{{ f.dias }}{% else %}<span class="text-muted fw-normal">—</span>{% endif %}</td>
+          <td>
+            <details class="historial-detalle">
+              <summary class="small">{{ f.historial|length }} registro{{ f.historial|length|pluralize:"s" }}</summary>
+              <ul class="list-unstyled small mb-0 mt-1">
+                {% for r in f.historial %}
+                <li><span class="text-nowrap">{{ r.fecha|date:"d/m/Y" }}</span> · {% if r.anterior is None %}carga inicial{% else %}{{ r.anterior }}%{% endif %} → <strong>{{ r.avance }}%</strong>
+                  <span class="text-muted">· {% if r.certificado %}Certificado N° {{ r.certificado.numero }}{% else %}{{ r.usuario.nombre_completo|default:"a mano" }}{% endif %}</span></li>
+                {% endfor %}
+              </ul>
+            </details>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="tarjeta-cuerpo border-top small text-muted">
+    «Empezó» es la fecha en que el ítem pasó de 0% a tener avance; «Días» cuenta desde ahí hasta que llegó al 100%. Si un ítem
+    ya tenía avance en la primera carga (por ejemplo, al importar un certificado), no se sabe cuándo empezó.
+  </div>
+  {% else %}
+  <div class="lista-vacia"><i class="bi bi-graph-up-arrow"></i>Todavía no hay cambios de avance registrados. Se anotan solos cada vez que se mueve una barra, se edita el listado o se importa un certificado.</div>
+  {% endif %}
+</div>

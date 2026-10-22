@@ -318,3 +318,19 @@ input[type=radio], input[type=checkbox], input[type=range] { accent-color: var(-
 .nombre-obra { font-weight: 400; }
 .nombre-obra.asignada { font-weight: 700; }
 .punto-asignada { display: inline-block; width: .45rem; height: .45rem; border-radius: 50%; background: var(--ssa-negro); margin-right: .45rem; vertical-align: .1rem; }
+
+/* Tareas con código propio (certificados: 1.10.15) y su unidad y cantidad */
+.ta-lista.con-codigos .ta-fila { grid-template-columns: 5rem minmax(0, 1fr) 15rem; }
+.ta-lista.con-codigos .ta-fila:has(.ta-inc) { grid-template-columns: 5rem minmax(0, 1fr) 6rem 15rem; }
+.editor-tareas.con-codigos .te-fila { grid-template-columns: 5rem minmax(12rem, 1fr) 9rem 11.5rem; }
+.editor-tareas.con-codigos.con-avance .te-fila { grid-template-columns: 5rem minmax(12rem, 1fr) 9rem 11rem 11.5rem; }
+.ta-cantidad { margin-left: .5rem; font-size: .75rem; color: var(--ssa-gris); font-weight: 400; white-space: nowrap; }
+@media (max-width: 767.98px) {
+  .ta-lista.con-codigos .ta-fila, .editor-tareas.con-codigos .te-fila, .editor-tareas.con-codigos.con-avance .te-fila { grid-template-columns: 4rem minmax(0, 1fr); }
+}
+
+/* Historial de avance y certificados */
+.historial-detalle summary { cursor: pointer; color: var(--ssa-plomo); }
+.historial-detalle li + li { margin-top: .15rem; }
+.tabla-resumen td { padding: .2rem .4rem; background: transparent; }
+.dato-valor { font-size: 1.45rem; font-weight: 300; color: var(--ssa-negro); margin-top: .25rem; white-space: nowrap; }

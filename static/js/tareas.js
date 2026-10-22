@@ -56,6 +56,10 @@
     const cuerpo = caja.querySelector("[data-cuerpo]");
     let datos;
     try { datos = JSON.parse(campo.value || "[]"); } catch (e) { datos = []; }
+    // Listados con código propio (ej. de un certificado: 1.10.15) necesitan la columna de número más ancha.
+    (function hayCodigos(lista) {
+      lista.forEach((n) => { if (n.codigo) caja.classList.add("con-codigos"); hayCodigos(n.hijos || []); });
+    })(datos);
     let sucio = false;
 
     function marcarSucio() { sucio = true; }
@@ -70,7 +74,7 @@
       tr.innerHTML =
         '<div class="te-num">' + (plegable ? '<button type="button" class="btn-plegar" data-a="plegar" aria-expanded="' +
           (n._plegado ? "false" : "true") + '" title="Contraer / expandir ítems"><i class="bi bi-chevron-down"></i></button>' : "") +
-          esc(numero) + "</div>" +
+          esc(n.codigo || numero) + "</div>" +
         '<div class="te-nombre"><input type="text" class="form-control form-control-sm" maxlength="300" placeholder="Nombre ' +
           (n.tipo === "etapa" ? "de la etapa" : n.tipo === "rubro" ? "del rubro" : "del ítem") + '" value="' + esc(n.nombre) + '"></div>' +
         '<div class="te-inc"><div class="input-group input-group-sm"><input type="number" class="form-control" min="0.1" max="100" step="0.1" value="' +

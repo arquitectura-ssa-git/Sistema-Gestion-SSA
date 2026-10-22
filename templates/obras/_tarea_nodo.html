@@ -1,6 +1,6 @@
 {% load core_tags %}<div class="ta-fila ta-{{ nodo.tipo }}"{% if nodo.tipo == "item" %} data-padre="{{ nodo.padre_id }}"{% endif %}>
-  <div class="ta-num">{% if nodo.tipo == "rubro" and nodo.hijos_lista %}<button type="button" class="btn-plegar" data-plegar="{{ nodo.id }}" aria-expanded="true" title="Contraer / expandir ítems"><i class="bi bi-chevron-down"></i></button>{% endif %}{{ nodo.numero }}</div>
-  <div class="ta-nombre">{{ nodo.nombre }}<span class="ta-peso" title="Peso en el total">{{ nodo.peso_total|pct:1 }}%</span></div>
+  <div class="ta-num">{% if nodo.tipo == "rubro" and nodo.hijos_lista %}<button type="button" class="btn-plegar" data-plegar="{{ nodo.id }}" aria-expanded="true" title="Contraer / expandir ítems"><i class="bi bi-chevron-down"></i></button>{% endif %}{{ nodo.codigo|default:nodo.numero }}</div>
+  <div class="ta-nombre">{{ nodo.nombre }}{% if nodo.unidad %}<span class="ta-cantidad">{% if nodo.cantidad is not None %}{{ nodo.cantidad|cantidad }} {% endif %}{{ nodo.unidad }}</span>{% endif %}<span class="ta-peso" title="Peso en el total">{{ nodo.peso_total|pct:1 }}%</span></div>
   <div class="ta-avance">
     {% if not nodo.hijos_lista and puede_editar %}
       <input type="range" class="form-range" min="0" max="100" step="5" value="{{ nodo.avance }}" data-barra-avance="{{ nodo.id }}" aria-label="Avance de {{ nodo.nombre }}">

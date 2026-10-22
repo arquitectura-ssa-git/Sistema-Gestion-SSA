@@ -1,5 +1,6 @@
 import json
-from datetime import date
+from datetime import date, timedelta
+from decimal import Decimal
 
 from django.apps import apps
 from django.contrib import messages
@@ -7,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Count, Exists, OuterRef, Q
-from django.http import JsonResponse
+from django.http import FileResponse, Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_POST
@@ -20,13 +21,16 @@ from apps.plantillas import arbol
 from apps.plantillas.forms import AplicarPlantillaForm, leer_estructura
 from apps.plantillas.models import Plantilla, TareaPlantilla
 
-from .forms import AsignacionForm, DuplicarObraForm, GuardarPlantillaForm, HitoForm, ObraForm
-from .models import AsignacionObra, Hito, Obra, TareaObra
+from . import avances, certificados
+from .forms import AsignacionForm, DuplicarObraForm, GuardarPlantillaForm, HitoForm, ImportarCertificadoForm, ObraForm
+from .models import AsignacionObra, Certificado, Hito, Obra, TareaObra
 
 PESTANAS = [
     ("resumen", "Resumen", "info-circle"),
     ("equipo", "Equipo", "people"),
     ("tareas", "Tareas", "list-check"),
+    ("historial", "Historial de avance", "graph-up-arrow"),
+    ("certificados", "Certificados", "receipt"),
     ("hitos", "Hitos", "flag"),
     ("archivos", "Archivos", "folder2-open"),
     ("solicitudes", "Solicitudes", "check2-square"),
@@ -142,6 +146,9 @@ def detalle(request, pk):
     pestanas = [p for p in PESTANAS if p[0] not in PESTANA_APP or apps.is_installed(PESTANA_APP[p[0]])]
     if not (puede_editar or permisos.puede_habilitar_horas(request.user)):
         pestanas = [p for p in pestanas if p[0] != "horas"]  # las horas del proyecto: responsables y quienes habilitan
+    ver_montos = permisos.puede_ver_montos(request.user)
+    if not (ver_montos and (obra.certificados.exists() or obra.tipo == Obra.Tipo.OBRA)):
+        pestanas = [p for p in pestanas if p[0] != "certificados"]  # montos: Gerencia y Gestión Administrativa
     tab = request.GET.get("tab", "resumen")
     if tab not in {p[0] for p in pestanas}:
         tab = "resumen"
@@ -161,8 +168,16 @@ def detalle(request, pk):
         contexto["form_hito"] = HitoForm()
     if tab == "tareas":
         contexto.update(_contexto_tareas(obra, puede_editar))
+        if permisos.puede_importar_certificado(request.user, obra):
+            contexto["form_certificado"] = ImportarCertificadoForm()
         contexto["puede_crear_plantilla"] = permisos.puede_gestionar_plantillas(request.user)
         contexto["editando_tareas"] = puede_editar and request.GET.get("editar") == "1"
+    if tab == "historial":
+        filas = avances.retrospectiva(obra)
+        contexto.update({"retrospectiva": filas,
+                         "terminadas_medidas": [f for f in filas if f["dias"] is not None]})
+    if tab == "certificados":
+        contexto.update(_contexto_certificados(obra))
     if tab == "archivos":
         from apps.documentos.views import contexto_pestana_obra
 
@@ -278,6 +293,7 @@ def _contexto_tareas(obra, puede_editar, estructura=None, errores=None):
     tareas = list(obra.tareas.all())
     contexto = {
         "arbol": arbol.anotar(tareas),
+        "con_codigos": any(t.codigo for t in tareas),
         "estructura_json": estructura if estructura is not None else json.dumps(arbol.a_datos(tareas, con_avance=True)),
         "errores_estructura": errores or [],
     }
@@ -305,7 +321,8 @@ def tareas_guardar(request, pk):
         return render(request, "obras/detalle.html", contexto)
     avance_antes = obra.avance
     with transaction.atomic():
-        arbol.guardar(TareaObra, {"obra": obra}, datos, con_avance=True)
+        antes = arbol.guardar(TareaObra, {"obra": obra}, datos, con_avance=True)
+        avances.registrar_cambios(obra, antes, usuario=request.user)
         obra.recalcular_avance()
     registrar("obra.tareas", f"Se modificó el listado de tareas · avance {avance_antes}% → {obra.avance}%",
               objeto=obra, detalle={"rubros": obra.tareas.filter(tipo=TareaObra.Tipo.RUBRO).count(),
@@ -331,18 +348,19 @@ def tarea_avance(request, pk, tarea_pk):
     if nuevo != anterior:
         tarea.avance = nuevo
         tarea.save(update_fields=["avance", "actualizada"])
+        avances.registrar(tarea, anterior, nuevo, usuario=request.user)
         obra.recalcular_avance()
         registrar("obra.tarea_avance", f"Avance de «{tarea.nombre}»: {anterior}% → {nuevo}%", objeto=obra)
     nodos = arbol.anotar(obra.tareas.all())
-    avances = {}
+    calculados = {}
 
     def juntar(lista):
         for n in lista:
-            avances[n.id] = float(round(n.avance_calculado, 1))
+            calculados[n.id] = float(round(n.avance_calculado, 1))
             juntar(n.hijos_lista)
 
     juntar(nodos)
-    return JsonResponse({"avance_obra": obra.avance, "avances": avances})
+    return JsonResponse({"avance_obra": obra.avance, "avances": calculados})
 
 
 @permisos.solo_personal
@@ -415,3 +433,77 @@ def tareas_a_plantilla(request, pk):
         registrar("plantilla.alta", f"Nueva plantilla: {plantilla} (desde {obra})", objeto=plantilla)
         messages.success(request, f"Se guardó la plantilla «{plantilla}». Ya la podés elegir al crear proyectos.")
     return redirect(f"{obra_url(obra)}?tab=tareas")
+
+
+# --- Certificados de avance (montos: Gerencia y Gestión Administrativa) --------------------------------------
+
+def _contexto_certificados(obra):
+    lista = list(obra.certificados.all())
+    # Cada certificado cubre desde el día siguiente al anterior (en general, una quincena).
+    for actual, anterior in zip(lista, lista[1:] + [None]):
+        actual.desde = anterior.fecha + timedelta(days=1) if anterior else None
+    rubros = []
+    presupuesto = certificado = Decimal(0)
+    for nodo in arbol.anotar(obra.tareas.all()):
+        hojas = []
+
+        def juntar(n):
+            if n.hijos_lista:
+                for h in n.hijos_lista:
+                    juntar(h)
+            else:
+                hojas.append(n)
+
+        juntar(nodo)
+        monto = sum((h.monto or 0 for h in hojas), Decimal(0))
+        # Lo certificado según el certificado (puede pasar el presupuesto); si no hay, se estima con el avance.
+        hecho = sum(((h.monto_certificado if h.monto_certificado is not None
+                      else (h.monto or Decimal(0)) * h.avance / 100) for h in hojas), Decimal(0))
+        if monto or hecho:
+            rubros.append({"nodo": nodo, "monto": monto, "hecho": hecho, "pct": hecho * 100 / monto if monto else None,
+                           "excedido": hecho > monto, "exceso": hecho - monto})
+        presupuesto += monto
+        certificado += hecho
+    return {"certificados": lista, "ultimo_certificado": lista[0] if lista else None,
+            "rubros_montos": rubros, "presupuesto_tareas": presupuesto, "certificado_tareas": certificado,
+            "pct_certificado": certificado * 100 / presupuesto if presupuesto else None}
+
+
+@permisos.solo_personal
+@require_POST
+def certificado_importar(request, pk):
+    """Carga un certificado de avance desde Excel: deja las tareas como dice el certificado y guarda sus montos."""
+    obra = _obra_visible(request, pk)
+    permisos.exigir(permisos.puede_importar_certificado(request.user, obra))
+    form = ImportarCertificadoForm(request.POST, request.FILES)
+    if not form.is_valid():
+        for errores in form.errors.values():
+            for e in errores:
+                messages.error(request, e)
+        return redirect(f"{obra_url(obra)}?tab=tareas")
+    archivo = form.cleaned_data["archivo"]
+    try:
+        datos = certificados.leer(archivo)
+        archivo.seek(0)
+        cert = certificados.aplicar(obra, datos, request.user, numero=form.cleaned_data["numero"],
+                                    fecha=form.cleaned_data["fecha"], archivo=archivo)
+    except ValidationError as e:
+        for m in e.messages:
+            messages.error(request, m)
+        return redirect(f"{obra_url(obra)}?tab=tareas")
+    items = obra.tareas.filter(tipo=TareaObra.Tipo.ITEM).count()
+    registrar("obra.certificado", f"Se cargó el certificado N° {cert.numero} del {cert.fecha:%d/%m/%Y} · "
+              f"avance {obra.avance}%", objeto=obra, detalle={"certificado": cert.pk, "items": items})
+    messages.success(request, f"Certificado N° {cert.numero} cargado: {items} ítems, avance de la obra {obra.avance}%.")
+    return redirect(f"{obra_url(obra)}?tab=tareas")
+
+
+@permisos.solo_personal
+def certificado_archivo(request, pk, cert_pk):
+    obra = _obra_visible(request, pk)
+    permisos.exigir(permisos.puede_ver_montos(request.user))
+    cert = get_object_or_404(Certificado, pk=cert_pk, obra=obra)
+    if not cert.archivo:
+        raise Http404
+    nombre = f"{obra.codigo or obra.nombre} - Certificado {cert.numero}.xlsx"
+    return FileResponse(cert.archivo.open("rb"), as_attachment=True, filename=nombre)

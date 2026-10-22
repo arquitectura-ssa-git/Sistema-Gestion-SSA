@@ -86,7 +86,16 @@ def es_coordinador(u):
 
 
 def ve_todas_las_obras(u):
-    return es_gerencia(u) or es_coordinador(u)
+    return es_gerencia(u) or es_coordinador(u) or puede_ver_montos(u)
+
+
+def puede_ver_montos(u):
+    """Presupuestos y certificados de obra: Gerencia y el responsable de Gestión Administrativa."""
+    return es_gerencia(u) or es_responsable_de(u, A.GESTION_ADMINISTRATIVA)
+
+
+def puede_importar_certificado(u, obra):
+    return puede_editar_obra(u, obra) or puede_ver_montos(u)
 
 
 def obras_visibles(u):
