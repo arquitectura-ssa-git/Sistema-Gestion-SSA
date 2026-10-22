@@ -187,3 +187,16 @@ def test_lee_el_formato_con_material_y_mano_de_obra():
         Decimal("1000.00"), Decimal("650.00"), Decimal("250.00"), Decimal("207.50"))
     assert [c for c, _ in datos["resumen"]] == ["SUBTOTAL", "FONDO DE REPARO 5 %", "DEVOLUCION ANTICIPO N°1 - CUOTA 04",
                                                  "TOTAL"]
+
+
+def test_con_varias_pestanas_usa_la_del_certificado():
+    libro = openpyxl.load_workbook(BytesIO(planilla()))
+    libro.active.title = "CERTIF N°12"
+    presupuesto = libro.create_sheet("PPTO A CLIENTE", 0)  # otra pestaña adelante, sin columna de avance
+    presupuesto.append([None, "Nº", " ITEM", " UN.", " CANTIDAD", " PU MO", " PF MO"])
+    presupuesto.append([None, "1", "OTRA COSA"])
+    salida = BytesIO()
+    libro.save(salida)
+    datos = certificados.leer(BytesIO(salida.getvalue()))
+    assert datos["numero"] == 12
+    assert [r["nombre"] for r in datos["rubros"]] == ["TAREAS PRELIMINARES", "HORMIGON", "CUBIERTA"]

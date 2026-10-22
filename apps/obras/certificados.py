@@ -120,13 +120,21 @@ def leer(archivo):
         libro = openpyxl.load_workbook(archivo, data_only=True, read_only=True)
     except Exception:
         raise ValidationError("No se pudo abrir el archivo. Tiene que ser un Excel (.xlsx).")
-    hoja = libro.worksheets[0]
-    filas = [list(f) for f in hoja.iter_rows(values_only=True)]
+    # Si el Excel tiene varias pestañas, se usa la del certificado: primero las que se llaman «certificado…», y
+    # de todas, la primera que tenga la fila de títulos con la columna de avance acumulado (ACUM).
+    hojas = sorted(libro.worksheets, key=lambda h: "certif" not in _clave(h.title))
+    filas = encabezado = None
+    for hoja in hojas:
+        candidatas = [list(f) for f in hoja.iter_rows(values_only=True)]
+        fila = next((i for i, f in enumerate(candidatas)
+                     if {"item", "cantidad", "acum"} <= {_clave(v) for v in f}), None)
+        if fila is not None:
+            filas, encabezado = candidatas, fila
+            break
     libro.close()
-
-    encabezado = next((i for i, f in enumerate(filas) if {"item", "cantidad"} <= {_clave(v) for v in f}), None)
     if encabezado is None:
-        raise ValidationError("No encontré la fila de títulos (Nº, ITEM, UN., CANTIDAD…). ¿Es un certificado de obra?")
+        raise ValidationError("No encontré en ninguna pestaña la fila de títulos del certificado (Nº, ITEM, UN., "
+                              "CANTIDAD… y AVANCE ACUM). ¿Es un certificado de obra?")
     col = _columnas(filas[encabezado])
     faltan = [n for n in ("codigo", "nombre", "unidad", "cantidad", "monto", "avance") if n not in col]
     if faltan:
