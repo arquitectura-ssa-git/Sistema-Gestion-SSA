@@ -23,7 +23,8 @@ CIEN = Decimal(100)
 MINIMA = Decimal("0.001")  # incidencia de lo que todavía no tiene precio: no pesa, pero el editor la acepta
 
 # Renglones del resumen final que se guardan (empiezan con estos textos, sin importar mayúsculas).
-RESUMEN = ("SUBTOTAL", "ACTUALIZACIONES", "FONDO DE REPARO", "IVA", "MATERIALES", "ANTICIPOS", "TOTAL SALDO")
+RESUMEN = ("SUBTOTAL", "ACTUALIZACIONES", "FONDO DE REPARO", "IVA", "MATERIALES", "ANTICIPOS", "DEVOLUCION",
+           "DEVOLUCIÓN", "TOTAL")
 
 
 def _texto(valor):
@@ -79,12 +80,19 @@ def _columnas(fila):
         elif t == "pf mo":
             col["monto"] = i
         elif t.startswith("precio final"):
-            col["monto_rubro"] = i
+            # Puede haber material, mano de obra y total: el certificado es de mano de obra.
+            if t == "precio final mo" or "monto_rubro" not in col:
+                col["monto_rubro"] = i
         elif t == "acum":
             col["acumulado" if "avance" in col else "avance"] = i
         elif t == "actual":
             col["actual" if "actual_pct" in col else "actual_pct"] = i
     return col
+
+
+def _sin_certificado(etiqueta):
+    """«SUBTOTAL - CERTIFICADO N° 04- 091026» → «SUBTOTAL»."""
+    return re.sub(r"\s*-?\s*CERTIFICADO\s*N.*$", "", _texto(etiqueta), flags=re.I).strip(" -")
 
 
 def _repartir(montos):
@@ -112,13 +120,21 @@ def leer(archivo):
         libro = openpyxl.load_workbook(archivo, data_only=True, read_only=True)
     except Exception:
         raise ValidationError("No se pudo abrir el archivo. Tiene que ser un Excel (.xlsx).")
-    hoja = libro.worksheets[0]
-    filas = [list(f) for f in hoja.iter_rows(values_only=True)]
+    # Si el Excel tiene varias pestañas, se usa la del certificado: primero las que se llaman «certificado…», y
+    # de todas, la primera que tenga la fila de títulos con la columna de avance acumulado (ACUM).
+    hojas = sorted(libro.worksheets, key=lambda h: "certif" not in _clave(h.title))
+    filas = encabezado = None
+    for hoja in hojas:
+        candidatas = [list(f) for f in hoja.iter_rows(values_only=True)]
+        fila = next((i for i, f in enumerate(candidatas)
+                     if {"item", "cantidad", "acum"} <= {_clave(v) for v in f}), None)
+        if fila is not None:
+            filas, encabezado = candidatas, fila
+            break
     libro.close()
-
-    encabezado = next((i for i, f in enumerate(filas) if {"item", "cantidad"} <= {_clave(v) for v in f}), None)
     if encabezado is None:
-        raise ValidationError("No encontré la fila de títulos (Nº, ITEM, UN., CANTIDAD…). ¿Es un certificado de obra?")
+        raise ValidationError("No encontré en ninguna pestaña la fila de títulos del certificado (Nº, ITEM, UN., "
+                              "CANTIDAD… y AVANCE ACUM). ¿Es un certificado de obra?")
     col = _columnas(filas[encabezado])
     faltan = [n for n in ("codigo", "nombre", "unidad", "cantidad", "monto", "avance") if n not in col]
     if faltan:
@@ -130,7 +146,7 @@ def leer(archivo):
 
     resultado = {"numero": None, "fecha": None, "obra": "", "rubros": [], "resumen": [],
                  "presupuesto": None, "acumulado": None, "periodo": None, "saldo": None}
-    for f in filas[:encabezado]:
+    for f in filas:  # el número y la fecha pueden estar en el título o en los renglones del final
         for v in f:
             t = _texto(v)
             m = re.search(r"CERTIFICADO\s*N\s*[°º]?\s*(\d+)\s*-?\s*(\d{2})(\d{2})(\d{2})\b", t, re.I)
@@ -148,9 +164,13 @@ def leer(archivo):
     for i in range(encabezado + 1, len(filas)):
         f = filas[i]
         nombre, codigo, unidad = _texto(dato(f, "nombre")), _codigo(dato(f, "codigo")), _texto(dato(f, "unidad"))
-        if nombre.upper() == "SUBTOTAL":
+        if nombre.upper().startswith("SUBTOTAL"):
             resultado["presupuesto"] = _dinero(dato(f, "monto_rubro"))
             resultado["acumulado"] = _dinero(dato(f, "acumulado"))
+            periodo = _dinero(dato(f, "actual"))
+            if periodo is not None:  # en algunas planillas este mismo renglón trae lo certificado en el período
+                resultado["periodo"] = periodo
+                resultado["resumen"].append([_sin_certificado(nombre) or "SUBTOTAL", str(periodo)])
             break
         if not nombre:
             continue
@@ -189,16 +209,21 @@ def leer(archivo):
         monto = _dinero(dato(f, "actual"))
         if not etiqueta or monto is None or not etiqueta.upper().startswith(RESUMEN):
             continue
-        etiqueta = re.sub(r"\s*-?\s*CERTIFICADO\s*N.*$", "", etiqueta, flags=re.I).strip(" -")
+        etiqueta = _sin_certificado(etiqueta)
         resultado["resumen"].append([etiqueta, str(monto)])
         clave = etiqueta.upper()
         if re.match(r"SUBTOTAL\s+1\b", clave) and resultado["periodo"] is None:
             resultado["periodo"] = monto
-        if clave.startswith("TOTAL SALDO"):
+        if clave.startswith("TOTAL"):
             resultado["saldo"] = monto
 
     if not rubros:
         raise ValidationError("El certificado no tiene rubros.")
+    items = [h for r in rubros for h in r["hijos"]]
+    if resultado["presupuesto"] is None:
+        resultado["presupuesto"] = sum((h["monto"] or Decimal(0) for h in items), Decimal(0))
+    if resultado["acumulado"] is None and any(h["monto_certificado"] is not None for h in items):
+        resultado["acumulado"] = sum((h["monto_certificado"] or Decimal(0) for h in items), Decimal(0))
     # Incidencias por monto: cada rubro sobre el total y cada ítem sobre su rubro.
     for r, inc in zip(rubros, _repartir([r["monto"] or sum((h["monto"] or 0 for h in r["hijos"]), Decimal(0)) for r in rubros])):
         r["incidencia"] = inc
