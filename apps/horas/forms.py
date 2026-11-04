@@ -97,7 +97,7 @@ class BaseDiaFormSet(BaseModelFormSet):
         return guardados
 
 
-DiaFormSet = modelformset_factory(RegistroHoras, form=RegistroForm, formset=BaseDiaFormSet, extra=3, can_delete=True)
+DiaFormSet = modelformset_factory(RegistroHoras, form=RegistroForm, formset=BaseDiaFormSet, extra=1, can_delete=True)
 
 
 class PedidoForm(forms.ModelForm):

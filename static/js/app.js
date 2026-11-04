@@ -35,3 +35,21 @@ document.querySelectorAll("[data-zona-soltar]").forEach(function (zona) {
     mostrar();
   });
 });
+
+// Time Report: el «+» suma una línea vacía (copia del modelo y avisa al formset que hay una más).
+(function () {
+  const boton = document.getElementById("agregar-fila");
+  const modelo = document.getElementById("fila-nueva");
+  if (!boton || !modelo) return;
+  const total = document.querySelector("input[name$='-TOTAL_FORMS']");
+  const cuerpo = document.querySelector(".tabla-carga tbody");
+  boton.addEventListener("click", function () {
+    const n = parseInt(total.value, 10);
+    const fila = modelo.content.firstElementChild.cloneNode(true);
+    fila.innerHTML = fila.innerHTML.replace(/__prefix__/g, n);
+    cuerpo.appendChild(fila);
+    total.value = n + 1;
+    const primero = fila.querySelector("select, input");
+    if (primero) primero.focus();
+  });
+})();
