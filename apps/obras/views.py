@@ -63,6 +63,7 @@ def _exigir_edicion(request, obra):
 def lista(request, tipo=Obra.Tipo.OBRA):
     estado = request.GET.get("estado", Obra.Estado.ACTIVA)
     etapa = request.GET.get("etapa", "")
+    uso = request.GET.get("uso", "")
     q = request.GET.get("q", "").strip()
     obras = (permisos.obras_visibles(request.user).filter(tipo=tipo).select_related("cliente")
              .annotate(personas=Count("asignaciones__usuario", distinct=True)))
@@ -70,6 +71,8 @@ def lista(request, tipo=Obra.Tipo.OBRA):
         obras = obras.filter(estado=estado)
     if etapa:
         obras = obras.filter(etapa=etapa)
+    if uso:
+        obras = obras.filter(uso=uso)
     if q:
         obras = obras.filter(Q(nombre__icontains=q) | Q(codigo__icontains=q) | Q(cliente__nombre__icontains=q)
                              | Q(localidad__icontains=q))
@@ -79,8 +82,8 @@ def lista(request, tipo=Obra.Tipo.OBRA):
     return render(request, "obras/lista.html", {
         "obras": obras,
         "asignadas": permisos.ids_asignadas(request.user),
-        "estado": estado, "etapa": etapa, "q": q,
-        "estados": Obra.Estado.choices, "etapas": Obra.Etapa.choices,
+        "estado": estado, "etapa": etapa, "uso": uso, "q": q,
+        "estados": Obra.Estado.choices, "etapas": Obra.Etapa.choices, "usos": Obra.Uso.choices,
         "puede_crear": permisos.puede_crear_obra(request.user),
         "es_proyecto": tipo == Obra.Tipo.PROYECTO,
         "en_papelera": (Obra.objects.filter(tipo=tipo, eliminada=True).count()

@@ -30,6 +30,14 @@ class Obra(models.Model):
         EJECUCION = "ejecucion", "En ejecución"
         ENTREGA = "entrega", "Entrega"
 
+    class Uso(models.TextChoices):
+        RESIDENCIAL = "residencial", "Residencial"
+        COMERCIAL = "comercial", "Comercial"
+        OTROS = "otros", "Otros usos"
+        ALTURA = "altura", "Edificio en altura"
+        URBANIZACION = "urbanizacion", "Urbanizaciones"
+        MASTERPLAN = "masterplan", "Masterplan"
+
     class Estado(models.TextChoices):
         ACTIVA = "activa", "Activo"
         PAUSADA = "pausada", "Stand by (suspendido temporalmente)"
@@ -41,6 +49,8 @@ class Obra(models.Model):
     nombre = models.CharField(max_length=200)
     cliente = models.ForeignKey("cuentas.Cliente", on_delete=models.PROTECT, related_name="obras",
                                 null=True, blank=True, help_text="Se puede asignar después.")
+    uso = models.CharField("tipo", max_length=15, choices=Uso.choices, blank=True, db_index=True,
+                           help_text="Residencial, comercial, edificio en altura…")
     direccion = models.CharField("dirección", max_length=200, blank=True)
     localidad = models.CharField(max_length=100, blank=True)
     descripcion = models.TextField("descripción", blank=True)

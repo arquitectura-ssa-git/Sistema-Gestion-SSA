@@ -16,7 +16,7 @@ class FechaInput(forms.DateInput):
 class ObraForm(forms.ModelForm):
     class Meta:
         model = Obra
-        fields = ["tipo", "codigo", "nombre", "cliente", "direccion", "localidad", "superficie_m2", "descripcion",
+        fields = ["tipo", "codigo", "nombre", "cliente", "uso", "direccion", "localidad", "superficie_m2", "descripcion",
                   "etapa", "estado", "fecha_inicio", "fecha_fin_estimada", "avance"]
         widgets = {
             "descripcion": forms.Textarea(attrs={"rows": 3}),
@@ -28,6 +28,8 @@ class ObraForm(forms.ModelForm):
     def __init__(self, *args, usuario=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["tipo"].widget = forms.RadioSelect(choices=Obra.Tipo.choices)
+        self.fields["tipo"].label = "Proyecto u obra"
+        self.fields["uso"].choices = [("", "Sin definir"), *Obra.Uso.choices]
         self.fields["tipo"].help_text = ("Proyecto: trabajo de diseño, planos o trámites. "
                                          "Obra: construcción en ejecución.")
         self.fields["cliente"].empty_label = "Sin cliente por ahora"

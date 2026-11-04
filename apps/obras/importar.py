@@ -19,7 +19,7 @@ from .models import Obra, TareaObra
 COLUMNAS = {
     "nombre": "nombre", "codigo": "codigo", "direccion": "direccion", "localidad": "localidad",
     "superficie": "superficie_m2", "etapa": "etapa", "estado": "estado", "fecha de inicio": "fecha_inicio",
-    "descripcion": "descripcion",
+    "descripcion": "descripcion", "tipo": "uso",
 }
 LARGOS = {"nombre": 200, "direccion": 200, "localidad": 100}
 ESTADOS = {"activo": Obra.Estado.ACTIVA, "activa": Obra.Estado.ACTIVA, "standby": Obra.Estado.PAUSADA,
@@ -39,6 +39,9 @@ def _clave(texto):
 
 
 ETAPAS = {_clave(v): v for v, _ in Obra.Etapa.choices} | {_clave(t): v for v, t in Obra.Etapa.choices}
+USOS = {_clave(v): v for v, _ in Obra.Uso.choices} | {_clave(t): v for v, t in Obra.Uso.choices}
+USOS |= {"residencialcolectiva": Obra.Uso.RESIDENCIAL, "vivienda": Obra.Uso.RESIDENCIAL,
+         "urbanizacion": Obra.Uso.URBANIZACION, "edificioenaltura": Obra.Uso.ALTURA, "otro": Obra.Uso.OTROS}
 ETAPAS |= {"enejecucion": Obra.Etapa.EJECUCION, "ejecucion": Obra.Etapa.EJECUCION,
            "proyectoejecutivo": Obra.Etapa.EJECUTIVO, "preante": Obra.Etapa.PRE_ANTEPROYECTO}
 
@@ -134,6 +137,12 @@ def leer(archivo):
         if etapa and _clave(etapa) not in ETAPAS:
             avisos.append(f"Etapa «{etapa}» desconocida: queda Anteproyecto")
 
+        uso = _texto(crudo.get("uso"))
+        fila["uso"] = USOS.get(_clave(uso), "")
+        if uso and not fila["uso"]:
+            avisos.append(f"Tipo «{uso}» desconocido: queda sin definir")
+        fila["uso_texto"] = Obra.Uso(fila["uso"]).label if fila["uso"] else ""
+
         estado = _texto(crudo.get("estado"))
         fila["estado"] = ESTADOS.get(_clave(estado), Obra.Estado.ACTIVA)
         if estado and _clave(estado) not in ESTADOS:
@@ -172,7 +181,7 @@ def crear(filas, usuario, plantilla=None):
             codigo = f["codigo"] if f["codigo"] and not Obra.objects.filter(codigo__iexact=f["codigo"]).exists() else ""
             obra = Obra.objects.create(
                 tipo=Obra.Tipo.PROYECTO, nombre=f["nombre"], codigo=codigo, direccion=f["direccion"],
-                localidad=f["localidad"], descripcion=f["descripcion"], etapa=f["etapa"], estado=f["estado"],
+                localidad=f["localidad"], descripcion=f["descripcion"], uso=f.get("uso", ""), etapa=f["etapa"], estado=f["estado"],
                 superficie_m2=Decimal(f["superficie_m2"]) if f["superficie_m2"] else None,
                 fecha_inicio=date.fromisoformat(f["fecha_inicio"]) if f["fecha_inicio"] else None,
                 creada_por=usuario,
