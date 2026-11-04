@@ -38,7 +38,7 @@ Qué puede hacer cada uno:
 | Ver una **obra** | Su equipo asignado; Coordinación, el responsable de Gestión Administrativa y DIR ven todas |
 | Ver los archivos de un proyecto u obra | Su equipo asignado; Coordinación, el responsable de Gestión Administrativa y DIR ven todos |
 | Editar datos, tareas y avance de un proyecto u obra | Sus responsables y DIR |
-| Crear proyectos y obras | DIR |
+| Crear proyectos y obras (también varios proyectos de una vez desde Excel) | DIR |
 | Ver **montos** (presupuesto, certificados, saldos) | Solo DIR y el responsable de Gestión Administrativa |
 | Ver el **historial de avance** | DIR, Coordinación y el responsable de Gestión Administrativa |
 | Importar un certificado de avance (Excel) — solo en **obras**, no en proyectos | Responsables de la obra, DIR y el responsable de Gestión Administrativa |
@@ -107,6 +107,8 @@ activo (ver sección 5).
 19. Lo anterior a que se empezara a registrar en SOPHIA no se inventa: el historial dice **«Sin datos al
     dd/mm/aaaa»** (la fecha de la primera carga).
 20. Los proyectos y obras tienen tres estados: **Activo**, **Stand by** (suspendido temporalmente) y **Superado**.
+    Las etapas son: Masterplan, Pre anteproyecto, Anteproyecto, Proyecto, Proyecto ejecutivo, Documentación,
+    Licitación, En ejecución y Entrega.
 
 **Forma**
 21. Todo el sistema está en **español**, con voseo («cargá», «elegí»).
@@ -153,7 +155,7 @@ explica por qué.
 | Ingreso | Email y contraseña; pantalla con el logo de SOPHIA («Sistema de Obras y Proyectos / Inteligencia Arquitectónica») |
 | Menú | Dashboard · Proyectos · Obras · Documentos · Equipo · Clientes · Plantillas · Time Report |
 | Dashboard | Proyectos y obras activos de cada uno, horas de hoy, pedidos, permisos por vencer, planos para revisar. DIR ve el Resumen TR en lugar de sus horas |
-| Proyectos y Obras | Listas separadas con filtros de estado; creación desde plantilla o copiando otro proyecto; duplicar; ficha con pestañas; papelera con restaurar (DIR) |
+| Proyectos y Obras | Listas separadas con filtros de estado; creación desde plantilla o copiando otro proyecto; importar varios proyectos desde la planilla modelo (con vista previa y sin duplicar nombres); duplicar; ficha con pestañas; papelera con restaurar (DIR) |
 | Tareas | Árbol Etapa → Rubro → Ítem con incidencias, código, unidad y cantidad; barras de avance que se guardan solas; flechitas para plegar y desplegar |
 | Historial de avance | Fecha de cada cambio de avance; cuándo empezó y terminó cada ítem y cuántos días tardó |
 | Certificados | Importar el Excel del contratista (uno por quincena); montos por certificado y presupuesto por rubro |
@@ -194,3 +196,4 @@ aprobación. Cada cambio se anota abajo con fecha y motivo.
 | 22/10/2026 | DIR puede eliminar proyectos y obras (papelera con restaurar) | Borrar lo cargado por error o de prueba | Pablo Saez (lo pidió) |
 | 22/10/2026 | Documentos con enlace de Google Drive en lugar de subir el archivo | No duplicar archivos ni imágenes | Pablo Saez (lo pidió) |
 | 22/10/2026 | Estados Activo / Stand by / Superado; criterios de pantalla (menú de 3 puntos, paneles laterales, síntesis); Resumen TR para DIR; certificados solo en obras y con dos formatos; foto de perfil | Ordenar en la SPEC los criterios usados en los últimos cambios | Pablo Saez (lo pidió) |
+| 04/11/2026 | Importar proyectos desde Excel; etapas Masterplan, Pre anteproyecto y Proyecto ejecutivo | Cargar el listado de proyectos del estudio | Pablo Saez (lo pidió) |
