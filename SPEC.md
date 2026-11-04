@@ -140,7 +140,8 @@ No se cambian sin acuerdo (sección 7):
 - Tipografía **Creato Display**, guardada en el propio sistema.
 - Servidor: **VPS con Ubuntu 22.04**, nginx + gunicorn, certificado HTTPS de Let's Encrypt, copias diarias a las 3 AM
   que se guardan 14 días.
-- Dirección: **https://sophia.saezsanchez.com.ar** (la vieja, marta.saezsanchez.com.ar, redirige). DNS en Wix.
+- Dirección: **https://sophia.saezsanchez.com.ar**. La vieja (marta.saezsanchez.com.ar) se dio de baja. DNS en Wix.
+  En el mismo VPS vive también **obras.saezsanchez.com.ar**, que es otro sitio: no se toca al instalar o actualizar SOPHIA.
 - Código en GitHub: **arquitectura-ssa-git/Sistema-Gestion-SSA**. Se trabaja en una rama por cambio y se une a
   `main` con un pull request.
 - Publicar: merge en GitHub y después `sophia-actualizar` en el VPS.
@@ -197,3 +198,4 @@ aprobación. Cada cambio se anota abajo con fecha y motivo.
 | 22/10/2026 | Documentos con enlace de Google Drive en lugar de subir el archivo | No duplicar archivos ni imágenes | Pablo Saez (lo pidió) |
 | 22/10/2026 | Estados Activo / Stand by / Superado; criterios de pantalla (menú de 3 puntos, paneles laterales, síntesis); Resumen TR para DIR; certificados solo en obras y con dos formatos; foto de perfil | Ordenar en la SPEC los criterios usados en los últimos cambios | Pablo Saez (lo pidió) |
 | 04/11/2026 | Importar proyectos desde Excel; etapas Masterplan, Pre anteproyecto y Proyecto ejecutivo | Cargar el listado de proyectos del estudio | Pablo Saez (lo pidió) |
+| 04/11/2026 | Se quita la dirección marta.saezsanchez.com.ar y sus comandos | Solo quedan SOPHIA y OBRAS en el VPS | Pablo Saez (lo pidió) |

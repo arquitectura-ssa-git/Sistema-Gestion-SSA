@@ -243,8 +243,8 @@ echo "Sistema actualizado."
 EOF
 chmod 700 /usr/local/bin/sophia-actualizar
 
-# Los comandos de antes (marta-*) siguen andando.
-for C in respaldo manage actualizar; do ln -sf "/usr/local/bin/sophia-$C" "/usr/local/bin/marta-$C"; done
+# MARTA (el nombre anterior) ya no se usa: se quitan sus comandos y su copia nocturna.
+rm -f /usr/local/bin/marta-respaldo /usr/local/bin/marta-manage /usr/local/bin/marta-actualizar
 rm -f /etc/cron.d/marta-respaldo
 
 sleep 2
