@@ -167,7 +167,7 @@ explica por qué.
 | Equipo | Personal agrupado (DIR, Coordinación, áreas) con foto o iniciales; alta de usuarios con días y horas por día |
 | Mi perfil | Nombre, cargo, WhatsApp, avisos y foto de perfil (se recorta cuadrada y se achica sola; acepta fotos de iPhone) |
 | Clientes | Fichas de clientes y sus contactos. Apellido o razón social (siempre en mayúsculas) y nombre aparte (inicial en mayúscula); se muestran como «APELLIDO, Nombre» |
-| Time Report | Carga diaria, extras, «Repetir», habilitaciones, reportes con exportación a Excel, feriados |
+| Time Report | Carga diaria (una línea y «+» para sumar más; tipos de tarea: Producción, Gestión, Coordinación, Administración, Compras, Capacitación), extras, «Repetir», habilitaciones, reportes con exportación a Excel, feriados |
 | Registro de actividad | Guarda cada acción; no se puede modificar |
 
 **Pendientes** (todavía no existen; no se dan por hechas): notificaciones, aprobaciones de gastos y decisiones,
@@ -203,3 +203,4 @@ aprobación. Cada cambio se anota abajo con fecha y motivo.
 | 04/11/2026 | Se quita la dirección marta.saezsanchez.com.ar y sus comandos | Solo quedan SOPHIA y OBRAS en el VPS | Pablo Saez (lo pidió) |
 | 04/11/2026 | Clientes: apellido o razón social en mayúsculas y nombre aparte | Ordenar y escribir los clientes siempre igual | Pablo Saez (lo pidió) |
 | 04/11/2026 | Tipo de proyecto u obra (Residencial, Comercial, Otros usos, Edificio en altura, Urbanizaciones, Masterplan), con columna y filtro | Ordenar y filtrar los proyectos por tipo | Pablo Saez (lo pidió) |
+| 04/11/2026 | Time Report: una sola línea con «+» para sumar más; tipo de tarea «Coordinación» | Carga más simple | Pablo Saez (lo pidió) |

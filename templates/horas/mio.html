@@ -72,7 +72,7 @@
           <thead><tr><th style="min-width: 15rem">Proyecto u obra</th><th style="min-width: 10rem">Tipo de tarea</th><th style="width: 7rem">Horas</th><th style="width: 5rem">Extra</th><th>Nota</th><th style="width: 4rem" class="text-end">Quitar</th></tr></thead>
           <tbody>
           {% for f in formset %}
-            <tr>
+            <tr class="fila-carga">
               <td>{% for h in f.hidden_fields %}{{ h }}{% endfor %}{{ f.obra|bs }}{% for e in f.obra.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}</td>
               <td>{{ f.tipo|bs }}</td>
               <td>{{ f.horas|bs }}{% for e in f.horas.errors %}<div class="invalid-feedback d-block">{{ e }}</div>{% endfor %}</td>
@@ -84,9 +84,16 @@
           </tbody>
         </table>
       </div>
+      {% with f=formset.empty_form %}
+      <template id="fila-nueva"><tr class="fila-carga">
+        <td>{{ f.obra|bs }}</td><td>{{ f.tipo|bs }}</td><td>{{ f.horas|bs }}</td>
+        <td class="text-center">{{ f.extra|bs }}</td><td>{{ f.nota|bs }}</td><td></td>
+      </tr></template>
+      {% endwith %}
+      <button type="button" class="btn-agregar-fila" id="agregar-fila" aria-label="Agregar otra línea" title="Agregar otra línea"><i class="bi bi-plus-lg"></i></button>
       <div class="d-flex flex-wrap gap-2 align-items-center py-3">
         <button class="btn btn-dark"><i class="bi bi-check-lg"></i> Guardar horas</button>
-        <span class="small text-muted">Las filas vacías se ignoran. ¿Necesitás más filas? Guardá y aparecen nuevas.</span>
+        <span class="small text-muted">Las líneas vacías se ignoran.</span>
       </div>
     </form>
     {% if not formset.initial_forms %}

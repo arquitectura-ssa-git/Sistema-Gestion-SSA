@@ -11,6 +11,7 @@ class RegistroHoras(models.Model):
     class Tipo(models.TextChoices):
         PRODUCCION = "produccion", "Producción"
         GESTION = "gestion", "Gestión"
+        COORDINACION = "coordinacion", "Coordinación"
         ADMINISTRACION = "administracion", "Administración"
         COMPRAS = "compras", "Compras"
         CAPACITACION = "capacitacion", "Capacitación"

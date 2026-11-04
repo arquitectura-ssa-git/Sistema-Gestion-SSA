@@ -413,3 +413,10 @@ input[type=radio], input[type=checkbox], input[type=range] { accent-color: var(-
 /* Clientes: el apellido o razón social se ve (y se guarda) en mayúsculas; el nombre, con inicial mayúscula */
 input.en-mayusculas { text-transform: uppercase; }
 input.nombre-propio { text-transform: capitalize; }
+
+/* Time Report: casillero de extra con fondo blanco (se perdía con el gris) y botón «+» para sumar una línea */
+.tabla-carga .form-check-input { background-color: #fff; border-color: #9a9a9a; width: 1.25em; height: 1.25em; }
+.tabla-carga .form-check-input:checked { background-color: var(--ssa-plomo); border-color: var(--ssa-plomo); }
+.btn-agregar-fila { display: inline-flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem;
+  margin-top: .25rem; border: 1px solid #c9c9c9; border-radius: 50%; background: #fff; color: var(--ssa-negro); }
+.btn-agregar-fila:hover { background: var(--ssa-negro); border-color: var(--ssa-negro); color: #fff; }
