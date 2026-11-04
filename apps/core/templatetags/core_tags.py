@@ -29,6 +29,8 @@ def bs(campo):
         clase = "form-control"
     if campo.errors:
         clase += " is-invalid"
+    if widget.attrs.get("class"):
+        clase += " " + widget.attrs["class"]
     return campo.as_widget(attrs={"class": clase})
 
 

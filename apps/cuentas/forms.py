@@ -130,8 +130,10 @@ class PersonaForm(_ConClaveInicial):
 class ClienteForm(forms.ModelForm):
     class Meta:
         model = Cliente
-        fields = ["nombre", "cuit", "email", "telefono", "direccion", "notas"]
-        widgets = {"notas": forms.Textarea(attrs={"rows": 3})}
+        fields = ["apellido", "nombres", "cuit", "email", "telefono", "direccion", "notas"]
+        widgets = {"notas": forms.Textarea(attrs={"rows": 3}),
+                   "apellido": forms.TextInput(attrs={"class": "en-mayusculas", "autocomplete": "off"}),
+                   "nombres": forms.TextInput(attrs={"class": "nombre-propio", "autocomplete": "off"})}
 
 
 class ContactoClienteForm(_ConClaveInicial):

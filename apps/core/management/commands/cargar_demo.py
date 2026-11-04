@@ -61,7 +61,7 @@ class Command(BaseCommand):
 
         clientes = []
         for nombre_cliente, (email, nombre, apellido, whatsapp) in CLIENTES:
-            cliente, _ = Cliente.objects.get_or_create(nombre=nombre_cliente, defaults={"email": email})
+            cliente, _ = Cliente.objects.get_or_create(apellido=nombre_cliente.upper(), defaults={"email": email})
             usuario, creado = Usuario.objects.get_or_create(
                 email=email,
                 defaults={"first_name": nombre, "last_name": apellido, "telefono": whatsapp,

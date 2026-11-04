@@ -8,7 +8,10 @@
     <form method="post" novalidate>
       {% csrf_token %}
       {% include "includes/errores_form.html" %}
-      {% include "includes/campo.html" with campo=form.nombre %}
+      <div class="row">
+        <div class="col-sm-7">{% include "includes/campo.html" with campo=form.apellido %}</div>
+        <div class="col-sm-5">{% include "includes/campo.html" with campo=form.nombres %}</div>
+      </div>
       <div class="row">
         <div class="col-sm-6">{% include "includes/campo.html" with campo=form.cuit %}</div>
         <div class="col-sm-6">{% include "includes/campo.html" with campo=form.telefono %}</div>

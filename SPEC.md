@@ -164,7 +164,7 @@ explica por qué.
 | Documentos | Tipos con datos propios, versiones, estados de planos, tres niveles de acceso, papelera; archivo subido o enlace de Google Drive con vista previa |
 | Equipo | Personal agrupado (DIR, Coordinación, áreas) con foto o iniciales; alta de usuarios con días y horas por día |
 | Mi perfil | Nombre, cargo, WhatsApp, avisos y foto de perfil (se recorta cuadrada y se achica sola; acepta fotos de iPhone) |
-| Clientes | Fichas de clientes y sus contactos |
+| Clientes | Fichas de clientes y sus contactos. Apellido o razón social (siempre en mayúsculas) y nombre aparte (inicial en mayúscula); se muestran como «APELLIDO, Nombre» |
 | Time Report | Carga diaria, extras, «Repetir», habilitaciones, reportes con exportación a Excel, feriados |
 | Registro de actividad | Guarda cada acción; no se puede modificar |
 
@@ -199,3 +199,4 @@ aprobación. Cada cambio se anota abajo con fecha y motivo.
 | 22/10/2026 | Estados Activo / Stand by / Superado; criterios de pantalla (menú de 3 puntos, paneles laterales, síntesis); Resumen TR para DIR; certificados solo en obras y con dos formatos; foto de perfil | Ordenar en la SPEC los criterios usados en los últimos cambios | Pablo Saez (lo pidió) |
 | 04/11/2026 | Importar proyectos desde Excel; etapas Masterplan, Pre anteproyecto y Proyecto ejecutivo | Cargar el listado de proyectos del estudio | Pablo Saez (lo pidió) |
 | 04/11/2026 | Se quita la dirección marta.saezsanchez.com.ar y sus comandos | Solo quedan SOPHIA y OBRAS en el VPS | Pablo Saez (lo pidió) |
+| 04/11/2026 | Clientes: apellido o razón social en mayúsculas y nombre aparte | Ordenar y escribir los clientes siempre igual | Pablo Saez (lo pidió) |
