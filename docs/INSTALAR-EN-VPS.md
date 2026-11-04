@@ -88,5 +88,18 @@ Listo: entrá a **https://sophia.saezsanchez.com.ar**.
 curl -fsSL https://raw.githubusercontent.com/arquitectura-ssa-git/Sistema-Gestion-SSA/main/deploy/instalar.sh | DOMINIO_ANTERIOR=marta.saezsanchez.com.ar bash -s -- sophia.saezsanchez.com.ar arquitectura@saezsanchez.com.ar
 ```
 
-No se pierde nada: datos, usuarios, archivos y contraseñas quedan igual. Los comandos `marta-actualizar`,
-`marta-respaldo` y `marta-manage` siguen andando; los nuevos son `sophia-actualizar`, `sophia-respaldo` y `sophia-manage`.
+No se pierde nada: datos, usuarios, archivos y contraseñas quedan igual. Los comandos son `sophia-actualizar`,
+`sophia-respaldo` y `sophia-manage`.
+
+## Quitar la dirección vieja (marta)
+
+Se vuelve a correr el instalador **sin** `DOMINIO_ANTERIOR` y se borra el certificado viejo. No toca los datos ni
+otros sitios del VPS (ej. obras.saezsanchez.com.ar):
+
+```
+sophia-respaldo
+curl -fsSL https://raw.githubusercontent.com/arquitectura-ssa-git/Sistema-Gestion-SSA/main/deploy/instalar.sh | bash -s -- sophia.saezsanchez.com.ar arquitectura@saezsanchez.com.ar
+certbot delete --cert-name marta.saezsanchez.com.ar --non-interactive
+```
+
+Después, en Wix, se borra el registro **A** `marta`.
