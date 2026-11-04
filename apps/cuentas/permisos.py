@@ -161,7 +161,10 @@ def puede_eliminar_obra(u):
 
 
 def puede_editar_obra(u, obra):
-    return es_gerencia(u) or (es_personal(u) and obra.asignaciones.filter(usuario=u, es_responsable=True).exists())
+    """Datos, tareas, avance, equipo e hitos: Gerencia, Coordinación de Proyectos (todos los proyectos y obras)
+    y los responsables de cada uno."""
+    return (es_gerencia(u) or es_responsable_de(u, A.GESTION_PROYECTOS)
+            or (es_personal(u) and obra.asignaciones.filter(usuario=u, es_responsable=True).exists()))
 
 
 # --- Time Report -------------------------------------------------------------
