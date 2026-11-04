@@ -10,7 +10,14 @@
 </div>
 
 <form class="row g-2 mb-3 align-items-end filtros-obras" method="get">
-  <div class="col-12 col-sm-5 col-lg-4"><label class="form-label small text-muted mb-1" for="buscar">Buscar</label><input type="search" name="q" id="buscar" value="{{ q }}" class="form-control" placeholder="Nombre, código, cliente o localidad"></div>
+  <div class="col-12 col-lg-3"><label class="form-label small text-muted mb-1" for="buscar">Buscar</label><input type="search" name="q" id="buscar" value="{{ q }}" class="form-control" placeholder="Nombre, código, cliente o localidad"></div>
+  <div class="col-6 col-sm-auto">
+    <label class="form-label small text-muted mb-1" for="filtro-uso">Tipo</label>
+    <select name="uso" id="filtro-uso" class="form-select" onchange="this.form.submit()">
+      <option value="">Todos</option>
+      {% for v, t in usos %}<option value="{{ v }}" {% if v == uso %}selected{% endif %}>{{ t }}</option>{% endfor %}
+    </select>
+  </div>
   <div class="col-6 col-sm-auto">
     <label class="form-label small text-muted mb-1" for="filtro-estado">Estado</label>
     <select name="estado" id="filtro-estado" class="form-select" onchange="this.form.submit()">
@@ -31,11 +38,12 @@
 <div class="tarjeta">
   <div class="table-responsive">
     <table class="table table-hover table-tarjeta">
-      <thead><tr><th>{% if es_proyecto %}Proyecto{% else %}Obra{% endif %}</th><th>Cliente</th><th>Etapa</th><th style="width: 22%">Avance</th><th>Equipo</th><th>Fin estimado</th></tr></thead>
+      <thead><tr><th>{% if es_proyecto %}Proyecto{% else %}Obra{% endif %}</th><th>Tipo</th><th>Cliente</th><th>Etapa</th><th style="width: 22%">Avance</th><th>Equipo</th><th>Fin estimado</th></tr></thead>
       <tbody>
       {% for o in obras %}
         <tr>
           <td>{% include "obras/_nombre.html" %}<div class="small text-muted">{{ o.codigo }}{% if o.localidad %} · {{ o.localidad }}{% endif %}</div></td>
+          <td class="small">{{ o.get_uso_display|default:"<span class='text-muted'>—</span>" }}</td>
           <td>{{ o.cliente|default:"<span class='text-muted'>Sin cliente</span>" }}</td>
           <td>{% include "obras/_etapa.html" with obra=o %}</td>
           <td>{% include "obras/_avance.html" with obra=o %}</td>
@@ -43,8 +51,8 @@
           <td class="small">{{ o.fecha_fin_estimada|date:"d/m/Y"|default:"—" }}</td>
         </tr>
       {% empty %}
-        <tr><td colspan="6"><div class="lista-vacia"><i class="bi bi-{% if es_proyecto %}pencil-square{% else %}buildings{% endif %}"></i>
-          {% if es_proyecto %}{% if q or etapa or estado != "activa" %}No hay proyectos con esos filtros.{% elif perm.gerencia %}Todavía no hay proyectos. Creá el primero.{% else %}Todavía no hay proyectos activos.{% endif %}{% else %}{% if q or etapa or estado != "activa" %}No hay obras con esos filtros.{% elif perm.gerencia %}Todavía no hay obras. Creá la primera.{% else %}Todavía no te asignaron a ninguna obra.{% endif %}{% endif %}
+        <tr><td colspan="7"><div class="lista-vacia"><i class="bi bi-{% if es_proyecto %}pencil-square{% else %}buildings{% endif %}"></i>
+          {% if es_proyecto %}{% if q or etapa or uso or estado != "activa" %}No hay proyectos con esos filtros.{% elif perm.gerencia %}Todavía no hay proyectos. Creá el primero.{% else %}Todavía no hay proyectos activos.{% endif %}{% else %}{% if q or etapa or uso or estado != "activa" %}No hay obras con esos filtros.{% elif perm.gerencia %}Todavía no hay obras. Creá la primera.{% else %}Todavía no te asignaron a ninguna obra.{% endif %}{% endif %}
         </div></td></tr>
       {% endfor %}
       </tbody>

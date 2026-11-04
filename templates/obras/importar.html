@@ -30,7 +30,7 @@
 <div class="tarjeta mb-3">
   <div class="table-responsive">
     <table class="table table-tarjeta mb-0 small">
-      <thead><tr><th>Fila</th><th>Proyecto</th><th>Código</th><th>Ubicación</th><th>Etapa</th><th>Estado</th><th>Descripción</th></tr></thead>
+      <thead><tr><th>Fila</th><th>Proyecto</th><th>Tipo</th><th>Código</th><th>Ubicación</th><th>Etapa</th><th>Estado</th><th>Descripción</th></tr></thead>
       <tbody>
       {% for f in filas %}
         <tr{% if f.accion != "crear" %} class="text-muted"{% endif %}>
@@ -39,6 +39,7 @@
             {% if f.accion == "crear" %}<strong>{{ f.nombre }}</strong>{% else %}<s>{{ f.nombre|default:"(sin nombre)" }}</s><div>No se carga: {{ f.motivo }}</div>{% endif %}
             {% for a in f.avisos %}<div class="text-muted"><i class="bi bi-info-circle"></i> {{ a }}</div>{% endfor %}
           </td>
+          <td>{{ f.uso_texto }}</td>
           <td>{% if f.accion == "crear" %}{{ f.codigo|default:"<span class='text-muted'>automático</span>" }}{% endif %}</td>
           <td>{{ f.direccion }}{% if f.direccion and f.localidad %} · {% endif %}{{ f.localidad }}</td>
           <td>{{ f.etapa_texto }}</td>

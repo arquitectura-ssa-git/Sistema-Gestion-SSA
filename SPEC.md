@@ -109,6 +109,8 @@ activo (ver sección 5).
 20. Los proyectos y obras tienen tres estados: **Activo**, **Stand by** (suspendido temporalmente) y **Superado**.
     Las etapas son: Masterplan, Pre anteproyecto, Anteproyecto, Proyecto, Proyecto ejecutivo, Documentación,
     Licitación, En ejecución y Entrega.
+    Cada proyecto u obra tiene además un **tipo**: Residencial, Comercial, Otros usos, Edificio en altura,
+    Urbanizaciones o Masterplan (se puede dejar sin definir).
 
 **Forma**
 21. Todo el sistema está en **español**, con voseo («cargá», «elegí»).
@@ -200,3 +202,4 @@ aprobación. Cada cambio se anota abajo con fecha y motivo.
 | 04/11/2026 | Importar proyectos desde Excel; etapas Masterplan, Pre anteproyecto y Proyecto ejecutivo | Cargar el listado de proyectos del estudio | Pablo Saez (lo pidió) |
 | 04/11/2026 | Se quita la dirección marta.saezsanchez.com.ar y sus comandos | Solo quedan SOPHIA y OBRAS en el VPS | Pablo Saez (lo pidió) |
 | 04/11/2026 | Clientes: apellido o razón social en mayúsculas y nombre aparte | Ordenar y escribir los clientes siempre igual | Pablo Saez (lo pidió) |
+| 04/11/2026 | Tipo de proyecto u obra (Residencial, Comercial, Otros usos, Edificio en altura, Urbanizaciones, Masterplan), con columna y filtro | Ordenar y filtrar los proyectos por tipo | Pablo Saez (lo pidió) |

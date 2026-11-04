@@ -85,3 +85,13 @@ def test_dashboard_de_dir_resume_las_horas_por_proyecto(dir_, comun, proyectos):
     assert "7,5 h" in html and "1,5 h" in html
     html_comun = cliente_de(comun).get("/tablero/").content.decode()
     assert "Resumen TR" not in html_comun and "Time Report de hoy" in html_comun
+
+
+def test_filtrar_proyectos_por_tipo(comun, proyectos):
+    proyectos[0].uso = "residencial"
+    proyectos[0].save()
+    proyectos[1].uso = "comercial"
+    proyectos[1].save()
+    html = cliente_de(comun).get("/proyectos/?uso=residencial").content.decode()
+    assert [n for _, n in nombres_en_lista(html)] == ["Casa Lago"]
+    assert "Residencial" in html
