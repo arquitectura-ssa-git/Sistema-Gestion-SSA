@@ -95,3 +95,19 @@ def test_filtrar_proyectos_por_tipo(comun, proyectos):
     html = cliente_de(comun).get("/proyectos/?uso=residencial").content.decode()
     assert [n for _, n in nombres_en_lista(html)] == ["Casa Lago"]
     assert "Residencial" in html
+
+
+def test_coordinacion_de_proyectos_edita_todos_los_proyectos_y_obras(coordinador, proyectos, obra):
+    # coordinador = responsable de Gestión de Proyectos, sin estar asignado a nada
+    for o in (proyectos[0], obra):
+        assert permisos.puede_editar_obra(coordinador, o)
+        assert cliente_de(coordinador).get(f"/obras/{o.pk}/editar/").status_code == 200
+    r = cliente_de(coordinador).post(f"/obras/{obra.pk}/tareas/", {"estructura": "[]"})
+    assert r.status_code == 302
+
+
+def test_coordinacion_de_obras_no_edita_lo_ajeno(obra):
+    from .conftest import A, persona
+
+    coord_obras = persona("cobras@ssa.test", (A.GESTION_OBRAS, "responsable"))
+    assert not permisos.puede_editar_obra(coord_obras, obra)

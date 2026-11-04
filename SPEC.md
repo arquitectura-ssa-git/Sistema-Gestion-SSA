@@ -37,7 +37,7 @@ Qué puede hacer cada uno:
 | Ver todos los **proyectos** | Todo el personal |
 | Ver una **obra** | Su equipo asignado; Coordinación, el responsable de Gestión Administrativa y DIR ven todas |
 | Ver los archivos de un proyecto u obra | Su equipo asignado; Coordinación, el responsable de Gestión Administrativa y DIR ven todos |
-| Editar datos, tareas y avance de un proyecto u obra | Sus responsables y DIR |
+| Editar datos, tareas y avance de un proyecto u obra | Sus responsables, Coordinación de Proyectos (todos) y DIR |
 | Crear proyectos y obras (también varios proyectos de una vez desde Excel) | DIR |
 | Ver **montos** (presupuesto, certificados, saldos) | Solo DIR y el responsable de Gestión Administrativa |
 | Ver el **historial de avance** | DIR, Coordinación y el responsable de Gestión Administrativa |
@@ -204,3 +204,4 @@ aprobación. Cada cambio se anota abajo con fecha y motivo.
 | 04/11/2026 | Clientes: apellido o razón social en mayúsculas y nombre aparte | Ordenar y escribir los clientes siempre igual | Pablo Saez (lo pidió) |
 | 04/11/2026 | Tipo de proyecto u obra (Residencial, Comercial, Otros usos, Edificio en altura, Urbanizaciones, Masterplan), con columna y filtro | Ordenar y filtrar los proyectos por tipo | Pablo Saez (lo pidió) |
 | 04/11/2026 | Time Report: una sola línea con «+» para sumar más; tipo de tarea «Coordinación» | Carga más simple | Pablo Saez (lo pidió) |
+| 04/11/2026 | Coordinación de Proyectos edita datos y tareas de todos los proyectos y obras | Pedido de Pablo | Pablo Saez (lo pidió) |
