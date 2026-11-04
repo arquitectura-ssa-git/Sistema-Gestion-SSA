@@ -20,8 +20,11 @@ class Obra(models.Model):
         OBRA = "obra", "Obra"
 
     class Etapa(models.TextChoices):
+        MASTERPLAN = "masterplan", "Masterplan"
+        PRE_ANTEPROYECTO = "preanteproyecto", "Pre anteproyecto"
         ANTEPROYECTO = "anteproyecto", "Anteproyecto"
         PROYECTO = "proyecto", "Proyecto"
+        EJECUTIVO = "ejecutivo", "Proyecto ejecutivo"
         DOCUMENTACION = "documentacion", "Documentación"
         LICITACION = "licitacion", "Licitación"
         EJECUCION = "ejecucion", "En ejecución"

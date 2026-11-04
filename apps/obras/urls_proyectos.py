@@ -9,4 +9,5 @@ app_name = "proyectos"
 urlpatterns = [
     path("", views.lista_proyectos, name="lista"),
     path("nuevo/", views.proyecto_form, name="nuevo"),
+    path("importar/", views.proyectos_importar, name="importar"),
 ]

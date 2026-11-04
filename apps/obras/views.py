@@ -22,8 +22,9 @@ from apps.plantillas import arbol
 from apps.plantillas.forms import AplicarPlantillaForm, leer_estructura
 from apps.plantillas.models import Plantilla, TareaPlantilla
 
-from . import avances, certificados
-from .forms import AsignacionForm, DuplicarObraForm, GuardarPlantillaForm, HitoForm, ImportarCertificadoForm, ObraForm
+from . import avances, certificados, importar
+from .forms import (AsignacionForm, DuplicarObraForm, GuardarPlantillaForm, HitoForm, ImportarCertificadoForm,
+                    ImportarProyectosForm, ObraForm)
 from .models import AsignacionObra, Certificado, Hito, Obra, TareaObra
 
 PESTANAS = [
@@ -136,6 +137,41 @@ def obra_form(request, pk=None, tipo=Obra.Tipo.OBRA):
 
 def proyecto_form(request):
     return obra_form(request, tipo=Obra.Tipo.PROYECTO)
+
+
+SESION_IMPORTAR = "importar_proyectos"
+
+
+@permisos.solo_personal
+def proyectos_importar(request):
+    """Carga varios proyectos desde la planilla modelo: primero se muestra qué va a pasar y después se confirma."""
+    permisos.exigir(permisos.puede_crear_obra(request.user))
+    _marcar_menu(request, Obra.Tipo.PROYECTO)
+    if request.method == "POST" and "confirmar" in request.POST:
+        pendiente = request.session.pop(SESION_IMPORTAR, None)
+        if not pendiente:
+            messages.error(request, "La vista previa venció. Subí la planilla de nuevo.")
+            return redirect("proyectos:importar")
+        plantilla = Plantilla.objects.filter(pk=pendiente["plantilla"]).first() if pendiente["plantilla"] else None
+        creados = importar.crear(pendiente["filas"], request.user, plantilla)
+        messages.success(request, f"Se {'creó 1 proyecto' if len(creados) == 1 else f'crearon {len(creados)} proyectos'}"
+                                  + (f" con la plantilla «{plantilla}»" if plantilla and creados else "")
+                                  + ". Ahora asignales equipo y cliente desde «Editar datos».")
+        return redirect(f"{reverse('proyectos:lista')}?estado=")
+    form = ImportarProyectosForm(request.POST or None, request.FILES or None)
+    filas = plantilla = None
+    if request.method == "POST" and form.is_valid():
+        try:
+            filas = importar.leer(form.cleaned_data["archivo"])
+        except importar.PlanillaInvalida as e:
+            form.add_error("archivo", str(e))
+        else:
+            plantilla = form.cleaned_data["plantilla"]
+            request.session[SESION_IMPORTAR] = {"filas": filas, "plantilla": plantilla.pk if plantilla else None}
+    return render(request, "obras/importar.html", {
+        "form": form, "filas": filas, "plantilla": plantilla,
+        "a_crear": sum(f["accion"] == "crear" for f in filas or []),
+    })
 
 
 def obra_url(obra):

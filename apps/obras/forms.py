@@ -143,3 +143,24 @@ class ImportarCertificadoForm(forms.Form):
         if archivo.size > 20 * 1024 * 1024:
             raise forms.ValidationError("El archivo pesa más de 20 MB.")
         return archivo
+
+
+class ImportarProyectosForm(forms.Form):
+    archivo = forms.FileField(label="Planilla de proyectos (Excel .xlsx)")
+    plantilla = forms.ModelChoiceField(queryset=Plantilla.objects.none(), label="Tareas", required=False,
+                                       empty_label="Sin tareas (las cargo después)",
+                                       help_text="Se copian a cada proyecto nuevo.")
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        plantillas = Plantilla.objects.filter(uso__in=[Plantilla.Uso.AMBOS, Plantilla.Uso.PROYECTO])
+        self.fields["plantilla"].queryset = plantillas
+        self.fields["plantilla"].initial = plantillas.filter(nombre="Proyecto de Arquitectura").first()
+
+    def clean_archivo(self):
+        archivo = self.cleaned_data["archivo"]
+        if not archivo.name.lower().endswith(".xlsx"):
+            raise forms.ValidationError("Tiene que ser un archivo de Excel (.xlsx).")
+        if archivo.size > 10 * 1024 * 1024:
+            raise forms.ValidationError("El archivo pesa más de 10 MB.")
+        return archivo
