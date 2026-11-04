@@ -34,13 +34,23 @@ class UsuarioManager(BaseUserManager):
         return self._crear(email, password, **extra)
 
 
+def nombre_propio(texto):
+    """'ana  MAGDALENA' → 'Ana Magdalena' (inicial de cada palabra en mayúscula, el resto en minúsculas)."""
+    return " ".join(p[:1].upper() + p[1:].lower() for p in (texto or "").split())
+
+
 class Cliente(models.Model):
     """Persona o empresa dueña de una o más obras.
 
     Puede tener varios contactos con acceso al portal (Usuario.cliente).
     """
 
-    nombre = models.CharField("nombre o razón social", max_length=200)
+    apellido = models.CharField("apellido o razón social", max_length=150,
+                                help_text="Se guarda siempre en mayúsculas.")
+    nombres = models.CharField("nombre", max_length=100, blank=True,
+                               help_text="Solo para personas. Vacío si es una empresa.")
+    # Cómo se muestra en todo el sistema («NAVARRO VITTAR, Ana Magdalena»); se arma solo al guardar.
+    nombre = models.CharField(max_length=260, editable=False)
     cuit = models.CharField("CUIT / DNI", max_length=20, blank=True)
     email = models.EmailField(blank=True)
     telefono = models.CharField("teléfono", max_length=30, blank=True)
@@ -53,6 +63,12 @@ class Cliente(models.Model):
 
     def __str__(self):
         return self.nombre
+
+    def save(self, *args, **kwargs):
+        self.apellido = " ".join((self.apellido or self.nombre).split()).upper()
+        self.nombres = nombre_propio(self.nombres)
+        self.nombre = f"{self.apellido}, {self.nombres}" if self.nombres else self.apellido
+        super().save(*args, **kwargs)
 
 
 class Usuario(AbstractUser):
