@@ -15,6 +15,14 @@ VIDEOS = [
                "Nombre, cliente, tipo y ubicación (el código se genera solo).",
                "Etapa y estado, a la derecha.", "Elegí la plantilla de tareas y tocá <strong>Guardar</strong>.",
                "Ajustá las tareas y guardá.", "En <strong>Equipo</strong>, sumá a las personas y marcá al responsable."]},
+    {"titulo": "Cómo cargar el avance y personalizar las tareas", "archivo": "avance-y-tareas", "duracion": "40 segundos",
+     "nota": "Responsables, Coordinación y DIR",
+     "pasos": ["Abrí el proyecto u obra → pestaña <strong>Tareas</strong>.",
+               "Mové la barra de cada ítem: se guarda sola.",
+               "La flecha de arriba muestra solo los rubros.",
+               "Para personalizar: menú de 3 puntos → <strong>Editar tareas</strong>.",
+               "Cambiá nombres e incidencias, sumá con <strong>+ Ítem</strong>, quitá con el tacho y ordená con las flechas.",
+               "Tocá <strong>Guardar tareas</strong>."]},
 ]
 
 SECCIONES = [
@@ -105,8 +113,33 @@ SECCIONES = [
     ]),
     ("Tareas y avance", "list-check", [
         ("¿Cómo actualizo el avance?",
-         "En la pestaña Tareas, mové la barra del ítem: se guarda sola. El avance de los rubros, las etapas y el "
-         "proyecto se calcula solo."),
+         "En la pestaña Tareas, mové la barra del ítem: se guarda sola (arriba aparece «Guardado ✓»). El avance de "
+         "los rubros, las etapas y el proyecto se calcula solo; no se carga a mano."),
+        ("¿Quién puede mover las barras y editar las tareas?",
+         "Los responsables del proyecto u obra, Coordinación de Proyectos y DIR. El resto del equipo ve el avance "
+         "pero no lo cambia."),
+        ("¿Cómo personalizo las tareas de un proyecto?",
+         "Menú de 3 puntos → Editar tareas. Ahí podés:\n"
+         "- Cambiar el nombre de etapas, rubros e ítems.\n"
+         "- Cambiar la incidencia de cada uno (el resto del grupo se reajusta para sumar 100%).\n"
+         "- Sumar con «+ Rubro» o «+ Ítem».\n"
+         "- Cambiar el orden con las flechas ↑ ↓.\n"
+         "- Quitar con el tacho.\n\n"
+         "Al final tocá Guardar tareas. Si salís sin guardar, el sistema te avisa."),
+        ("¿Cambiar las tareas del proyecto cambia la plantilla?",
+         "No. Las tareas se copian al crear el proyecto: lo que ajustes ahí queda solo en ese proyecto."),
+        ("Si quito un ítem, ¿se pierde algo?",
+         "Sí: se borra el ítem y también su historial de avance. Si la tarea ya no corresponde pero tenía avance, "
+         "pensalo antes de quitarla."),
+        ("¿Cómo veo solo los rubros?",
+         "Con la flecha que está arriba a la derecha de la lista de tareas. La de cada rubro abre o cierra solo ese."),
+        ("Armé un listado que me sirve para otros proyectos",
+         "En la pestaña Tareas, panel de la derecha → Guardar como plantilla (Gestión de Proyectos, Gestión de "
+         "Obras y DIR). Queda disponible al crear proyectos nuevos."),
+        ("¿Qué hace «Reemplazar tareas»?",
+         "Borra el listado actual del proyecto (con su historial de avance) y carga el de la plantilla elegida, con "
+         "el avance en 0. Usalo solo "
+         "si querés empezar de nuevo."),
         ("¿Qué son las incidencias?",
          "Cuánto pesa cada rubro o ítem dentro de su grupo. Cada grupo suma siempre 100%: si cambiás una, las "
          "demás se reajustan."),

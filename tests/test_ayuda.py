@@ -24,6 +24,6 @@ def test_las_respuestas_admiten_listas():
 
 def test_los_dos_videos_estan_en_la_pagina(comun):
     html = cliente_de(comun).get("/ayuda/").content.decode()
-    for archivo in ("cargar-time-report", "crear-proyecto"):
+    for archivo in ("cargar-time-report", "crear-proyecto", "avance-y-tareas"):
         assert f"ayuda/{archivo}.mp4" in html and finders.find(f"ayuda/{archivo}.mp4")
     assert "¿Quién puede crear un proyecto u obra?" in html
