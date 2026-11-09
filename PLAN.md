@@ -20,7 +20,7 @@
 
 ## Módulos en diseño
 
-### 11 · Gestión de Adquisiciones — decidido: dentro de SOPHIA (no un sistema aparte)
+### 11 · Gestión de Adquisiciones — recomendado: dentro de SOPHIA (falta la decisión de Pablo)
 Usa lo que ya existe: proyectos y obras, equipos y responsables, permisos de montos, documentos y registro de actividad.
 
 **Qué se pide:** materiales, contrataciones profesionales y presupuestos de contratistas, siempre de una obra o un
