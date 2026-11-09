@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% load core_tags %}
+{% block titulo %}Informe {{ dia|date:"d/m/Y" }} · {{ obra.nombre }}{% endblock %}
+{% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'obras:lista' %}">Obras</a></li><li class="breadcrumb-item"><a href="{% url 'obras:detalle' obra.pk %}?tab=informes">{{ obra.nombre }}</a></li><li class="breadcrumb-item active">Informe {{ dia|date:"d/m" }}</li></ol></nav>{% endblock %}
+{% block contenido %}
+<div class="informe-diario">
+<div class="pagina-titulo">
+  <div>
+    <div class="small text-muted">{{ obra.nombre }} · Informe diario</div>
+    <h1>{% if es_hoy %}Hoy, {% endif %}{{ dia|date:"l d/m/Y"|capfirst }}</h1>
+    <div class="small text-muted">
+      {% if form %}{% if es_hoy %}Se puede cargar hasta las 23:59{% else %}Corrección autorizada hasta hoy a las 23:59{% endif %}{% elif es_hoy %}El DT lo puede completar hasta las 23:59{% elif informe %}Cerrado{% endif %}
+      {% if informe %} · cargado por {{ informe.autor.nombre_completo|default:"—" }}{% endif %}
+    </div>
+  </div>
+  <div class="d-flex gap-2">
+    {% if anterior %}<a href="{% url 'informes:informe' obra.pk anterior.fecha|date:'Y-m-d' %}" class="btn btn-outline-secondary" title="Informe anterior" aria-label="Informe anterior"><i class="bi bi-chevron-left"></i></a>{% endif %}
+    {% if siguiente %}<a href="{% url 'informes:informe' obra.pk siguiente.fecha|date:'Y-m-d' %}" class="btn btn-outline-secondary" title="Informe siguiente" aria-label="Informe siguiente"><i class="bi bi-chevron-right"></i></a>{% endif %}
+  </div>
+</div>
+
+{% if form %}
+<form method="post" enctype="multipart/form-data" novalidate>
+  {% csrf_token %}
+  {% include "includes/errores_form.html" %}
+
+  <section class="tarjeta mb-3"><div class="tarjeta-cuerpo">
+    <h2 class="informe-titulo">Clima</h2>
+    <div class="opciones-clima">
+      {% for r in form.clima %}
+        <label class="opcion-clima">{{ r.tag }}<span><i class="bi bi-{% if r.data.value == 'lluvia' %}cloud-rain{% else %}sun{% endif %}"></i> {{ r.choice_label }}</span></label>
+      {% endfor %}
+    </div>
+    <div class="si-llueve mt-3" {% if form.clima.value != "lluvia" %}hidden{% endif %}>
+      <div class="form-check form-switch mb-2">{{ form.se_trabajo|bs }}<label class="form-check-label" for="{{ form.se_trabajo.id_for_label }}">Se pudo trabajar en obra</label></div>
+      <div class="sin-trabajo" {% if form.se_trabajo.value %}hidden{% endif %}>{% include "includes/campo.html" with campo=form.motivo_sin_trabajo %}</div>
+    </div>
+  </div></section>
+
+  <section class="tarjeta mb-3"><div class="tarjeta-cuerpo">
+    <h2 class="informe-titulo">Personal en obra <span class="small text-muted fw-normal" data-total-personal></span></h2>
+    <div class="gremios-grilla">
+      {% for c in form.campos_gremios %}
+        <label class="gremio-campo"><span>{{ c.label }}</span>{{ c|bs }}</label>
+      {% endfor %}
+    </div>
+    <a href="{% url 'informes:gremios' %}?volver={{ request.path|urlencode }}" class="small">Editar la lista de gremios</a>
+  </div></section>
+
+  {% if filas_avance %}
+  <section class="tarjeta mb-3"><div class="tarjeta-cuerpo">
+    <h2 class="informe-titulo">Avance de tareas</h2>
+    <p class="small text-muted">Mové la barra de lo que avanzó hoy. Queda en el informe y en el historial de avance de la obra.</p>
+    <div class="informe-avance">
+      {% for f in filas_avance %}
+        {% if f.hoja %}
+          <div class="informe-avance-fila" style="--nivel: {{ f.nivel }}">
+            <span class="informe-avance-nombre">{{ f.nodo.nombre }}</span>
+            <input type="range" class="form-range" min="0" max="100" step="5" name="avance-{{ f.nodo.pk }}" value="{{ f.nodo.avance }}" aria-label="Avance de {{ f.nodo.nombre }}" oninput="this.nextElementSibling.textContent = this.value + '%'">
+            <span class="informe-avance-num">{{ f.nodo.avance }}%</span>
+          </div>
+        {% else %}
+          <div class="informe-avance-grupo informe-nivel-{{ f.nivel }}" style="--nivel: {{ f.nivel }}">{{ f.nodo.nombre }}</div>
+        {% endif %}
+      {% empty %}
+        <p class="small text-muted mb-0">La obra todavía no tiene tareas cargadas.</p>
+      {% endfor %}
+    </div>
+  </div></section>
+  {% elif avances_del_dia %}
+  {% include "informes/_avances_del_dia.html" %}
+  {% endif %}
+
+  <section class="tarjeta mb-3"><div class="tarjeta-cuerpo">
+    <h2 class="informe-titulo">Fotos de las tareas en ejecución</h2>
+    {% include "informes/_fotos.html" with editable=True del_libro=False %}
+    <label class="btn btn-outline-dark mt-2"><i class="bi bi-camera"></i> Agregar fotos{{ form.fotos_nuevas }}</label>
+    <div class="small text-muted mt-1">Hasta 20 fotos por informe. Se achican solas al subirlas.</div>
+  </div></section>
+
+  <section class="tarjeta mb-3"><div class="tarjeta-cuerpo">
+    <h2 class="informe-titulo">Notas de pedido (libro de obra)</h2>
+    {{ form.notas_pedido|bs }}
+    {% include "informes/_fotos.html" with editable=True del_libro=True %}
+    <label class="btn btn-outline-dark mt-2"><i class="bi bi-camera"></i> Foto de la hoja del libro{{ form.fotos_libro }}</label>
+  </div></section>
+
+  <section class="tarjeta mb-3"><div class="tarjeta-cuerpo">
+    <h2 class="informe-titulo">Observaciones</h2>
+    {{ form.observaciones|bs }}
+  </div></section>
+
+  <div class="barra-guardar">
+    <button class="btn btn-dark btn-lg w-100"><i class="bi bi-check-lg"></i> Guardar informe</button>
+  </div>
+</form>
+{% for f in informe.fotos.all %}
+<form method="post" action="{% url 'informes:foto_quitar' f.pk %}" id="quitar-foto-{{ f.pk }}" hidden>{% csrf_token %}</form>
+{% endfor %}
+
+{% elif informe %}
+  <section class="tarjeta mb-3"><div class="tarjeta-cuerpo informe-datos">
+    <div><span class="dato-etiqueta">Clima</span><div><i class="bi bi-{% if informe.clima == 'lluvia' %}cloud-rain{% else %}sun{% endif %}"></i> {{ informe.get_clima_display }}</div></div>
+    <div><span class="dato-etiqueta">Trabajo en obra</span><div>{% if informe.se_trabajo %}Se trabajó{% else %}No se trabajó{% if informe.motivo_sin_trabajo %}: {{ informe.motivo_sin_trabajo }}{% endif %}{% endif %}</div></div>
+    <div><span class="dato-etiqueta">Personal</span><div>{{ informe.personas }} persona{{ informe.personas|pluralize:"s" }}</div></div>
+  </div></section>
+  {% if informe.personal.all %}
+  <section class="tarjeta mb-3"><div class="tarjeta-cuerpo">
+    <h2 class="informe-titulo">Personal por gremio</h2>
+    <div class="gremios-grilla">{% for p in informe.personal.all %}<div class="gremio-campo"><span>{{ p.gremio.nombre }}</span><strong>{{ p.cantidad }}</strong></div>{% endfor %}</div>
+  </div></section>
+  {% endif %}
+  {% if avances_del_dia %}{% include "informes/_avances_del_dia.html" %}{% endif %}
+  {% if informe.fotos.all %}
+  <section class="tarjeta mb-3"><div class="tarjeta-cuerpo">
+    <h2 class="informe-titulo">Fotos</h2>
+    {% include "informes/_fotos.html" with editable=False del_libro=False %}
+  </div></section>
+  {% endif %}
+  {% if informe.notas_pedido or informe.observaciones %}
+  <section class="tarjeta mb-3"><div class="tarjeta-cuerpo">
+    {% if informe.notas_pedido %}<h2 class="informe-titulo">Notas de pedido (libro de obra)</h2><p class="texto-libre">{{ informe.notas_pedido }}</p>{% endif %}
+    {% include "informes/_fotos.html" with editable=False del_libro=True %}
+    {% if informe.observaciones %}<h2 class="informe-titulo">Observaciones</h2><p class="texto-libre mb-0">{{ informe.observaciones }}</p>{% endif %}
+  </div></section>
+  {% endif %}
+{% else %}
+  <div class="tarjeta mb-3"><div class="tarjeta-cuerpo"><p class="mb-0 text-muted">No hay informe de este día.</p></div></div>
+{% endif %}
+
+{% if form_pedido %}
+<section class="tarjeta mb-3"><div class="tarjeta-cuerpo">
+  {% if pedido and pedido.estado == "pendiente" %}
+    <p class="mb-0">Pediste {% if informe %}corregir{% else %}cargar{% endif %} este informe ({{ pedido.motivo }}). Está <strong>pendiente</strong> de DIR.</p>
+  {% else %}
+    {% if pedido and pedido.estado == "rechazada" %}<p class="small text-muted">DIR rechazó el pedido anterior para este día.</p>{% endif %}
+    {% if pedido and pedido.estado == "aprobada" %}<p class="small text-muted">La autorización para este día ya venció.</p>{% endif %}
+    <p class="small text-muted">Este día ya cerró. Para {% if informe %}corregirlo{% else %}cargarlo{% endif %}, pedí autorización a DIR.</p>
+    <form method="post" action="{% url 'informes:pedir' obra.pk dia|date:'Y-m-d' %}" class="row g-2" style="max-width: 40rem">{% csrf_token %}
+      <div class="col-sm-8">{{ form_pedido.motivo|bs }}</div>
+      <div class="col-sm-4"><button class="btn btn-outline-dark w-100">Pedir autorización</button></div>
+    </form>
+  {% endif %}
+</div></section>
+{% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  const raiz = document.querySelector(".informe-diario form");
+  if (!raiz) return;
+  const llueve = raiz.querySelector(".si-llueve"), sinTrabajo = raiz.querySelector(".sin-trabajo");
+  const trabajo = raiz.querySelector("input[name=se_trabajo]");
+  raiz.querySelectorAll("input[name=clima]").forEach((r) => r.addEventListener("change", () => {
+    llueve.hidden = r.value !== "lluvia" || !r.checked;
+  }));
+  if (trabajo) trabajo.addEventListener("change", () => { sinTrabajo.hidden = trabajo.checked; });
+  const total = raiz.querySelector("[data-total-personal]");
+  const sumar = () => {
+    let t = 0;
+    raiz.querySelectorAll(".gremio-campo input").forEach((i) => { t += parseInt(i.value, 10) || 0; });
+    total.textContent = t ? "· " + t + " en total" : "";
+  };
+  raiz.querySelectorAll(".gremio-campo input").forEach((i) => i.addEventListener("input", sumar));
+  sumar();
+  // Mostrar cuántas fotos se eligieron antes de guardar
+  raiz.querySelectorAll("input[type=file]").forEach((i) => i.addEventListener("change", () => {
+    const n = i.files.length, et = i.closest("label");
+    if (et && n) et.dataset.elegidas = n + (n === 1 ? " foto elegida" : " fotos elegidas") + " · se suben al guardar";
+  }));
+})();
+</script>
+{% endblock %}

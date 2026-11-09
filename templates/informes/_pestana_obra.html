@@ -1,0 +1,42 @@
+{% load core_tags %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div class="small text-muted">Lo carga el DT de la obra cada día, hasta las 23:59. Corregirlo después requiere autorización de DIR.</div>
+  {% if puede_cargar_informe %}<a href="{{ url_informe_hoy }}" class="btn btn-dark"><i class="bi bi-journal-plus"></i> {% if hoy_tiene_informe %}Ver el informe de hoy{% else %}Informe de hoy{% endif %}</a>{% endif %}
+</div>
+
+{% if informes %}
+<div class="row g-3 mb-3">
+  <div class="col-6 col-lg-3"><div class="tarjeta h-100"><div class="tarjeta-cuerpo"><div class="dato-etiqueta">Informes</div><div class="dato-numero">{{ informes_resumen.total }}</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="tarjeta h-100"><div class="tarjeta-cuerpo"><div class="dato-etiqueta">Días trabajados</div><div class="dato-numero">{{ informes_resumen.trabajados }}</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="tarjeta h-100"><div class="tarjeta-cuerpo"><div class="dato-etiqueta">Días de lluvia</div><div class="dato-numero">{{ informes_resumen.lluvia }}</div><div class="small text-muted">{{ informes_resumen.perdidos }} sin poder trabajar</div></div></div></div>
+  <div class="col-6 col-lg-3"><div class="tarjeta h-100"><div class="tarjeta-cuerpo"><div class="dato-etiqueta">Personal promedio</div><div class="dato-numero">{{ informes_resumen.personal_prom|pct:1 }}</div><div class="small text-muted">personas por día</div></div></div></div>
+</div>
+{% endif %}
+
+{% if informes_faltan %}
+<div class="small mb-3"><span class="text-muted">Días hábiles sin informe (últimos 30 días):</span>
+  {% for d in informes_faltan %}<a href="{% url 'informes:informe' obra.pk d|date:'Y-m-d' %}" class="badge text-bg-light border text-decoration-none">{{ d|date:"D d/m" }}</a> {% endfor %}
+</div>
+{% endif %}
+
+<div class="tarjeta">
+  <div class="table-responsive">
+    <table class="table table-hover table-tarjeta">
+      <thead><tr><th>Fecha</th><th>Clima</th><th>Trabajo</th><th class="text-end">Personal</th><th class="text-end">Fotos</th><th>Cargó</th></tr></thead>
+      <tbody>
+      {% for i in informes %}
+        <tr>
+          <td><a href="{% url 'informes:informe' obra.pk i.fecha|date:'Y-m-d' %}" class="fw-semibold">{{ i.fecha|date:"D d/m/Y"|capfirst }}</a></td>
+          <td><i class="bi bi-{% if i.clima == 'lluvia' %}cloud-rain{% else %}sun{% endif %}"></i> {{ i.get_clima_display }}</td>
+          <td>{% if i.se_trabajo %}Se trabajó{% else %}<span class="text-muted">No se trabajó</span>{% endif %}</td>
+          <td class="text-end">{{ i.personas }}</td>
+          <td class="text-end">{{ i.fotos.all|length }}</td>
+          <td class="small text-muted">{{ i.autor.nombre_completo|default:"—" }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6"><div class="lista-vacia"><i class="bi bi-journal-richtext"></i> Todavía no hay informes de esta obra.</div></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

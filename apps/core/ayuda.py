@@ -150,6 +150,24 @@ SECCIONES = [
          "Pestaña Historial de avance (DIR, Coordinación y Administración): fecha de inicio, fin y días de cada "
          "ítem."),
     ]),
+    ("Informe diario de obra", "journal-richtext", [
+        ("¿Quién carga el informe diario?",
+         "El DT asignado a la obra (por Dirección Técnica), desde el celular o la computadora: Dashboard → «Informe "
+         "diario de hoy», o en la obra → pestaña Informes diarios. Lo leen DIR y Coordinación de Obras."),
+        ("¿Qué lleva el informe?",
+         "- Clima: sol o lluvia; si llovió, si se pudo trabajar.\n"
+         "- Cuántas personas hubo de cada gremio.\n"
+         "- El avance de las tareas: lo que muevas ahí queda también en el historial de avance de la obra.\n"
+         "- Fotos de las tareas en ejecución (se achican solas).\n"
+         "- Notas de pedido del libro de obra, con foto de la hoja.\n"
+         "- Observaciones."),
+        ("¿Hasta cuándo lo puedo cargar o corregir?",
+         "El mismo día, hasta las 23:59, y lo podés guardar varias veces. Después queda cerrado: para cargarlo o "
+         "corregirlo, abrí ese día y tocá «Pedir autorización»; si DIR la aprueba, tenés hasta las 23:59 de ese día."),
+        ("Falta un gremio en la lista",
+         "En el informe, «Editar la lista de gremios» (los DT y Coordinación de Obras). Los que desactivás dejan de "
+         "aparecer en los informes nuevos."),
+    ]),
     ("Documentos", "folder2-open", [
         ("¿Cómo subo un archivo?",
          "En el proyecto u obra → Archivos, o en Documentos → Subir archivos. Si el archivo ya está en Google Drive, usá "

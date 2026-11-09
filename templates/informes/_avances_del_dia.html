@@ -1,0 +1,8 @@
+<section class="tarjeta mb-3"><div class="tarjeta-cuerpo">
+  <h2 class="informe-titulo">Avance registrado ese día</h2>
+  <ul class="list-unstyled mb-0 small">
+    {% for a in avances_del_dia %}
+      <li class="d-flex justify-content-between gap-2 py-1 border-bottom"><span>{{ a.tarea.nombre }}</span><span class="text-nowrap">{% if a.anterior is not None %}{{ a.anterior }}% → {% endif %}<strong>{{ a.avance }}%</strong></span></li>
+    {% endfor %}
+  </ul>
+</div></section>

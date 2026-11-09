@@ -1,0 +1,19 @@
+{% if informe %}<div class="fotos-informe">
+  {% for f in informe.fotos.all %}{% if f.del_libro == del_libro %}
+    <figure class="foto-informe">
+      <a href="{% url 'informes:foto' f.pk %}" target="_blank"><img src="{% url 'informes:foto' f.pk %}" alt="{{ f.detalle|default:'Foto del informe' }}" loading="lazy"></a>
+      {% if editable %}
+        <input type="text" name="foto-{{ f.pk }}-detalle" value="{{ f.detalle }}" maxlength="200" class="form-control form-control-sm mt-1" placeholder="Detalle (opcional)">
+        {% if not del_libro and tareas_foto %}
+        <select name="foto-{{ f.pk }}-tarea" class="form-select form-select-sm mt-1" aria-label="Tarea de la foto">
+          <option value="">Tarea (opcional)</option>
+          {% for t in tareas_foto %}<option value="{{ t.pk }}" {% if t.pk == f.tarea_id %}selected{% endif %}>{{ t.nombre }}</option>{% endfor %}
+        </select>
+        {% endif %}
+        <button type="submit" form="quitar-foto-{{ f.pk }}" class="btn btn-sm btn-link text-danger p-0 mt-1" onclick="return confirm('¿Quitar esta foto?')">Quitar</button>
+      {% else %}
+        <figcaption>{{ f.detalle }}{% if f.tarea %}{% if f.detalle %} · {% endif %}<span class="text-muted">{{ f.tarea.nombre }}</span>{% endif %}</figcaption>
+      {% endif %}
+    </figure>
+  {% endif %}{% endfor %}
+</div>{% endif %}

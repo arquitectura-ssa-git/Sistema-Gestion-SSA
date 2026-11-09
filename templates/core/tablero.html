@@ -111,6 +111,49 @@
       {% endfor %}
     </div>
     {% endif %}
+    {% if informes_mios %}
+    <div class="tarjeta mb-3">
+      <div class="tarjeta-cabecera"><h2>Informe diario de hoy</h2></div>
+      <ul class="list-group list-group-flush">
+        {% for i in informes_mios %}
+        <a href="{{ i.url }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-2">
+          <span class="text-truncate">{{ i.obra.nombre }}</span>
+          {% if i.hecho %}<span class="small text-muted text-nowrap"><i class="bi bi-check2"></i> Cargado</span>{% else %}<span class="small fw-semibold text-nowrap">Cargar <i class="bi bi-arrow-right"></i></span>{% endif %}
+        </a>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+    {% if informes_hoy %}
+    <div class="tarjeta mb-3">
+      <div class="tarjeta-cabecera"><h2>Informes diarios de hoy</h2><span class="small text-muted">{{ informes_hoy|length }} obra{{ informes_hoy|length|pluralize }}</span></div>
+      <ul class="list-group list-group-flush">
+        {% for i in informes_hoy %}
+        <a href="{{ i.url }}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center gap-2">
+          <span class="text-truncate">{{ i.obra.nombre }}</span>
+          {% if i.hecho %}<span class="small text-nowrap"><i class="bi bi-check2"></i> Cargado</span>{% else %}<span class="small text-muted text-nowrap">Sin informe</span>{% endif %}
+        </a>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+    {% if pedidos_informe %}
+    <div class="tarjeta mb-3">
+      <div class="tarjeta-cabecera"><h2>Pedidos para corregir informes</h2></div>
+      <ul class="list-group list-group-flush">
+        {% for p in pedidos_informe %}
+        <li class="list-group-item">
+          <div><strong>{{ p.obra.nombre }}</strong> · {{ p.fecha|date:"D d/m" }}</div>
+          <div class="small text-muted">{{ p.usuario.nombre_completo }}: {{ p.motivo }}</div>
+          <form method="post" action="{% url 'informes:resolver' p.pk %}" class="d-flex gap-2 mt-2">{% csrf_token %}
+            <button name="accion" value="aprobar" class="btn btn-sm btn-dark">Autorizar</button>
+            <button name="accion" value="rechazar" class="btn btn-sm btn-outline-secondary">Rechazar</button>
+          </form>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
     {% if horas_hoy is not None and not perm.gerencia %}
     <div class="tarjeta mb-3">
       <div class="tarjeta-cabecera"><h2>Time Report de hoy</h2><a href="{% url 'horas:mio' %}" class="small">Cargar horas</a></div>

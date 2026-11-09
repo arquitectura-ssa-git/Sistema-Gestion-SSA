@@ -10,11 +10,94 @@
 | 4 | Obras y equipo | ✅ Hecho: lista con filtros, alta/edición, ficha con pestañas (resumen, equipo, hitos, actividad) |
 | 4b | Proyectos, menú nuevo y plantillas de tareas | ✅ Hecho: menú Dashboard · Proyectos · Obras · Documentos · Equipo · Miembros · Clientes · Plantillas. Cada obra es de tipo *Proyecto* u *Obra* (se elige al crearla; códigos PR-/OB-). Plantillas de tareas con incidencia (suman 100%); al aplicarlas se copian a la pestaña *Tareas* y el avance sale de incidencia × avance de cada tarea. |
 | 5 | Documentos (archivos, versiones, papelera) | ✅ Hecho: 10 tipos con datos propios, 3 niveles de acceso, versiones con huella, circuito de planos, vista previa de PDF/fotos/planillas, papelera. Diseño en `docs/SECCION-5-DOCUMENTOS.md` |
-| 6 | Notificaciones (sistema, email, WhatsApp) | ⏭️ Sigue |
+| 6 | Notificaciones (sistema, email, WhatsApp) | ⏸️ En pausa: avisos de hitos por WhatsApp analizados (ver «Temas en pausa»). El email del servidor tampoco está configurado. |
 | 7 | Aprobaciones (gastos, decisiones y cambios) | ⏳ Pendiente |
 | 8 | Comunicados (avisos al grupo y a clientes) | ⏳ Pendiente |
 | 9 | Portal del cliente | ⏳ Pendiente. Hay una maqueta interactiva para mostrar: `demo/portal-cliente-demo.html` |
-| 10 | Pruebas automáticas y datos demo | 🟡 Los datos demo están (`manage.py cargar_demo`). Faltan los tests automáticos. |
+| 10 | Pruebas automáticas y datos demo | ✅ Datos demo (`manage.py cargar_demo`) y pruebas automáticas en `tests/` (pytest). |
+| 11 | Gestión de Adquisiciones (pedidos de materiales, contrataciones y presupuestos) | 📝 En diseño (ver abajo). Reemplaza el tablero de Trello |
+| 12 | Informes diarios de Dirección Técnica | ✅ Hecho (09/11/2026). Falta el informe semanal para el cliente |
+
+## Módulos en diseño
+
+### 11 · Gestión de Adquisiciones — recomendado: dentro de SOPHIA (falta la decisión de Pablo)
+Usa lo que ya existe: proyectos y obras, equipos y responsables, permisos de montos, documentos y registro de actividad.
+
+**Qué se pide:** materiales, contrataciones profesionales y presupuestos de contratistas, siempre de una obra o un
+proyecto. Datos: listado de ítems con cantidades, fecha del pedido y fecha de entrega. **Lleva montos.**
+
+**Circuito de obra** (lo carga el DT; lo gestiona la Asistente de Compras):
+Recepción de pedido → Solicitud de cotización → Orden de compra → Autorización DIR → Facturación → Compra →
+Logística y entrega → Recepción en obra.
+
+**Circuito de proyecto** (lo carga el Responsable de proyecto, con el presupuesto ya pedido):
+Pedido con presupuesto → Autorización DIR → Orden de compra.
+
+**Proveedores:** ficha y seguimiento de cuenta (órdenes, facturas, pagos, saldo).
+
+**Pantallas previstas:** tablero por estados (como Trello) y lista con filtros; ficha del pedido con ítems, montos,
+adjuntos e historial; autorización de DIR con botón y comentario.
+
+**Etapas:** 1) pedidos y circuito de estados; 2) cotizaciones, órdenes de compra con montos y autorización DIR;
+3) proveedores y cuenta.
+
+**Falta definir:** quién es la Asistente de Compras y su área; quién ve los montos (¿el DT ve los de su pedido?);
+una o varias cotizaciones por pedido; qué pasa si DIR rechaza; recepción parcial; quién registra los pagos;
+si se migran los pedidos abiertos de Trello.
+
+### 12 · Informes diarios de Dirección Técnica
+**Quién y cuándo:** el DT de la obra, desde SOPHIA (normalmente en el celular, en la obra). Uno por obra y por día,
+se carga hasta las 23:59 de ese día. Después queda cerrado; corregirlo requiere **autorización de DIR** (mismo
+mecanismo que la habilitación del Time Report) y la corrección queda registrada.
+
+**Qué lleva:**
+- Fecha y clima (sol / lluvia); si se pudo trabajar en obra (y por qué no, si no).
+- Personal por gremio: Albañilería, Electricistas, Plomeros, Pintores, Herreros, etc. (cantidad de personas).
+- Avance de tareas: se toma del avance de la plantilla de la obra (las barras que mueva ese día quedan en el informe
+  y en el historial de avance).
+- Fotos de las tareas en ejecución, con detalle (se achican solas al subirlas para no llenar el servidor).
+- Notas de pedido dejadas en el libro de obra.
+- Observaciones.
+
+**Quién lo lee:** DIR y Coordinación de Obras.
+
+**Registro:** listado de informes por obra (pestaña nueva en la obra) para la trazabilidad del avance: días
+trabajados y perdidos por lluvia, personal por gremio en el tiempo, avance día a día.
+
+**Más adelante:** informe semanal filtrado para el cliente (se diseña junto con el portal y los avisos).
+
+**Definido con Pablo:** lo carga solo el DT; clima sol o lluvia (con lluvia se pregunta si se pudo trabajar); la
+lista de gremios la editan los DT y Coordinación de Obras; la nota de pedido es texto más foto de la hoja del libro.
+Hasta 20 fotos por informe; el aviso de «sin informe» sale solo los días hábiles.
+
+## Temas en pausa (para retomar)
+
+### Avisos de WhatsApp a clientes cuando se cumple un hito — analizado el 09/11/2026
+**Qué se quiere:** al marcar como cumplido un hito *visible para el cliente*, mandar un WhatsApp a los contactos de
+ese cliente que tengan activado «recibir avisos por WhatsApp». En SOPHIA ya existen `Hito` (`completado`,
+`visible_cliente`) y en los contactos los campos `telefono` y `notif_whatsapp`.
+
+**Regla de Meta:** como el cliente no escribió antes, hace falta una **plantilla aprobada** (categoría «utilidad»),
+p. ej. «Hola {{nombre}}, en la obra {{obra}} se cumplió el hito {{hito}} el {{fecha}}». Meta cobra cada envío.
+
+**Opciones evaluadas:**
+| | Vocero CRM (github.com/kevinrivm/vocero-crm) | Kapso (docs.kapso.ai) |
+|---|---|---|
+| SOPHIA puede mandar el aviso | No: su API solo responde conversaciones abiertas; las plantillas se mandan a mano desde su pantalla. Habría que modificarlo | Sí: API con clave para crear y enviar plantillas |
+| Instalar en el VPS | Sí (Docker + PostgreSQL, ~2 GB RAM) | No (servicio en la nube) |
+| Seguir usando el WhatsApp del celular | No (el número pasa a la API) | Sí («coexistencia» con WhatsApp Business) |
+| Costo de la herramienta | Gratis (código abierto) | Plan gratis: 2.000 mensajes/mes, 1 número |
+| Datos | En el servidor propio | En Kapso |
+
+Tercera opción: hablar directo con la Cloud API de Meta (sin intermediario, pero con alta en Meta más engorrosa y
+sin coexistencia).
+
+**Recomendación:** Kapso. Vocero sirve como bandeja de WhatsApp con agente de IA, no para avisos desde otro sistema.
+
+**Pasos al retomar:** 1) aprobar el cambio en la SPEC (hoy los avisos por WhatsApp figuran como pendientes);
+2) probar con el número de prueba de Kapso; 3) crear la plantilla «hito cumplido» y esperar la aprobación de Meta;
+4) en SOPHIA, enviar el aviso al cumplirse un hito visible y registrarlo en la actividad (la clave de Kapso va solo
+en el `.env` del VPS); 5) probar con un número propio y recién después conectar el número del estudio.
 
 **Cambios respecto del plan original:**
 - `Cliente` quedó en `apps/cuentas/` en vez de `apps/obras/`. Así se evita una dependencia circular entre las dos apps.
