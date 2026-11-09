@@ -4,6 +4,19 @@ Para sumar o corregir una pregunta se edita esta lista: (pregunta, respuesta). L
 separados por una línea en blanco y listas con «- » al principio de la línea.
 """
 
+# Videos cortos (archivo en static/ayuda/, con su portada .jpg del mismo nombre).
+VIDEOS = [
+    {"titulo": "Cómo cargar el Time Report", "archivo": "cargar-time-report", "duracion": "30 segundos",
+     "pasos": ["Menú <strong>Time Report</strong>.", "Elegí el proyecto u obra y el tipo de tarea.",
+               "Escribí las horas (de a media hora).", "¿Más de un proyecto? Tocá <strong>+</strong> y sumá otra línea.",
+               "Tocá <strong>Guardar horas</strong>."]},
+    {"titulo": "Cómo crear un proyecto", "archivo": "crear-proyecto", "duracion": "40 segundos", "nota": "Lo hace DIR",
+     "pasos": ["Menú <strong>Proyectos</strong> → <strong>Nuevo proyecto</strong>.",
+               "Nombre, cliente, tipo y ubicación (el código se genera solo).",
+               "Etapa y estado, a la derecha.", "Elegí la plantilla de tareas y tocá <strong>Guardar</strong>.",
+               "Ajustá las tareas y guardá.", "En <strong>Equipo</strong>, sumá a las personas y marcá al responsable."]},
+]
+
 SECCIONES = [
     ("Ingreso y perfil", "person-circle", [
         ("¿Cuál es la dirección del sistema?",
@@ -27,7 +40,7 @@ SECCIONES = [
          "- Escribí las horas (de a media hora: 1, 1,5, 2…).\n"
          "- Si trabajaste en más de un proyecto, tocá el «+» para sumar otra línea.\n"
          "- Tocá Guardar horas.\n\n"
-         "El video de esta página lo muestra en 30 segundos."),
+         "El video «Cómo cargar el Time Report» lo muestra en 30 segundos."),
         ("¿Hasta cuándo puedo cargar?",
          "El día de hoy, hasta las 23:59. Un día que ya pasó se carga solo con una habilitación: abrí ese día, "
          "escribí el motivo y tocá Pedir habilitación. Si la aprueban, tenés hasta las 23:59 del día en que la "
@@ -47,6 +60,36 @@ SECCIONES = [
         ("En un feriado, ¿tengo que cargar algo?",
          "No. La jornada de cada persona se computa sola como paga. Si trabajaste, lo que cargues va como extra."),
     ]),
+    ("Crear y cargar un proyecto", "plus-square", [
+        ("¿Quién puede crear un proyecto u obra?",
+         "Solo DIR, desde Proyectos → Nuevo proyecto (u Obras → Nueva obra). Después, sus responsables y "
+         "Coordinación de Proyectos pueden editarlo."),
+        ("¿Qué datos son obligatorios?",
+         "Solo el nombre. El código se genera solo (PR-2026-001…) si lo dejás vacío; cliente, tipo, ubicación y "
+         "fechas se pueden completar después con Editar datos."),
+        ("¿Plantilla o copiar otro proyecto?",
+         "La plantilla trae el listado base de etapas, rubros e ítems (por ejemplo «Proyecto de Arquitectura»). "
+         "Copiar otro proyecto toma sus tareas tal como quedaron ajustadas, con el avance en 0. En los dos casos "
+         "se abre el editor para ajustarlas a este caso."),
+        ("¿Cómo armo el equipo?",
+         "En la pestaña Equipo: elegí la persona, el área por la que participa y, si corresponde, marcá "
+         "«Responsable». Los responsables pueden editar los datos y las tareas. La estrella marca o desmarca al "
+         "responsable y la cruz lo quita."),
+        ("¿Cómo le asigno el cliente después?",
+         "Menú de 3 puntos → Editar datos → Cliente. Si el cliente no existe, usá «+ Cargar un cliente nuevo» "
+         "(Administración y DIR)."),
+        ("¿Qué diferencia hay entre proyecto y obra?",
+         "Proyecto: diseño, planos y trámites; lo ve todo el personal. Obra: construcción en ejecución; la ve su "
+         "equipo (y Coordinación, Administración y DIR). Si un proyecto pasa a obra, en Editar datos cambiás "
+         "«Proyecto u obra»."),
+        ("¿Qué son tipo, etapa y estado?",
+         "Tipo: Residencial, Comercial, Otros usos, Edificio en altura, Urbanizaciones o Masterplan. Etapa: en qué "
+         "fase está (Masterplan, Anteproyecto, Proyecto ejecutivo…). Estado: Activo, Stand by (suspendido "
+         "temporalmente) o Superado. Los tres sirven para filtrar la lista."),
+        ("Tengo muchos proyectos para cargar",
+         "Usá Proyectos → Importar desde Excel (DIR): bajá la planilla modelo, completala y subila. Se crean "
+         "todos juntos con la plantilla que elijas."),
+    ]),
     ("Proyectos y obras", "pencil-square", [
         ("¿Qué proyectos y obras veo?",
          "Todos los proyectos. De las obras, las de tu equipo (Coordinación, Administración y DIR ven todas). "
@@ -57,9 +100,6 @@ SECCIONES = [
         ("¿Quién puede editar un proyecto?",
          "Sus responsables, Coordinación de Proyectos y DIR, desde el menú de 3 puntos → Editar datos o Editar "
          "tareas. Crear y eliminar es solo de DIR."),
-        ("¿Cómo creo varios proyectos de una vez?",
-         "Solo DIR: Proyectos → Importar desde Excel. Bajá la planilla modelo, completala y subila. Antes de "
-         "crear nada te muestra qué va a pasar con cada fila."),
         ("Borré un proyecto por error",
          "No se pierde: va a la papelera. DIR lo restaura desde Proyectos (u Obras) → Papelera."),
     ]),
@@ -102,6 +142,10 @@ def bloques(texto):
         if items:
             resultado.append({"tipo": "lista", "items": items})
     return resultado
+
+
+def videos():
+    return VIDEOS
 
 
 def secciones():

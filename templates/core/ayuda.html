@@ -5,28 +5,26 @@
 <div class="pagina-titulo">
   <div>
     <h1>Ayuda</h1>
-    <div class="small text-muted">Cómo usar SOPHIA: un video corto y las preguntas frecuentes.</div>
+    <div class="small text-muted">Cómo usar SOPHIA: videos cortos y las preguntas frecuentes.</div>
   </div>
 </div>
 
 <div class="row g-4">
   <div class="col-xl-5">
-    <div class="tarjeta">
-      <div class="tarjeta-cabecera"><h2>Cómo cargar el Time Report</h2><span class="small text-muted">30 segundos</span></div>
+    {% for v in videos %}
+    <div class="tarjeta{% if not forloop.last %} mb-4{% endif %}">
+      <div class="tarjeta-cabecera"><h2>{{ v.titulo }}</h2><span class="small text-muted">{% if v.nota %}{{ v.nota }} · {% endif %}{{ v.duracion }}</span></div>
       <div class="tarjeta-cuerpo">
-        <video class="video-ayuda" controls preload="metadata" playsinline poster="{% static 'ayuda/cargar-time-report.jpg' %}">
-          <source src="{% static 'ayuda/cargar-time-report.mp4' %}" type="video/mp4">
+        <video class="video-ayuda" controls preload="metadata" playsinline poster="{% static 'ayuda/'|add:v.archivo|add:'.jpg' %}">
+          <source src="{% static 'ayuda/'|add:v.archivo|add:'.mp4' %}" type="video/mp4">
           Tu navegador no puede mostrar el video.
         </video>
         <ol class="small text-muted mt-3 mb-0 ps-3">
-          <li>Menú <strong>Time Report</strong>.</li>
-          <li>Elegí el proyecto u obra y el tipo de tarea.</li>
-          <li>Escribí las horas (de a media hora).</li>
-          <li>¿Más de un proyecto? Tocá <strong>+</strong> y sumá otra línea.</li>
-          <li>Tocá <strong>Guardar horas</strong>.</li>
+          {% for p in v.pasos %}<li>{{ p|safe }}</li>{% endfor %}
         </ol>
       </div>
     </div>
+    {% endfor %}
   </div>
 
   <div class="col-xl-7">
