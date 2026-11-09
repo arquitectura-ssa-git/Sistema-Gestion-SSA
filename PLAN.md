@@ -15,6 +15,60 @@
 | 8 | Comunicados (avisos al grupo y a clientes) | ⏳ Pendiente |
 | 9 | Portal del cliente | ⏳ Pendiente. Hay una maqueta interactiva para mostrar: `demo/portal-cliente-demo.html` |
 | 10 | Pruebas automáticas y datos demo | ✅ Datos demo (`manage.py cargar_demo`) y pruebas automáticas en `tests/` (pytest). |
+| 11 | Gestión de Adquisiciones (pedidos de materiales, contrataciones y presupuestos) | 📝 En diseño (ver abajo). Reemplaza el tablero de Trello |
+| 12 | Informes diarios de Dirección Técnica | 📝 En diseño (ver abajo). Reemplaza la «bitácora de obra» del plan original |
+
+## Módulos en diseño
+
+### 11 · Gestión de Adquisiciones — decidido: dentro de SOPHIA (no un sistema aparte)
+Usa lo que ya existe: proyectos y obras, equipos y responsables, permisos de montos, documentos y registro de actividad.
+
+**Qué se pide:** materiales, contrataciones profesionales y presupuestos de contratistas, siempre de una obra o un
+proyecto. Datos: listado de ítems con cantidades, fecha del pedido y fecha de entrega. **Lleva montos.**
+
+**Circuito de obra** (lo carga el DT; lo gestiona la Asistente de Compras):
+Recepción de pedido → Solicitud de cotización → Orden de compra → Autorización DIR → Facturación → Compra →
+Logística y entrega → Recepción en obra.
+
+**Circuito de proyecto** (lo carga el Responsable de proyecto, con el presupuesto ya pedido):
+Pedido con presupuesto → Autorización DIR → Orden de compra.
+
+**Proveedores:** ficha y seguimiento de cuenta (órdenes, facturas, pagos, saldo).
+
+**Pantallas previstas:** tablero por estados (como Trello) y lista con filtros; ficha del pedido con ítems, montos,
+adjuntos e historial; autorización de DIR con botón y comentario.
+
+**Etapas:** 1) pedidos y circuito de estados; 2) cotizaciones, órdenes de compra con montos y autorización DIR;
+3) proveedores y cuenta.
+
+**Falta definir:** quién es la Asistente de Compras y su área; quién ve los montos (¿el DT ve los de su pedido?);
+una o varias cotizaciones por pedido; qué pasa si DIR rechaza; recepción parcial; quién registra los pagos;
+si se migran los pedidos abiertos de Trello.
+
+### 12 · Informes diarios de Dirección Técnica
+**Quién y cuándo:** el DT de la obra, desde SOPHIA (normalmente en el celular, en la obra). Uno por obra y por día,
+se carga hasta las 23:59 de ese día. Después queda cerrado; corregirlo requiere **autorización de DIR** (mismo
+mecanismo que la habilitación del Time Report) y la corrección queda registrada.
+
+**Qué lleva:**
+- Fecha y clima (sol / lluvia); si se pudo trabajar en obra (y por qué no, si no).
+- Personal por gremio: Albañilería, Electricistas, Plomeros, Pintores, Herreros, etc. (cantidad de personas).
+- Avance de tareas: se toma del avance de la plantilla de la obra (las barras que mueva ese día quedan en el informe
+  y en el historial de avance).
+- Fotos de las tareas en ejecución, con detalle (se achican solas al subirlas para no llenar el servidor).
+- Notas de pedido dejadas en el libro de obra.
+- Observaciones.
+
+**Quién lo lee:** DIR y Coordinación de Obras.
+
+**Registro:** listado de informes por obra (pestaña nueva en la obra) para la trazabilidad del avance: días
+trabajados y perdidos por lluvia, personal por gremio en el tiempo, avance día a día.
+
+**Más adelante:** informe semanal filtrado para el cliente (se diseña junto con el portal y los avisos).
+
+**Falta definir:** si además del DT puede cargarlo Coordinación de Obras; clima solo sol/lluvia u otras opciones;
+lista de gremios fija o editable por DIR; si se exige informe los sábados y feriados; límite de fotos por informe;
+si la nota de pedido lleva número del libro de obra o foto de la hoja.
 
 ## Temas en pausa (para retomar)
 
