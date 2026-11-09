@@ -40,6 +40,10 @@ Qué puede hacer cada uno:
 | Editar datos, tareas y avance de un proyecto u obra | Sus responsables, Coordinación de Proyectos (todos) y DIR |
 | Crear proyectos y obras (también varios proyectos de una vez desde Excel) | DIR |
 | Ver **montos** (presupuesto, certificados, saldos) | Solo DIR y el responsable de Gestión Administrativa |
+| Cargar el **informe diario** de una obra | Solo su DT (asignado al equipo por Dirección Técnica) |
+| Leer los informes diarios | DIR, Coordinación de Obras y el DT de la obra |
+| Autorizar cargar o corregir un informe de un día que ya cerró | DIR |
+| Editar la lista de gremios | Los DT, Coordinación de Obras y DIR |
 | Ver el **historial de avance** | DIR, Coordinación y el responsable de Gestión Administrativa |
 | Importar un certificado de avance (Excel) — solo en **obras**, no en proyectos | Responsables de la obra, DIR y el responsable de Gestión Administrativa |
 | Subir archivos | A un proyecto u obra: su equipo asignado, Coordinación y DIR. A la Biblioteca general: todo el personal |
@@ -112,6 +116,13 @@ activo (ver sección 5).
     Cada proyecto u obra tiene además un **tipo**: Residencial, Comercial, Otros usos, Edificio en altura,
     Urbanizaciones o Masterplan (se puede dejar sin definir).
 
+**Informe diario de obra**
+- El informe diario de una obra se carga el mismo día hasta las **23:59** (uno por obra y por día). Después queda
+  cerrado: cargarlo o corregirlo requiere la **autorización de DIR**, válida hasta las 23:59 del día en que se da.
+  Cada carga y corrección queda en el registro de actividad.
+- El avance que se mueve desde el informe es el mismo de la obra: queda en el historial de avance. Solo se mueve en
+  el informe del día de hoy.
+
 **Forma**
 21. Todo el sistema está en **español**, con voseo («cargá», «elegí»).
 22. La estética sigue el manual de marca de Saez Sanchez: **monocromática** (negro, gris plomo, grises y blanco
@@ -168,10 +179,11 @@ explica por qué.
 | Mi perfil | Nombre, cargo, WhatsApp, avisos y foto de perfil (se recorta cuadrada y se achica sola; acepta fotos de iPhone) |
 | Clientes | Fichas de clientes y sus contactos. Apellido o razón social (siempre en mayúsculas) y nombre aparte (inicial en mayúscula); se muestran como «APELLIDO, Nombre» |
 | Time Report | Carga diaria (una línea y «+» para sumar más; tipos de tarea: Producción, Gestión, Coordinación, Administración, Compras, Capacitación), extras, «Repetir», habilitaciones, reportes con exportación a Excel, feriados |
+| Informe diario de obra | Lo carga el DT (pensado para el celular): clima, si se pudo trabajar, personal por gremio, avance de tareas, fotos, notas de pedido con foto del libro y observaciones. Pestaña «Informes diarios» por obra con resumen; aviso en el Dashboard de las obras sin informe; correcciones con autorización de DIR |
 | Ayuda | Videos cortos (cargar el Time Report, crear un proyecto, cargar el avance y personalizar las tareas) y preguntas frecuentes con buscador (se editan en apps/core/ayuda.py) |
 | Registro de actividad | Guarda cada acción; no se puede modificar |
 
-**Pendientes** (todavía no existen; no se dan por hechas): notificaciones, aprobaciones de gastos y decisiones,
+**Pendientes** (todavía no existen; no se dan por hechas): informe semanal para el cliente, gestión de adquisiciones, notificaciones, aprobaciones de gastos y decisiones,
 comunicados, portal del cliente, pantalla para consultar el registro de actividad, envío de emails desde el
 servidor (hoy «Olvidé mi contraseña» y las invitaciones no llegan).
 
@@ -209,3 +221,4 @@ aprobación. Cada cambio se anota abajo con fecha y motivo.
 | 09/11/2026 | Sección Ayuda: video del Time Report y preguntas frecuentes | Que el equipo aprenda a usar el sistema solo | Pablo Saez (lo pidió) |
 | 09/11/2026 | Ayuda: video y preguntas de cómo crear un proyecto | Pedido de Pablo | Pablo Saez (lo pidió) |
 | 09/11/2026 | Ayuda: video y preguntas de cómo cargar el avance y personalizar las tareas | Pedido de Pablo | Pablo Saez (lo pidió) |
+| 09/11/2026 | Informe diario de obra (Dirección Técnica) | Trazabilidad diaria del avance de obra | Pablo Saez (lo pidió) |

@@ -16,7 +16,7 @@
 | 9 | Portal del cliente | ⏳ Pendiente. Hay una maqueta interactiva para mostrar: `demo/portal-cliente-demo.html` |
 | 10 | Pruebas automáticas y datos demo | ✅ Datos demo (`manage.py cargar_demo`) y pruebas automáticas en `tests/` (pytest). |
 | 11 | Gestión de Adquisiciones (pedidos de materiales, contrataciones y presupuestos) | 📝 En diseño (ver abajo). Reemplaza el tablero de Trello |
-| 12 | Informes diarios de Dirección Técnica | 📝 En diseño (ver abajo). Reemplaza la «bitácora de obra» del plan original |
+| 12 | Informes diarios de Dirección Técnica | ✅ Hecho (09/11/2026). Falta el informe semanal para el cliente |
 
 ## Módulos en diseño
 
@@ -66,9 +66,9 @@ trabajados y perdidos por lluvia, personal por gremio en el tiempo, avance día 
 
 **Más adelante:** informe semanal filtrado para el cliente (se diseña junto con el portal y los avisos).
 
-**Falta definir:** si además del DT puede cargarlo Coordinación de Obras; clima solo sol/lluvia u otras opciones;
-lista de gremios fija o editable por DIR; si se exige informe los sábados y feriados; límite de fotos por informe;
-si la nota de pedido lleva número del libro de obra o foto de la hoja.
+**Definido con Pablo:** lo carga solo el DT; clima sol o lluvia (con lluvia se pregunta si se pudo trabajar); la
+lista de gremios la editan los DT y Coordinación de Obras; la nota de pedido es texto más foto de la hoja del libro.
+Hasta 20 fotos por informe; el aviso de «sin informe» sale solo los días hábiles.
 
 ## Temas en pausa (para retomar)
 

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block titulo %}Gremios{% endblock %}
+{% block contenido %}
+<div class="pagina-titulo">
+  <div>
+    <h1>Gremios</h1>
+    <div class="small text-muted">La lista para contar el personal en el informe diario. Los que desactivás dejan de aparecer en los informes nuevos; los informes viejos no cambian.</div>
+  </div>
+  {% if volver %}<a href="{{ volver }}" class="btn btn-outline-secondary">Volver al informe</a>{% endif %}
+</div>
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="tarjeta">
+      <ul class="list-group list-group-flush">
+        {% for g in gremios %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span{% if not g.activo %} class="text-muted text-decoration-line-through"{% endif %}>{{ g.nombre }}</span>
+          <form method="post">{% csrf_token %}<button name="cambiar" value="{{ g.pk }}" class="btn btn-sm btn-link">{% if g.activo %}Desactivar{% else %}Activar{% endif %}</button></form>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="panel-lateral"><div class="tarjeta"><div class="tarjeta-cabecera"><h2>Agregar gremio</h2></div><div class="tarjeta-cuerpo">
+      <form method="post" novalidate>{% csrf_token %}
+        {% include "includes/campo.html" with campo=form.nombre %}
+        <button class="btn btn-sm btn-dark">Agregar</button>
+      </form>
+    </div></div></div>
+  </div>
+</div>
+{% endblock %}

@@ -31,6 +31,7 @@ PESTANAS = [
     ("resumen", "Resumen", "info-circle"),
     ("equipo", "Equipo", "people"),
     ("tareas", "Tareas", "list-check"),
+    ("informes", "Informes diarios", "journal-richtext"),
     ("historial", "Historial de avance", "graph-up-arrow"),
     ("certificados", "Certificados", "receipt"),
     ("hitos", "Hitos", "flag"),
@@ -40,7 +41,7 @@ PESTANAS = [
     ("actividad", "Actividad", "journal-text"),
 ]
 # Pestañas que dependen de secciones que todavía pueden no estar activas.
-PESTANA_APP = {"archivos": "apps.documentos", "solicitudes": "apps.aprobaciones", "horas": "apps.horas"}
+PESTANA_APP = {"informes": "apps.informes", "archivos": "apps.documentos", "solicitudes": "apps.aprobaciones", "horas": "apps.horas"}
 
 
 def _marcar_menu(request, tipo):
@@ -193,6 +194,8 @@ def detalle(request, pk):
         pestanas = [p for p in pestanas if p[0] != "certificados"]  # montos: Gerencia y Gestión Administrativa
     if not permisos.puede_ver_historial_avance(request.user):
         pestanas = [p for p in pestanas if p[0] != "historial"]
+    if not permisos.puede_ver_informes(request.user, obra):
+        pestanas = [p for p in pestanas if p[0] != "informes"]  # obras: su DT, Coordinación de Obras y DIR
     tab = request.GET.get("tab", "resumen")
     if tab not in {p[0] for p in pestanas}:
         tab = "resumen"
@@ -217,6 +220,10 @@ def detalle(request, pk):
             contexto["form_certificado"] = ImportarCertificadoForm()
         contexto["puede_crear_plantilla"] = permisos.puede_gestionar_plantillas(request.user)
         contexto["editando_tareas"] = puede_editar and request.GET.get("editar") == "1"
+    if tab == "informes":
+        from apps.informes.views import contexto_pestana_obra
+
+        contexto.update(contexto_pestana_obra(request, obra))
     if tab == "historial":
         filas = avances.retrospectiva(obra)
         contexto.update({"retrospectiva": filas,

@@ -48,6 +48,10 @@ def tablero(request):
         if permisos.puede_habilitar_horas(u):
             contexto["pedidos_horas"] = Habilitacion.objects.filter(
                 estado=Habilitacion.Estado.PENDIENTE).select_related("usuario").order_by("pedida")[:6]
+    if apps.is_installed("apps.informes"):
+        from apps.informes.views import contexto_tablero
+
+        contexto.update(contexto_tablero(u))
     if apps.is_installed("apps.aprobaciones"):
         from apps.aprobaciones.models import Solicitud
 

@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "apps.horas",
     # Se activan a medida que se construye cada sección:
     "apps.documentos",
+    "apps.informes",
     # "apps.notificaciones",
     # "apps.aprobaciones",
     # "apps.comunicados",

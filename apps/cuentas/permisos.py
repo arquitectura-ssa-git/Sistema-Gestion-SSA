@@ -167,6 +167,34 @@ def puede_editar_obra(u, obra):
             or (es_personal(u) and obra.asignaciones.filter(usuario=u, es_responsable=True).exists()))
 
 
+# --- Informes diarios de obra ------------------------------------------------
+
+def puede_cargar_informe(u, obra):
+    """El informe diario de una obra lo carga solo su Dirección Técnica (asignada al equipo de la obra)."""
+    if obra.tipo != obra.Tipo.OBRA or not es_personal(u):
+        return False
+    return obra.asignaciones.filter(usuario=u, area__codigo=A.DIRECCION_TECNICA).exists()
+
+
+def puede_ver_informes(u, obra):
+    """Los leen DIR y Coordinación de Obras, además del DT que los carga."""
+    return obra.tipo == obra.Tipo.OBRA and (ve_informes_de_todas(u) or puede_cargar_informe(u, obra))
+
+
+def ve_informes_de_todas(u):
+    """DIR y Coordinación de Obras: leen los informes de todas las obras y ven en el Dashboard cuáles faltan."""
+    return es_gerencia(u) or es_responsable_de(u, A.GESTION_OBRAS)
+
+
+def puede_editar_gremios(u):
+    """La lista de gremios: los DT, Coordinación de Obras y Gerencia."""
+    return es_gerencia(u) or es_responsable_de(u, A.GESTION_OBRAS) or A.DIRECCION_TECNICA in codigos_areas(u)
+
+
+def puede_autorizar_correccion_informe(u):
+    return es_gerencia(u)
+
+
 # --- Time Report -------------------------------------------------------------
 
 def puede_habilitar_horas(u):
