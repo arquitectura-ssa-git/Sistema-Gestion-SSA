@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% load static %}
+{% block titulo %}Ayuda{% endblock %}
+{% block contenido %}
+<div class="pagina-titulo">
+  <div>
+    <h1>Ayuda</h1>
+    <div class="small text-muted">Cómo usar SOPHIA: un video corto y las preguntas frecuentes.</div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <div class="col-xl-5">
+    <div class="tarjeta">
+      <div class="tarjeta-cabecera"><h2>Cómo cargar el Time Report</h2><span class="small text-muted">30 segundos</span></div>
+      <div class="tarjeta-cuerpo">
+        <video class="video-ayuda" controls preload="metadata" playsinline poster="{% static 'ayuda/cargar-time-report.jpg' %}">
+          <source src="{% static 'ayuda/cargar-time-report.mp4' %}" type="video/mp4">
+          Tu navegador no puede mostrar el video.
+        </video>
+        <ol class="small text-muted mt-3 mb-0 ps-3">
+          <li>Menú <strong>Time Report</strong>.</li>
+          <li>Elegí el proyecto u obra y el tipo de tarea.</li>
+          <li>Escribí las horas (de a media hora).</li>
+          <li>¿Más de un proyecto? Tocá <strong>+</strong> y sumá otra línea.</li>
+          <li>Tocá <strong>Guardar horas</strong>.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-xl-7">
+    <input type="search" id="buscar-ayuda" class="form-control mb-3" placeholder="Buscar una pregunta (ej. contraseña, extra, certificado)" aria-label="Buscar una pregunta">
+    {% for s in secciones %}
+      <section class="ayuda-seccion mb-4">
+        <h2 class="ayuda-titulo"><i class="bi bi-{{ s.icono }}"></i> {{ s.titulo }}</h2>
+        {% for q in s.preguntas %}
+          <details class="ayuda-pregunta">
+            <summary>{{ q.pregunta }}</summary>
+            <div class="ayuda-respuesta">
+              {% for b in q.bloques %}
+                {% if b.tipo == "lista" %}<ul>{% for i in b.items %}<li>{{ i }}</li>{% endfor %}</ul>{% else %}<p>{{ b.texto|urlize }}</p>{% endif %}
+              {% endfor %}
+            </div>
+          </details>
+        {% endfor %}
+      </section>
+    {% endfor %}
+    <p class="small text-muted" id="sin-resultados" hidden>No hay preguntas con esa palabra. Consultá a Coordinación o a DIR.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  const caja = document.getElementById("buscar-ayuda");
+  const sinNada = document.getElementById("sin-resultados");
+  const normal = (t) => t.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+  caja.addEventListener("input", function () {
+    const q = normal(caja.value.trim());
+    let hay = 0;
+    document.querySelectorAll(".ayuda-seccion").forEach(function (sec) {
+      let visibles = 0;
+      sec.querySelectorAll(".ayuda-pregunta").forEach(function (p) {
+        const ok = !q || normal(p.textContent).includes(q);
+        p.hidden = !ok;
+        p.open = !!q && ok;
+        if (ok) visibles++;
+      });
+      sec.hidden = visibles === 0;
+      hay += visibles;
+    });
+    sinNada.hidden = hay > 0;
+  });
+})();
+</script>
+{% endblock %}

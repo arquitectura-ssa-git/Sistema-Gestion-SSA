@@ -16,6 +16,7 @@ MENU_PERSONAL = [
         ("cuentas:clientes", "Clientes", "person-vcard", "clientes"),
         ("plantillas:lista", "Plantillas", "list-check", None),
         ("horas:mio", "Time Report", "clock", None),
+        ("core:ayuda", "Ayuda", "question-circle", None),
     ]),
 ]
 

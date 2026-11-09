@@ -156,7 +156,7 @@ explica por qué.
 | Función | Qué hace |
 |---|---|
 | Ingreso | Email y contraseña; pantalla con el logo de SOPHIA («Sistema de Obras y Proyectos / Inteligencia Arquitectónica») |
-| Menú | Dashboard · Proyectos · Obras · Documentos · Equipo · Clientes · Plantillas · Time Report |
+| Menú | Dashboard · Proyectos · Obras · Documentos · Equipo · Clientes · Plantillas · Time Report · Ayuda |
 | Dashboard | Proyectos y obras activos de cada uno, horas de hoy, pedidos, permisos por vencer, planos para revisar. DIR ve el Resumen TR en lugar de sus horas |
 | Proyectos y Obras | Listas separadas con filtros de estado; creación desde plantilla o copiando otro proyecto; importar varios proyectos desde la planilla modelo (con vista previa y sin duplicar nombres); duplicar; ficha con pestañas; papelera con restaurar (DIR) |
 | Tareas | Árbol Etapa → Rubro → Ítem con incidencias, código, unidad y cantidad; barras de avance que se guardan solas; flechitas para plegar y desplegar |
@@ -168,6 +168,7 @@ explica por qué.
 | Mi perfil | Nombre, cargo, WhatsApp, avisos y foto de perfil (se recorta cuadrada y se achica sola; acepta fotos de iPhone) |
 | Clientes | Fichas de clientes y sus contactos. Apellido o razón social (siempre en mayúsculas) y nombre aparte (inicial en mayúscula); se muestran como «APELLIDO, Nombre» |
 | Time Report | Carga diaria (una línea y «+» para sumar más; tipos de tarea: Producción, Gestión, Coordinación, Administración, Compras, Capacitación), extras, «Repetir», habilitaciones, reportes con exportación a Excel, feriados |
+| Ayuda | Video corto de cómo cargar el Time Report y preguntas frecuentes con buscador (se editan en apps/core/ayuda.py) |
 | Registro de actividad | Guarda cada acción; no se puede modificar |
 
 **Pendientes** (todavía no existen; no se dan por hechas): notificaciones, aprobaciones de gastos y decisiones,
@@ -205,3 +206,4 @@ aprobación. Cada cambio se anota abajo con fecha y motivo.
 | 04/11/2026 | Tipo de proyecto u obra (Residencial, Comercial, Otros usos, Edificio en altura, Urbanizaciones, Masterplan), con columna y filtro | Ordenar y filtrar los proyectos por tipo | Pablo Saez (lo pidió) |
 | 04/11/2026 | Time Report: una sola línea con «+» para sumar más; tipo de tarea «Coordinación» | Carga más simple | Pablo Saez (lo pidió) |
 | 04/11/2026 | Coordinación de Proyectos edita datos y tareas de todos los proyectos y obras | Pedido de Pablo | Pablo Saez (lo pidió) |
+| 09/11/2026 | Sección Ayuda: video del Time Report y preguntas frecuentes | Que el equipo aprenda a usar el sistema solo | Pablo Saez (lo pidió) |
