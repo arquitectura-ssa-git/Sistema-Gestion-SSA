@@ -118,7 +118,7 @@
         </table>
       </div>
     </div>
-    <p class="small text-muted mt-2">Solo las personas del equipo ven {% if obra.es_proyecto %}este proyecto{% else %}esta obra{% endif %}, sus archivos y sus solicitudes. Los responsables pueden editarla. Gerencia ve todas.</p>
+    <p class="small text-muted mt-2">{% if obra.es_proyecto %}Todo el personal ve los proyectos; a los de este equipo les aparece primero, marcado.{% else %}Solo el equipo ve esta obra y sus archivos (Coordinación, Administración y DIR ven todas).{% endif %} Los responsables pueden editar{% if obra.es_proyecto %}lo{% else %}la{% endif %}.</p>
   </div>
   {% if puede_editar %}
   <div class="col-lg-4 panel-lateral">

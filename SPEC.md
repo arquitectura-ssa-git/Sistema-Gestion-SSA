@@ -168,7 +168,7 @@ explica por qué.
 | Mi perfil | Nombre, cargo, WhatsApp, avisos y foto de perfil (se recorta cuadrada y se achica sola; acepta fotos de iPhone) |
 | Clientes | Fichas de clientes y sus contactos. Apellido o razón social (siempre en mayúsculas) y nombre aparte (inicial en mayúscula); se muestran como «APELLIDO, Nombre» |
 | Time Report | Carga diaria (una línea y «+» para sumar más; tipos de tarea: Producción, Gestión, Coordinación, Administración, Compras, Capacitación), extras, «Repetir», habilitaciones, reportes con exportación a Excel, feriados |
-| Ayuda | Video corto de cómo cargar el Time Report y preguntas frecuentes con buscador (se editan en apps/core/ayuda.py) |
+| Ayuda | Videos cortos (cargar el Time Report, crear un proyecto) y preguntas frecuentes con buscador (se editan en apps/core/ayuda.py) |
 | Registro de actividad | Guarda cada acción; no se puede modificar |
 
 **Pendientes** (todavía no existen; no se dan por hechas): notificaciones, aprobaciones de gastos y decisiones,
@@ -207,3 +207,4 @@ aprobación. Cada cambio se anota abajo con fecha y motivo.
 | 04/11/2026 | Time Report: una sola línea con «+» para sumar más; tipo de tarea «Coordinación» | Carga más simple | Pablo Saez (lo pidió) |
 | 04/11/2026 | Coordinación de Proyectos edita datos y tareas de todos los proyectos y obras | Pedido de Pablo | Pablo Saez (lo pidió) |
 | 09/11/2026 | Sección Ayuda: video del Time Report y preguntas frecuentes | Que el equipo aprenda a usar el sistema solo | Pablo Saez (lo pidió) |
+| 09/11/2026 | Ayuda: video y preguntas de cómo crear un proyecto | Pedido de Pablo | Pablo Saez (lo pidió) |

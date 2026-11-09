@@ -101,4 +101,5 @@ def _horas_por_obra():
 @permisos.solo_personal
 def ayuda(request):
     """Tutoriales: el video de cómo cargar el Time Report y las preguntas frecuentes."""
-    return render(request, "core/ayuda.html", {"secciones": textos_ayuda.secciones()})
+    return render(request, "core/ayuda.html", {"secciones": textos_ayuda.secciones(),
+                                                "videos": textos_ayuda.videos()})
