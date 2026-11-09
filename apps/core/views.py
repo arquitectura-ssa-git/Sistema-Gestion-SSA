@@ -6,6 +6,8 @@ from django.shortcuts import redirect, render
 from apps.cuentas import permisos
 from apps.obras.models import AsignacionObra, Obra
 
+from . import ayuda as textos_ayuda
+
 
 @login_required
 def inicio(request):
@@ -94,3 +96,9 @@ def _horas_por_obra():
     for f in filas:
         f["pct"] = float(f["total"] * 100 / maximo) if maximo else 0
     return {"filas": filas, "total": sum((f["total"] for f in filas), 0), "mes": inicio_mes}
+
+
+@permisos.solo_personal
+def ayuda(request):
+    """Tutoriales: el video de cómo cargar el Time Report y las preguntas frecuentes."""
+    return render(request, "core/ayuda.html", {"secciones": textos_ayuda.secciones()})

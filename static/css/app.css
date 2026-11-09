@@ -420,3 +420,17 @@ input.nombre-propio { text-transform: capitalize; }
 .btn-agregar-fila { display: inline-flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem;
   margin-top: .25rem; border: 1px solid #c9c9c9; border-radius: 50%; background: #fff; color: var(--ssa-negro); }
 .btn-agregar-fila:hover { background: var(--ssa-negro); border-color: var(--ssa-negro); color: #fff; }
+
+/* Ayuda: video y preguntas frecuentes plegables */
+.video-ayuda { width: 100%; border-radius: .5rem; background: var(--ssa-negro); display: block; }
+.ayuda-titulo { font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: #6f6f6f; font-weight: 500;
+  border-bottom: 1px solid var(--ssa-negro); padding-bottom: .5rem; margin-bottom: 0; }
+.ayuda-titulo .bi { margin-right: .35rem; }
+.ayuda-pregunta { border-bottom: 1px solid #dcdcdc; }
+.ayuda-pregunta summary { cursor: pointer; padding: .7rem 1.75rem .7rem 0; list-style: none; position: relative; }
+.ayuda-pregunta summary::-webkit-details-marker { display: none; }
+.ayuda-pregunta summary::after { content: "+"; position: absolute; right: .25rem; top: .55rem; font-size: 1.1rem; color: #6f6f6f; }
+.ayuda-pregunta[open] summary::after { content: "–"; }
+.ayuda-pregunta[open] summary { font-weight: 500; }
+.ayuda-respuesta { padding: 0 0 .9rem; font-size: .92rem; color: #3a3a3a; }
+.ayuda-respuesta p:last-child, .ayuda-respuesta ul:last-child { margin-bottom: 0; }
