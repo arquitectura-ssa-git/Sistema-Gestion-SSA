@@ -14,7 +14,7 @@ def nombres_en_lista(html):
 def test_todo_el_personal_ve_todos_los_proyectos(comun, proyectos):
     respuesta = cliente_de(comun).get("/proyectos/")
     assert respuesta.status_code == 200
-    assert {n for _, n in nombres_en_lista(respuesta.content.decode())} == {"Casa Lago", "Edificio Sur", "Local B"}
+    assert {n for _, n in nombres_en_lista(respuesta.content.decode())} == {"CASA LAGO", "EDIFICIO SUR", "LOCAL B"}
     for p in proyectos:
         assert cliente_de(comun).get(f"/obras/{p.pk}/").status_code == 200
 
@@ -34,8 +34,8 @@ def test_coordinacion_dir_y_administracion_ven_todas_las_obras(dir_, coordinador
 def test_los_asignados_aparecen_primero_y_marcados(comun, proyectos):
     asignar(comun, proyectos[2])  # Local B
     filas = nombres_en_lista(cliente_de(comun).get("/proyectos/").content.decode())
-    assert filas[0] == (" asignada", "Local B")
-    assert [n for _, n in filas[1:]] == ["Casa Lago", "Edificio Sur"]
+    assert filas[0] == (" asignada", "LOCAL B")
+    assert [n for _, n in filas[1:]] == ["CASA LAGO", "EDIFICIO SUR"]
     assert all(marca == "" for marca, _ in filas[1:])
 
 
@@ -82,7 +82,7 @@ def test_dashboard_de_dir_resume_las_horas_por_proyecto(dir_, comun, proyectos):
     html = cliente_de(dir_).get("/tablero/").content.decode()
     assert "Resumen TR" in html
     assert "Time Report de hoy" not in html  # DIR no carga horas
-    assert html.index("Casa Lago") < html.index("Edificio Sur")  # de más a menos horas
+    assert html.index("CASA LAGO") < html.index("EDIFICIO SUR")  # de más a menos horas
     assert "7,5 h" in html and "1,5 h" in html
     html_comun = cliente_de(comun).get("/tablero/").content.decode()
     assert "Resumen TR" not in html_comun and "Time Report de hoy" in html_comun
@@ -94,7 +94,7 @@ def test_filtrar_proyectos_por_tipo(comun, proyectos):
     proyectos[1].uso = "comercial"
     proyectos[1].save()
     html = cliente_de(comun).get("/proyectos/?uso=residencial").content.decode()
-    assert [n for _, n in nombres_en_lista(html)] == ["Casa Lago"]
+    assert [n for _, n in nombres_en_lista(html)] == ["CASA LAGO"]
     assert "Residencial" in html
 
 
@@ -155,3 +155,13 @@ def test_dashboard_de_dir_muestra_indicadores_y_lo_que_necesita_atencion(dir_, c
                   "Atrasada 50 pts", "Proyectos activos"):
         assert texto in html, texto
     assert "Necesita tu atención" not in cliente_de(comun).get("/tablero/").content.decode()
+
+
+def test_el_nombre_del_proyecto_queda_en_mayusculas(dir_):
+    from apps.obras.models import Obra
+
+    r = cliente_de(dir_).post("/proyectos/nuevo/", {"tipo": "proyecto", "nombre": "casa  los álamos", "etapa": "anteproyecto",
+                                                    "estado": "activa", "avance": "0"})
+    assert r.status_code == 302
+    assert Obra.objects.get().nombre == "CASA LOS ÁLAMOS"
+    assert 'class="form-control en-mayusculas"' in cliente_de(dir_).get("/proyectos/nuevo/").content.decode()

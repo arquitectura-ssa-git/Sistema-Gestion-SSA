@@ -79,6 +79,7 @@ class Obra(models.Model):
         return f"{self.codigo} · {self.nombre}" if self.codigo else self.nombre
 
     def save(self, *args, **kwargs):
+        self.nombre = " ".join((self.nombre or "").split()).upper()  # el nombre va siempre en mayúsculas
         if not self.codigo:
             self.codigo = self._siguiente_codigo(self.tipo)
         super().save(*args, **kwargs)

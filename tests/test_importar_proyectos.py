@@ -51,13 +51,13 @@ def test_vista_previa_y_alta_con_la_plantilla(dir_):
 
     r = c.post("/proyectos/importar/", {"confirmar": "1"})
     assert r.status_code == 302
-    casa = Obra.objects.get(nombre="Casa Norte")
+    casa = Obra.objects.get(nombre="CASA NORTE")
     assert (casa.tipo, casa.codigo, casa.etapa, casa.estado) == ("proyecto", "CN", "ejecutivo", "activa")
     assert (casa.superficie_m2, casa.fecha_inicio, casa.creada_por) == (Decimal("1250.50"), date(2026, 11, 1), dir_)
     assert casa.tareas.count() == base().tareas.count() > 0
-    torre = Obra.objects.get(nombre="Torre Sur")
+    torre = Obra.objects.get(nombre="TORRE SUR")
     assert (torre.etapa, torre.estado, torre.codigo.startswith("PR-")) == ("preanteproyecto", "pausada", True)
-    assert Obra.objects.get(nombre="Plaza").etapa == "masterplan"
+    assert Obra.objects.get(nombre="PLAZA").etapa == "masterplan"
 
 
 def test_no_duplica_nombres_ni_codigos(dir_):
@@ -67,7 +67,7 @@ def test_no_duplica_nombres_ni_codigos(dir_):
     assert "Ya existe un proyecto con ese nombre" in html and "ya está usado" in html
     c.post("/proyectos/importar/", {"confirmar": "1"})
     assert Obra.objects.filter(nombre__iexact="casa norte").count() == 1
-    otra = Obra.objects.get(nombre="Otra")
+    otra = Obra.objects.get(nombre="OTRA")
     assert otra.codigo != "CN" and otra.tareas.count() == 0  # sin plantilla
 
 
