@@ -7,7 +7,12 @@
   <div class="dropdown">
     <button class="btn menu-acciones" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Acciones de {{ cliente }}"><i class="bi bi-three-dots"></i></button>
     <ul class="dropdown-menu dropdown-menu-end">
-      <li><a class="dropdown-item" href="{% url 'cuentas:cliente_editar' cliente.pk %}"><i class="bi bi-pencil"></i> Editar</a></li>
+      <li><a class="dropdown-item" href="{% url 'cuentas:cliente_editar' cliente.pk %}">Editar</a></li>
+      <li>
+        <form method="post" action="{% url 'cuentas:cliente_eliminar' cliente.pk %}" onsubmit="return confirm('¿Eliminar el cliente {{ cliente|escapejs }}? No se puede deshacer.')">{% csrf_token %}
+          <button class="dropdown-item text-danger">Eliminar</button>
+        </form>
+      </li>
     </ul>
   </div>
 </div>

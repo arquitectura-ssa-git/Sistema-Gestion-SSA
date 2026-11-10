@@ -154,6 +154,30 @@ def cliente_form(request, pk=None):
 
 
 @permisos.solo_personal
+@require_POST
+def cliente_eliminar(request, pk):
+    """Borra un cliente cargado de más o por error. Solo si no tiene proyectos ni obras (tampoco en la papelera) ni
+    contactos: así nunca se pierde a quién pertenece un trabajo. Queda en el registro de actividad."""
+    _exigir_gestion_clientes(request)
+    cliente = get_object_or_404(Cliente, pk=pk)
+    trabajos, contactos = cliente.obras.count(), cliente.usuarios.count()
+    if trabajos or contactos:
+        motivos = []
+        if trabajos:
+            motivos.append(f"tiene {trabajos} proyecto{'s' if trabajos != 1 else ''} u obra{'s' if trabajos != 1 else ''} "
+                           "(contando la papelera): asignalos a otro cliente primero")
+        if contactos:
+            motivos.append(f"tiene {contactos} contacto{'s' if contactos != 1 else ''} cargado{'s' if contactos != 1 else ''}")
+        messages.error(request, f"No se puede eliminar a {cliente}: {' y '.join(motivos)}.")
+        return redirect("cuentas:cliente", pk=cliente.pk)
+    nombre = str(cliente)
+    registrar("cliente.baja", f"Se eliminó el cliente: {nombre}", objeto=cliente)
+    cliente.delete()
+    messages.success(request, f"Se eliminó el cliente {nombre}.")
+    return redirect("cuentas:clientes")
+
+
+@permisos.solo_personal
 def cliente_detalle(request, pk):
     _exigir_gestion_clientes(request)
     cliente = get_object_or_404(Cliente, pk=pk)
