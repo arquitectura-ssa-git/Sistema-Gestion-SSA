@@ -63,7 +63,7 @@ SECCIONES = [
         ("Trabajé en algo que no es de ningún proyecto",
          "Elegí «Estudio / sin proyecto» (reuniones internas, orden, capacitación…)."),
         ("Me equivoqué en una línea",
-         "Si todavía es el mismo día, corregila y guardá. Para borrarla, marcá Quitar y guardá. Si el día ya "
+         "Si todavía es el mismo día, corregila y guardá. Para borrarla, tocá el tachito de esa línea. Si el día ya "
          "pasó, pedí habilitación."),
         ("¿Puedo repetir lo de ayer?",
          "Sí: si el día está vacío aparece el botón «Repetir lo del último día cargado». Después ajustás lo que "

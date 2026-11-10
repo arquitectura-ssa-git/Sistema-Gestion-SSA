@@ -295,7 +295,7 @@ input[type=radio], input[type=checkbox], input[type=range] { accent-color: var(-
   .tabla-carga td:nth-child(1), .tabla-carga td:nth-child(5) { grid-column: 1 / -1; }
   .tabla-carga td:nth-child(4), .tabla-carga td:nth-child(6) { display: flex; align-items: center; gap: .4rem; font-size: .85rem; text-align: left !important; }
   .tabla-carga td:nth-child(4)::before { content: "Extra"; order: 2; }
-  .tabla-carga td:nth-child(6):not(:empty)::before { content: "Quitar"; order: 2; }
+  .tabla-carga td:nth-child(6) { justify-content: flex-end; }
   .tabla-carga .form-check-input { margin-top: 0; }
   .table-responsive:has(.tabla-carga) { overflow: visible; }
 }
@@ -463,3 +463,8 @@ label.btn[data-elegidas]::after { content: " · " attr(data-elegidas); font-size
 .texto-libre { white-space: pre-line; }
 .barra-guardar { position: sticky; bottom: 0; padding: .75rem 0 1rem; background: linear-gradient(transparent, var(--bs-body-bg, #f2f2f2) 35%); z-index: 5; }
 @media (max-width: 575.98px) { .informe-avance-fila { grid-template-columns: 1fr 5.5rem 2.5rem; } }
+
+/* Time Report: tachito para eliminar una fila (en lugar de la casilla «Quitar») */
+.btn-eliminar-fila { display: inline-flex; align-items: center; justify-content: center; width: 2.25rem; height: 2.25rem;
+  margin-top: .2rem; border: 1px solid transparent; border-radius: 50%; background: transparent; color: #6f6f6f; }
+.btn-eliminar-fila:hover, .btn-eliminar-fila:focus-visible { border-color: #c9c9c9; background: #fff; color: var(--ssa-negro); }
