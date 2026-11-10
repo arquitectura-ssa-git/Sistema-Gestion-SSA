@@ -136,3 +136,22 @@ def test_coordinacion_de_proyectos_da_de_alta_personal_pero_no_toca_gerencia(coo
     assert c.get(f"/personal/{dir_.pk}/editar/").status_code == 403
     assert c.get(f"/personal/{comun.pk}/editar/").status_code == 200
     assert cliente_de(comun).get("/personal/nueva/").status_code == 403
+
+
+def test_dashboard_de_dir_muestra_indicadores_y_lo_que_necesita_atencion(dir_, comun, obra, proyectos):
+    from datetime import date, timedelta
+
+    from apps.horas.models import Habilitacion
+    from apps.horas.reglas import hoy
+    from apps.obras.models import Hito
+
+    obra.fecha_inicio, obra.fecha_fin_estimada, obra.avance = hoy() - timedelta(days=70), hoy() + timedelta(days=30), 20
+    obra.save()
+    Hito.objects.create(obra=obra, titulo="Hormigonado de losa", fecha=hoy() + timedelta(days=3))
+    Habilitacion.objects.create(usuario=comun, fecha=hoy() - timedelta(days=1), motivo="Estuve en obra")
+    html = cliente_de(dir_).get("/tablero/").content.decode()
+    for texto in ("Necesita tu atención", "Horas del equipo por semana", "Obras: avance contra plazo",
+                  "Últimos avances", "Carga del equipo", "Próximos hitos", "Hormigonado de losa", "Estuve en obra",
+                  "Atrasada 50 pts", "Proyectos activos"):
+        assert texto in html, texto
+    assert "Necesita tu atención" not in cliente_de(comun).get("/tablero/").content.decode()
