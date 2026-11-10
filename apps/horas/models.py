@@ -5,10 +5,33 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 
+class TipoTarea(models.Model):
+    """Tipos de tarea del Time Report (Producción, Gestión…). Los editan DIR y Coordinación de Proyectos; los
+    registros guardan el `codigo`, así que cambiar el nombre no altera lo ya cargado."""
+
+    codigo = models.SlugField(max_length=20, unique=True)
+    nombre = models.CharField(max_length=60, unique=True)
+    orden = models.PositiveSmallIntegerField(default=0)
+    activo = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "tipo de tarea"
+        verbose_name_plural = "tipos de tarea"
+        ordering = ["orden", "nombre"]
+
+    def __str__(self):
+        return self.nombre
+
+    @classmethod
+    def nombres(cls):
+        return dict(cls.objects.values_list("codigo", "nombre"))
+
+
 class RegistroHoras(models.Model):
     """Horas que una persona dedicó un día a un proyecto u obra (o al estudio), por tipo de tarea."""
 
     class Tipo(models.TextChoices):
+        """Los tipos con los que arrancó el sistema (la lista vigente está en TipoTarea)."""
         PRODUCCION = "produccion", "Producción"
         GESTION = "gestion", "Gestión"
         COORDINACION = "coordinacion", "Coordinación"
@@ -20,7 +43,7 @@ class RegistroHoras(models.Model):
     fecha = models.DateField(db_index=True)
     obra = models.ForeignKey("obras.Obra", null=True, blank=True, on_delete=models.PROTECT, related_name="horas",
                              verbose_name="proyecto u obra", help_text="Vacío = trabajo del estudio, sin proyecto.")
-    tipo = models.CharField("tipo de tarea", max_length=20, choices=Tipo.choices, default=Tipo.PRODUCCION)
+    tipo = models.CharField("tipo de tarea", max_length=20, default=Tipo.PRODUCCION)  # código de TipoTarea
     horas = models.DecimalField(max_digits=4, decimal_places=1,
                                 validators=[MinValueValidator(Decimal("0.5")), MaxValueValidator(24)])
     extra = models.BooleanField("hora extra", default=False)
@@ -35,6 +58,10 @@ class RegistroHoras(models.Model):
 
     def __str__(self):
         return f"{self.usuario} · {self.fecha:%d/%m/%Y} · {self.obra or 'Estudio'} · {self.horas:g} h"
+
+    @property
+    def tipo_nombre(self):
+        return TipoTarea.nombres().get(self.tipo, self.tipo)
 
 
 class Habilitacion(models.Model):

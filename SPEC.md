@@ -53,6 +53,7 @@ Qué puede hacer cada uno:
 | Ver el **Resumen TR** (horas de todos por proyecto) en el Dashboard | DIR |
 | Cargar o cambiar su **foto de perfil** | Cada persona, la suya, desde Mi perfil |
 | Habilitar carga tardía de horas y ver reportes | Coordinación de Proyectos y DIR |
+| Agregar o desactivar tipos de tarea del Time Report | Coordinación de Proyectos y DIR |
 | Cargar clientes | Gestión Administrativa, Coordinación de Proyectos y DIR |
 | Dar de alta usuarios y definir sus días y horas | DIR y Coordinación de Proyectos (que no edita a quienes son de Gerencia ni asigna esa área) |
 | Editar el calendario de feriados | DIR |
@@ -178,7 +179,7 @@ explica por qué.
 | Equipo | Personal agrupado (DIR, Coordinación, áreas) con foto o iniciales; alta de usuarios con días y horas por día |
 | Mi perfil | Nombre, cargo, WhatsApp, avisos y foto de perfil (se recorta cuadrada y se achica sola; acepta fotos de iPhone) |
 | Clientes | Fichas de clientes y sus contactos. Apellido o razón social (siempre en mayúsculas) y nombre aparte (inicial en mayúscula); se muestran como «APELLIDO, Nombre» |
-| Time Report | Carga diaria (una línea y «+» para sumar más; tipos de tarea: Producción, Gestión, Coordinación, Administración, Compras, Capacitación), extras, «Repetir», habilitaciones, reportes con exportación a Excel, feriados |
+| Time Report | Carga diaria (una línea y «+» para sumar más; tipos de tarea editables por Coordinación de Proyectos y DIR: arrancan con Producción, Gestión, Coordinación, Administración, Compras, Capacitación), extras, «Repetir», habilitaciones, reportes con exportación a Excel, feriados |
 | Informe diario de obra | Lo carga el DT (pensado para el celular): clima, si se pudo trabajar, personal por gremio, avance de tareas, fotos, notas de pedido con foto del libro y observaciones. Pestaña «Informes diarios» por obra con resumen; aviso en el Dashboard de las obras sin informe; correcciones con autorización de DIR |
 | Ayuda | Videos cortos (cargar el Time Report, crear un proyecto, cargar el avance y personalizar las tareas) y preguntas frecuentes con buscador (se editan en apps/core/ayuda.py) |
 | Registro de actividad | Guarda cada acción; no se puede modificar |
@@ -223,3 +224,4 @@ aprobación. Cada cambio se anota abajo con fecha y motivo.
 | 09/11/2026 | Ayuda: video y preguntas de cómo cargar el avance y personalizar las tareas | Pedido de Pablo | Pablo Saez (lo pidió) |
 | 09/11/2026 | Informe diario de obra (Dirección Técnica) | Trazabilidad diaria del avance de obra | Pablo Saez (lo pidió) |
 | 10/11/2026 | Coordinación de Proyectos: crea, elimina y restaura proyectos y obras; ve montos; lee informes diarios; gestiona clientes; da de alta personal (sin tocar Gerencia) | Pedido de Pablo | Pablo Saez (lo pidió) |
+| 10/11/2026 | Tipos de tarea del Time Report editables (agregar y desactivar) | Sumar tareas nuevas sin tocar el código | Pablo Saez (lo pidió) |

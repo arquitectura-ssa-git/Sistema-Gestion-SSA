@@ -6,10 +6,12 @@ from django.forms import BaseModelFormSet, modelformset_factory
 from apps.obras.models import Obra
 
 from . import reglas
-from .models import Feriado, Habilitacion, RegistroHoras
+from .models import Feriado, Habilitacion, RegistroHoras, TipoTarea
 
 
 class RegistroForm(forms.ModelForm):
+    tipo = forms.ChoiceField(label="Tipo de tarea")
+
     class Meta:
         model = RegistroHoras
         fields = ["obra", "tipo", "horas", "extra", "nota"]
@@ -20,6 +22,11 @@ class RegistroForm(forms.ModelForm):
 
     def __init__(self, *args, usuario=None, **kwargs):
         super().__init__(*args, **kwargs)
+        # Tipos de tarea activos; si una carga ya usaba uno que después se desactivó, se mantiene.
+        tipos = TipoTarea.objects.filter(activo=True)
+        if self.instance.pk:
+            tipos = tipos | TipoTarea.objects.filter(codigo=self.instance.tipo)
+        self.fields["tipo"].choices = [(t.codigo, t.nombre) for t in tipos.distinct().order_by("orden", "nombre")]
         # Todos los proyectos y obras activos (se puede colaborar en uno sin estar en el equipo); si una carga
         # ya usaba uno que después se pausó o finalizó, se mantiene.
         activas = Obra.objects.filter(estado=Obra.Estado.ACTIVA, eliminada=False)
@@ -125,3 +132,16 @@ class FeriadoForm(forms.ModelForm):
         model = Feriado
         fields = ["fecha", "nombre", "tipo", "aplica"]
         widgets = {"fecha": forms.DateInput(attrs={"type": "date"}, format="%Y-%m-%d")}
+
+
+class TipoTareaForm(forms.ModelForm):
+    class Meta:
+        model = TipoTarea
+        fields = ["nombre"]
+        widgets = {"nombre": forms.TextInput(attrs={"placeholder": "Ej.: Diseño de interiores"})}
+
+    def clean_nombre(self):
+        nombre = " ".join(self.cleaned_data["nombre"].split())
+        if TipoTarea.objects.filter(nombre__iexact=nombre).exists():
+            raise forms.ValidationError("Ya existe un tipo de tarea con ese nombre.")
+        return nombre

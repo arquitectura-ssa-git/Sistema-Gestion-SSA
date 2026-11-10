@@ -57,6 +57,9 @@ SECCIONES = [
          "Lo que pasa de tus horas contratadas de ese día. Se carga en una línea aparte con el casillero Extra "
          "marcado. Si cargás más horas normales que tu jornada, el sistema te avisa cuántas tenés que pasar a "
          "extra. Los sábados, domingos y feriados todo lo que cargues va como extra."),
+        ("Falta un tipo de tarea en la lista",
+         "Pedíselo a Coordinación de Proyectos o a DIR: lo agregan desde Time Report → «+ Tipo de tarea» y aparece "
+         "enseguida en el Time Report de todos."),
         ("Trabajé en algo que no es de ningún proyecto",
          "Elegí «Estudio / sin proyecto» (reuniones internas, orden, capacitación…)."),
         ("Me equivoqué en una línea",

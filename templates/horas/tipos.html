@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block titulo %}Tipos de tarea{% endblock %}
+{% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'horas:mio' %}">Time Report</a></li><li class="breadcrumb-item active">Tipos de tarea</li></ol></nav>{% endblock %}
+{% block contenido %}
+<div class="pagina-titulo">
+  <div>
+    <h1>Tipos de tarea</h1>
+    <div class="small text-muted">La lista que aparece en el Time Report de todos. Los que desactivás dejan de aparecer para cargar; lo ya cargado no cambia.</div>
+  </div>
+  <a href="{% url 'horas:mio' %}" class="btn btn-outline-secondary">Volver al Time Report</a>
+</div>
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="tarjeta">
+      <ul class="list-group list-group-flush">
+        {% for t in tipos %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <span{% if not t.activo %} class="text-muted text-decoration-line-through"{% endif %}>{{ t.nombre }}</span>
+          <form method="post">{% csrf_token %}<button name="cambiar" value="{{ t.pk }}" class="btn btn-sm btn-link">{% if t.activo %}Desactivar{% else %}Activar{% endif %}</button></form>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="panel-lateral"><div class="tarjeta"><div class="tarjeta-cabecera"><h2>Agregar tipo de tarea</h2></div><div class="tarjeta-cuerpo">
+      <form method="post" novalidate>{% csrf_token %}
+        {% include "includes/campo.html" with campo=form.nombre %}
+        <button class="btn btn-sm btn-dark">Agregar</button>
+      </form>
+    </div></div></div>
+  </div>
+</div>
+{% endblock %}
