@@ -12,6 +12,7 @@
     {% if semana_siguiente <= hoy %}<a href="?dia={{ semana_siguiente|date:'Y-m-d' }}" class="btn btn-outline-secondary" title="Semana siguiente"><i class="bi bi-chevron-right"></i></a>{% endif %}
     {% if perm.gerencia %}<a href="{% url 'horas:feriados' %}" class="btn btn-outline-dark">Feriados</a>{% endif %}
     {% if puede_habilitar %}
+      <a href="{% url 'horas:tipos' %}" class="btn btn-outline-dark">Tipos de tarea</a>
       <a href="{% url 'horas:habilitaciones' %}" class="btn btn-outline-dark">Pedidos{% if pendientes %} <span class="badge text-bg-secondary">{{ pendientes }}</span>{% endif %}</a>
       <a href="{% url 'horas:reportes' %}" class="btn btn-dark">Reportes</a>
     {% endif %}
@@ -94,6 +95,7 @@
       <div class="d-flex flex-wrap gap-2 align-items-center py-3">
         <button class="btn btn-dark"><i class="bi bi-check-lg"></i> Guardar horas</button>
         <span class="small text-muted">Las líneas vacías se ignoran.</span>
+        {% if puede_editar_tipos %}<a href="{% url 'horas:tipos' %}" class="btn btn-sm btn-outline-secondary ms-auto"><i class="bi bi-plus-lg"></i> Tipo de tarea</a>{% endif %}
       </div>
     </form>
     {% if not formset.initial_forms %}

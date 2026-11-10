@@ -17,7 +17,7 @@ from apps.cuentas.models import Usuario
 
 from . import reglas
 from .forms import DiaFormSet, FiltroReporteForm, PedidoForm
-from .models import Habilitacion, RegistroHoras
+from .models import Habilitacion, RegistroHoras, TipoTarea
 
 DIAS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
 CERO = Decimal(0)
@@ -36,6 +36,7 @@ def _url_dia(fecha):
 
 def resumen_semana(usuario, lunes):
     """Filas (proyecto · tipo · normal/extra) × días de la semana, con totales por día."""
+    tipos = TipoTarea.nombres()
     dias = [lunes + timedelta(days=i) for i in range(7)]
     feriados = reglas.feriados_en(dias[0], dias[-1])
     registros = RegistroHoras.objects.filter(usuario=usuario, fecha__range=(dias[0], dias[-1])).select_related("obra")
@@ -43,7 +44,7 @@ def resumen_semana(usuario, lunes):
     totales = {d: {"normal": CERO, "extra": CERO} for d in dias}
     for r in registros:
         clave = (r.obra_id, r.tipo, r.extra)
-        fila = filas.setdefault(clave, {"obra": r.obra, "tipo": r.get_tipo_display(), "extra": r.extra,
+        fila = filas.setdefault(clave, {"obra": r.obra, "tipo": tipos.get(r.tipo, r.tipo), "extra": r.extra,
                                         "horas": {d: CERO for d in dias}, "total": CERO})
         fila["horas"][r.fecha] += r.horas
         fila["total"] += r.horas
@@ -89,6 +90,7 @@ def mio(request):
     pedido = Habilitacion.objects.filter(usuario=u, fecha=dia).first() if dia < hoy else None
     return render(request, "horas/mio.html", {
         "dia": dia, "hoy": hoy, "editable": editable, "formset": formset,
+        "puede_editar_tipos": permisos.puede_habilitar_horas(u),
         "semana": resumen_semana(u, lunes), "lunes": lunes,
         "semana_anterior": lunes - timedelta(days=7), "semana_siguiente": lunes + timedelta(days=7),
         "contratadas": reglas.horas_contratadas(u, dia),
@@ -181,7 +183,7 @@ def _agrupado(registros, agrupar):
              .annotate(normal=Sum("horas", filter=Q(extra=False)), extra=Sum("horas", filter=Q(extra=True)),
                        total=Sum("horas"))
              .order_by("-total"))
-    tipos = dict(RegistroHoras.Tipo.choices)
+    tipos = TipoTarea.nombres()
     resultado = []
     for f in filas:
         if agrupar == "obra":
@@ -285,10 +287,11 @@ def _excel(registros, filas, totales, desde, hasta, titulo):
     hoja.column_dimensions["A"].width = 45
 
     detalle = libro.create_sheet("Detalle")
+    tipos = TipoTarea.nombres()
     detalle.append(["Fecha", "Persona", "Proyecto u obra", "Código", "Tipo de tarea", "Horas", "Extra", "Nota"])
     for r in registros.select_related("usuario", "obra").order_by("fecha", "usuario__first_name"):
         detalle.append([r.fecha, r.usuario.nombre_completo, r.obra.nombre if r.obra else "Estudio / sin proyecto",
-                        r.obra.codigo if r.obra else "", r.get_tipo_display(), float(r.horas),
+                        r.obra.codigo if r.obra else "", tipos.get(r.tipo, r.tipo), float(r.horas),
                         "Sí" if r.extra else "No", r.nota])
     for col, ancho in zip("ABCDEFGH", (12, 24, 36, 14, 18, 8, 7, 40)):
         detalle.column_dimensions[col].width = ancho
@@ -352,3 +355,36 @@ def feriado_cambiar(request, pk):
         f.save(update_fields=["aplica"])
         registrar("horas.feriado_cambio", f"Feriado {'activado' if f.aplica else 'desactivado'}: {f}")
     return redirect(f"{reverse('horas:feriados')}?anio={f.fecha.year}")
+
+
+# --- Tipos de tarea (DIR y Coordinación de Proyectos) ---------------------------------------------------------
+
+@permisos.solo_personal
+def tipos(request):
+    from django.utils.text import slugify
+
+    from .forms import TipoTareaForm
+
+    permisos.exigir(permisos.puede_habilitar_horas(request.user))
+    request.menu_activo = "horas:mio"
+    form = TipoTareaForm(request.POST or None)
+    if request.method == "POST":
+        if "cambiar" in request.POST:
+            t = get_object_or_404(TipoTarea, pk=request.POST["cambiar"])
+            t.activo = not t.activo
+            t.save(update_fields=["activo"])
+            registrar("horas.tipo_tarea", f"Tipo de tarea {'activado' if t.activo else 'desactivado'}: {t}")
+            return redirect("horas:tipos")
+        if form.is_valid():
+            t = form.save(commit=False)
+            base = slugify(t.nombre)[:16] or "tipo"
+            codigo, n = base, 2
+            while TipoTarea.objects.filter(codigo=codigo).exists():
+                codigo, n = f"{base}-{n}", n + 1
+            t.codigo = codigo
+            t.orden = (TipoTarea.objects.order_by("-orden").values_list("orden", flat=True).first() or 0) + 1
+            t.save()
+            registrar("horas.tipo_tarea", f"Nuevo tipo de tarea: {t}")
+            messages.success(request, f"Se agregó «{t}». Ya aparece en el Time Report de todos.")
+            return redirect("horas:tipos")
+    return render(request, "horas/tipos.html", {"tipos": TipoTarea.objects.all(), "form": form})

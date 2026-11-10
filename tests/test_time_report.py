@@ -22,3 +22,26 @@ def test_se_guardan_las_lineas_agregadas(comun, proyectos):
     r = cliente_de(comun).post("/horas/", datos)
     assert r.status_code == 302
     assert sorted(RegistroHoras.objects.values_list("tipo", "horas")) == [("coordinacion", 2.5), ("produccion", 4)]
+
+
+def test_coordinacion_agrega_tipos_de_tarea_y_aparecen_para_cargar(coordinador, comun):
+    from apps.horas.models import TipoTarea
+
+    c = cliente_de(coordinador)
+    assert c.get("/horas/").content.decode().count('href="/horas/tipos/"') >= 1
+    assert c.post("/horas/tipos/", {"nombre": "Diseño de interiores"}).status_code == 302
+    nuevo = TipoTarea.objects.get(nombre="Diseño de interiores")
+    assert nuevo.codigo.startswith("diseno-de")
+    html = cliente_de(comun).get("/horas/").content.decode()
+    assert "Diseño de interiores" in html and 'href="/horas/tipos/"' not in html
+    datos = {"form-TOTAL_FORMS": "1", "form-INITIAL_FORMS": "0", "form-MIN_NUM_FORMS": "0",
+             "form-MAX_NUM_FORMS": "1000", "form-0-obra": "", "form-0-tipo": nuevo.codigo, "form-0-horas": "2",
+             "form-0-extra": "on"}
+    assert cliente_de(comun).post("/horas/", datos).status_code == 302
+    assert RegistroHoras.objects.get().tipo_nombre == "Diseño de interiores"
+    c.post("/horas/tipos/", {"cambiar": nuevo.pk})  # desactivado: ya no se ofrece, lo cargado queda
+    from apps.horas.forms import RegistroForm
+
+    assert nuevo.codigo not in dict(RegistroForm(usuario=comun).fields["tipo"].choices)
+    assert nuevo.codigo in dict(RegistroForm(instance=RegistroHoras.objects.get(), usuario=comun).fields["tipo"].choices)
+    assert cliente_de(comun).get("/horas/tipos/").status_code == 403
