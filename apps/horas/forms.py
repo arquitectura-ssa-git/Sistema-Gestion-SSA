@@ -27,6 +27,8 @@ class RegistroForm(forms.ModelForm):
         if self.instance.pk:
             tipos = tipos | TipoTarea.objects.filter(codigo=self.instance.tipo)
         self.fields["tipo"].choices = [(t.codigo, t.nombre) for t in tipos.distinct().order_by("orden", "nombre")]
+        # El mismo valor inicial que el modelo: así una línea nueva que no se tocó cuenta como vacía y se ignora.
+        self.fields["tipo"].initial = RegistroHoras._meta.get_field("tipo").default
         # Todos los proyectos y obras activos (se puede colaborar en uno sin estar en el equipo); si una carga
         # ya usaba uno que después se pausó o finalizó, se mantiene.
         activas = Obra.objects.filter(estado=Obra.Estado.ACTIVA, eliminada=False)

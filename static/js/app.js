@@ -53,3 +53,24 @@ document.querySelectorAll("[data-zona-soltar]").forEach(function (zona) {
     if (primero) primero.focus();
   });
 })();
+
+// Time Report: el tachito elimina la fila. Una fila ya guardada se borra al instante (se marca y se guarda el día);
+// una nueva o vacía solo se vacía y se oculta (las filas vacías se ignoran al guardar).
+document.addEventListener("click", function (e) {
+  const boton = e.target.closest(".btn-eliminar-fila");
+  if (!boton) return;
+  const fila = boton.closest("tr");
+  const celda = boton.closest("td");
+  if (celda.hasAttribute("data-guardada")) {
+    if (!window.confirm("¿Eliminar esta línea del Time Report?")) return;
+    celda.querySelector("input[type=checkbox]").checked = true;
+    fila.closest("form").submit();
+    return;
+  }
+  fila.querySelectorAll("input, select").forEach(function (c) {
+    if (c.type === "checkbox") c.checked = c.defaultChecked;
+    else if (c.tagName === "SELECT") Array.from(c.options).forEach(function (o) { o.selected = o.defaultSelected; });
+    else if (c.type !== "hidden") c.value = c.defaultValue;
+  });
+  fila.hidden = true;
+});

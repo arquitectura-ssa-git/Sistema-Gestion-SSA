@@ -45,3 +45,29 @@ def test_coordinacion_agrega_tipos_de_tarea_y_aparecen_para_cargar(coordinador, 
     assert nuevo.codigo not in dict(RegistroForm(usuario=comun).fields["tipo"].choices)
     assert nuevo.codigo in dict(RegistroForm(instance=RegistroHoras.objects.get(), usuario=comun).fields["tipo"].choices)
     assert cliente_de(comun).get("/horas/tipos/").status_code == 403
+
+
+def test_el_tachito_esta_en_cada_linea_y_borra_la_guardada(comun):
+    from apps.horas.reglas import hoy
+
+    r = RegistroHoras.objects.create(usuario=comun, fecha=hoy(), tipo="produccion", horas=2, extra=True)
+    c = cliente_de(comun)
+    html = c.get("/horas/").content.decode()
+    assert 'class="btn-eliminar-fila"' in html and ">Quitar<" not in html
+    datos = {"form-TOTAL_FORMS": "2", "form-INITIAL_FORMS": "1", "form-MIN_NUM_FORMS": "0", "form-MAX_NUM_FORMS": "1000",
+             "form-0-id": r.pk, "form-0-tipo": "produccion", "form-0-horas": "2", "form-0-extra": "on",
+             "form-0-DELETE": "on", "form-1-tipo": "produccion"}
+    assert c.post("/horas/", datos).status_code == 302
+    assert not RegistroHoras.objects.exists()
+
+
+def test_una_linea_nueva_sin_tocar_se_ignora(comun):
+    from apps.horas.reglas import hoy
+
+    r = RegistroHoras.objects.create(usuario=comun, fecha=hoy(), tipo="gestion", horas=2, extra=True)
+    datos = {"form-TOTAL_FORMS": "2", "form-INITIAL_FORMS": "1", "form-MIN_NUM_FORMS": "0", "form-MAX_NUM_FORMS": "1000",
+             "form-0-id": r.pk, "form-0-tipo": "gestion", "form-0-horas": "3", "form-0-extra": "on",
+             "form-1-tipo": "produccion", "form-1-horas": "", "form-1-nota": ""}
+    assert cliente_de(comun).post("/horas/", datos).status_code == 302
+    r.refresh_from_db()
+    assert r.horas == 3 and RegistroHoras.objects.count() == 1
