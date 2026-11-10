@@ -63,3 +63,10 @@ def fin_del_dia():
 
 def es_media_hora(valor):
     return valor is not None and (Decimal(valor) / MEDIA) == (Decimal(valor) / MEDIA).to_integral_value()
+
+
+def carga_horas(usuario):
+    """DIR (Gerencia) no carga Time Report: ve el del equipo."""
+    from apps.cuentas import permisos
+
+    return not permisos.es_gerencia(usuario)
