@@ -169,7 +169,7 @@ explica por qué.
 |---|---|
 | Ingreso | Email y contraseña; pantalla con el logo de SOPHIA («Sistema de Obras y Proyectos / Inteligencia Arquitectónica») |
 | Menú | Dashboard · Proyectos · Obras · Documentos · Equipo · Clientes · Plantillas · Time Report · Ayuda |
-| Dashboard | Proyectos y obras activos de cada uno, horas de hoy, pedidos, permisos por vencer, planos para revisar. DIR ve el Resumen TR en lugar de sus horas |
+| Dashboard | Proyectos y obras activos de cada uno, horas de hoy, pedidos, permisos por vencer, planos para revisar. DIR tiene un Dashboard propio: indicadores (proyectos, obras, horas del mes, Time Report e informes de hoy, certificado del mes), «Necesita tu atención» (pedidos para aprobar ahí mismo, obras sin informe, personas sin Time Report, obras atrasadas contra plazo, proyectos sin avance hace 30 días, permisos por vencer, planos para revisar), horas por semana, avance de obras contra plazo, últimos avances, carga del equipo, horas por tipo de tarea, próximos hitos y Resumen TR |
 | Proyectos y Obras | Listas separadas con filtros de estado; creación desde plantilla o copiando otro proyecto; importar varios proyectos desde la planilla modelo (con vista previa y sin duplicar nombres); duplicar; ficha con pestañas; papelera con restaurar (DIR y Coordinación de Proyectos) |
 | Tareas | Árbol Etapa → Rubro → Ítem con incidencias, código, unidad y cantidad; barras de avance que se guardan solas; flechitas para plegar y desplegar |
 | Historial de avance | Fecha de cada cambio de avance; cuándo empezó y terminó cada ítem y cuántos días tardó |
@@ -225,3 +225,4 @@ aprobación. Cada cambio se anota abajo con fecha y motivo.
 | 09/11/2026 | Informe diario de obra (Dirección Técnica) | Trazabilidad diaria del avance de obra | Pablo Saez (lo pidió) |
 | 10/11/2026 | Coordinación de Proyectos: crea, elimina y restaura proyectos y obras; ve montos; lee informes diarios; gestiona clientes; da de alta personal (sin tocar Gerencia) | Pedido de Pablo | Pablo Saez (lo pidió) |
 | 10/11/2026 | Tipos de tarea del Time Report editables (agregar y desactivar) | Sumar tareas nuevas sin tocar el código | Pablo Saez (lo pidió) |
+| 10/11/2026 | Dashboard de DIR nuevo, con indicadores, alertas y gráficos | Ver el estado del estudio de un vistazo y planificar | Pablo Saez (lo pidió) |

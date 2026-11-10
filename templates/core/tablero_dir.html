@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+{% load core_tags %}
+{% block titulo %}Dashboard{% endblock %}
+{% block contenido %}
+<div class="pagina-titulo">
+  <div>
+    <div class="small text-muted text-uppercase dir-fecha">{{ dir_hoy|date:"l d/m/Y" }}</div>
+    <h1>Hola, {{ user.first_name|default:user.email }}</h1>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <a href="{{ url_reportes }}" class="btn btn-outline-secondary">Reportes TR</a>
+    {% if perm.crear_obras %}<a href="{% url 'proyectos:nuevo' %}" class="btn btn-dark"><i class="bi bi-plus-lg"></i> Nuevo proyecto</a>{% endif %}
+  </div>
+</div>
+
+{# 1 · Indicadores #}
+<section class="dir-kpis mb-4" aria-label="Indicadores">
+  <a href="{% url 'proyectos:lista' %}" class="dir-kpi">
+    <span class="dir-kpi-titulo">Proyectos activos</span>
+    <span class="dir-kpi-valor">{{ kpi.proyectos }}</span>
+    <span class="dir-kpi-nota{% if kpi.quietos %} fuerte{% endif %}">{% if kpi.quietos %}{{ kpi.quietos }} sin avance hace 30 días{% else %}todos con movimiento{% endif %}</span>
+  </a>
+  <a href="{% url 'obras:lista' %}" class="dir-kpi">
+    <span class="dir-kpi-titulo">Obras activas</span>
+    <span class="dir-kpi-valor">{{ kpi.obras }}</span>
+    <span class="dir-kpi-nota{% if kpi.atrasadas %} fuerte{% endif %}">{% if kpi.atrasadas %}{{ kpi.atrasadas }} atrasada{{ kpi.atrasadas|pluralize }} contra plazo{% else %}ninguna atrasada{% endif %}</span>
+  </a>
+  <a href="{{ url_reportes }}" class="dir-kpi">
+    <span class="dir-kpi-titulo">Horas de {{ inicio_mes|date:"F" }}</span>
+    <span class="dir-kpi-valor">{{ kpi.horas_mes|pct:1 }}<small> h</small></span>
+    <span class="dir-kpi-nota">{{ kpi.extra_mes|pct:1 }} h extra</span>
+  </a>
+  <a href="{% url 'horas:reportes' %}" class="dir-kpi">
+    <span class="dir-kpi-titulo">Time Report hoy</span>
+    {% if dir_habil %}
+    <span class="dir-kpi-valor">{{ kpi.tr_cargaron }}<small> / {{ kpi.tr_esperados }}</small></span>
+    <span class="dir-kpi-nota{% if atencion.sin_tr %} fuerte{% endif %}">{% if atencion.sin_tr %}{{ atencion.sin_tr|length }} sin cargar{% else %}cargaron todos{% endif %}</span>
+    {% else %}
+    <span class="dir-kpi-valor">—</span><span class="dir-kpi-nota">hoy no es día hábil</span>
+    {% endif %}
+  </a>
+  <div class="dir-kpi">
+    <span class="dir-kpi-titulo">Informes diarios hoy</span>
+    {% if kpi.informes is not None %}
+    <span class="dir-kpi-valor">{{ kpi.informes }}<small> / {{ kpi.obras_informe }}</small></span>
+    <span class="dir-kpi-nota{% if atencion.sin_informe %} fuerte{% endif %}">{% if atencion.sin_informe %}{{ atencion.sin_informe|length }} obra{{ atencion.sin_informe|length|pluralize }} sin informe{% else %}todas las obras{% endif %}</span>
+    {% else %}
+    <span class="dir-kpi-valor">—</span><span class="dir-kpi-nota">hoy no es día hábil</span>
+    {% endif %}
+  </div>
+  <div class="dir-kpi">
+    <span class="dir-kpi-titulo">Certificado en {{ inicio_mes|date:"F" }}</span>
+    <span class="dir-kpi-valor dir-kpi-monto">{% if kpi.cert_mes is not None %}{{ kpi.cert_mes|pesos }}{% else %}—{% endif %}</span>
+    <span class="dir-kpi-nota">{{ kpi.cert_cantidad }} certificado{{ kpi.cert_cantidad|pluralize }} cargado{{ kpi.cert_cantidad|pluralize }}</span>
+  </div>
+</section>
+
+<div class="row g-4 mb-2">
+  {# 2 · Necesita tu atención #}
+  <div class="col-xl-6">
+    <section class="tarjeta h-100">
+      <div class="tarjeta-cabecera"><h2>Necesita tu atención</h2></div>
+      <ul class="list-unstyled mb-0 dir-atencion">
+        {% for p in atencion.pedidos_horas %}
+        <li>
+          <span class="dir-etiqueta urgente">Pedido</span>
+          <div class="flex-grow-1"><div>Habilitación para cargar el {{ p.fecha|date:"D d/m" }}</div><div class="small text-muted">{{ p.usuario.nombre_completo }} · {{ p.motivo }}</div></div>
+          <form method="post" action="{% url 'horas:resolver' p.pk %}" class="d-flex gap-1 flex-shrink-0">{% csrf_token %}
+            <button name="accion" value="aprobar" class="btn btn-sm btn-dark">Aprobar</button>
+            <button name="accion" value="rechazar" class="btn btn-sm btn-outline-secondary">Rechazar</button>
+          </form>
+        </li>
+        {% endfor %}
+        {% for p in atencion.pedidos_informe %}
+        <li>
+          <span class="dir-etiqueta urgente">Pedido</span>
+          <div class="flex-grow-1"><div>Corregir el informe del {{ p.fecha|date:"D d/m" }} · {{ p.obra.nombre }}</div><div class="small text-muted">{{ p.usuario.nombre_completo }} · {{ p.motivo }}</div></div>
+          <form method="post" action="{% url 'informes:resolver' p.pk %}" class="d-flex gap-1 flex-shrink-0">{% csrf_token %}
+            <input type="hidden" name="volver" value="{% url 'core:tablero' %}">
+            <button name="accion" value="aprobar" class="btn btn-sm btn-dark">Autorizar</button>
+            <button name="accion" value="rechazar" class="btn btn-sm btn-outline-secondary">Rechazar</button>
+          </form>
+        </li>
+        {% endfor %}
+        {% if atencion.sin_informe %}
+        <li>
+          <span class="dir-etiqueta urgente">Hoy</span>
+          <div class="flex-grow-1"><div>{{ atencion.sin_informe|length }} obra{{ atencion.sin_informe|length|pluralize }} sin informe diario</div><div class="small text-muted">{% for o in atencion.sin_informe %}<a href="{% url 'obras:detalle' o.pk %}?tab=informes">{{ o.nombre }}</a>{% if not forloop.last %} · {% endif %}{% endfor %} · el DT puede cargarlo hasta las 23:59</div></div>
+        </li>
+        {% endif %}
+        {% if atencion.sin_tr %}
+        <li>
+          <span class="dir-etiqueta aviso">Hoy</span>
+          <div class="flex-grow-1"><div>{{ atencion.sin_tr|length }} persona{{ atencion.sin_tr|length|pluralize }} sin Time Report de hoy</div><div class="small text-muted">{% for p in atencion.sin_tr %}{{ p.nombre_completo }}{% if not forloop.last %} · {% endif %}{% endfor %}</div></div>
+        </li>
+        {% endif %}
+        {% for f in atencion.atrasadas %}
+        <li>
+          <span class="dir-etiqueta aviso">Atraso</span>
+          <div class="flex-grow-1"><div><a href="{% url 'obras:detalle' f.obra.pk %}?tab=tareas">{{ f.obra.nombre }}</a> va {{ f.dif|cut:"-" }} puntos detrás del plazo</div><div class="small text-muted">Avance {{ f.obra.avance }}% con el {{ f.plazo }}% del plazo transcurrido</div></div>
+        </li>
+        {% endfor %}
+        {% if atencion.quietos %}
+        <li>
+          <span class="dir-etiqueta info">Quieto</span>
+          <div class="flex-grow-1"><div>{{ atencion.quietos|length }} sin avance hace más de 30 días</div><div class="small text-muted">{% for o in atencion.quietos|slice:":8" %}<a href="{% url 'obras:detalle' o.pk %}?tab=tareas">{{ o.nombre }}</a>{% if not forloop.last %} · {% endif %}{% endfor %}{% if atencion.quietos|length > 8 %} · y {{ atencion.quietos|length|add:"-8" }} más{% endif %}</div></div>
+        </li>
+        {% endif %}
+        {% for d in permisos_por_vencer %}
+        <li>
+          <span class="dir-etiqueta info">Vence</span>
+          <div class="flex-grow-1"><div><a href="{% url 'documentos:detalle' d.pk %}">{{ d.titulo }}</a></div><div class="small text-muted">{{ d.obra.nombre|default:"Biblioteca general" }} · {% if d.vencimiento < hoy %}venció el {{ d.vencimiento|date:"d/m/Y" }}{% else %}vence el {{ d.vencimiento|date:"d/m/Y" }}{% endif %}</div></div>
+        </li>
+        {% endfor %}
+        {% for d in planos_a_revisar %}
+        <li>
+          <span class="dir-etiqueta info">Planos</span>
+          <div class="flex-grow-1"><div><a href="{% url 'documentos:detalle' d.pk %}">{{ d.titulo }}</a></div><div class="small text-muted">{{ d.obra.nombre }} · para revisar</div></div>
+        </li>
+        {% endfor %}
+        <li class="dir-atencion-vacia"><span class="text-muted small">Nada pendiente. Todo al día.</span></li>
+      </ul>
+    </section>
+  </div>
+
+  {# 3 · Horas por semana #}
+  <div class="col-xl-6">
+    <section class="tarjeta h-100">
+      <div class="tarjeta-cabecera"><h2>Horas del equipo por semana</h2>
+        <span class="small text-muted d-flex gap-3"><span><span class="dir-leyenda normal" aria-hidden="true"></span>Normales</span><span><span class="dir-leyenda extra" aria-hidden="true"></span>Extras</span></span>
+      </div>
+      <div class="dir-semanas" role="img" aria-label="Horas cargadas por semana en las últimas {{ semanas|length }} semanas">
+        {% for s in semanas %}
+        <div class="dir-semana">
+          <span class="small text-muted">{{ s.total|pct:1 }}</span>
+          <div class="dir-columna">
+            <div class="extra" style="height: {{ s.alto_extra }}px"></div>
+            <div class="normal" style="height: {{ s.alto_normal }}px"></div>
+          </div>
+          <span class="small text-muted">{{ s.lunes|date:"j/n" }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      <p class="small text-muted mb-0 mt-2">Promedio de las últimas {{ semanas|length }} semanas: {{ promedio_semanal|pct:1 }} h por semana.</p>
+    </section>
+  </div>
+</div>
+
+<div class="row g-4 mb-2 mt-0">
+  {# 4 · Obras contra plazo #}
+  <div class="col-xl-7">
+    <section class="tarjeta h-100">
+      <div class="tarjeta-cabecera"><h2>Obras: avance contra plazo</h2><span class="small text-muted">la línea marca el plazo transcurrido</span></div>
+      {% for f in obras_plazo %}
+      <div class="dir-obra">
+        <div class="d-flex justify-content-between flex-wrap gap-2">
+          <a href="{% url 'obras:detalle' f.obra.pk %}" class="fw-semibold text-decoration-none">{{ f.obra.nombre }}</a>
+          <span class="small{% if f.atrasada %} fw-semibold{% else %} text-muted{% endif %}">{{ f.estado }}</span>
+        </div>
+        <div class="dir-pista"><div class="dir-relleno" style="width: {{ f.obra.avance }}%"></div>{% if f.plazo is not None %}<div class="dir-marca" style="left: calc({{ f.plazo }}% - 1px)" aria-hidden="true"></div>{% endif %}</div>
+        <div class="d-flex justify-content-between small text-muted"><span>Avance {{ f.obra.avance }}%{% if f.plazo is not None %} · plazo {{ f.plazo }}%{% endif %}</span><span>{% if f.obra.fecha_inicio %}{{ f.obra.fecha_inicio|date:"M Y" }} → {{ f.obra.fecha_fin_estimada|date:"M Y"|default:"?" }}{% else %}<a href="{% url 'obras:editar' f.obra.pk %}">Cargar fechas</a>{% endif %}</span></div>
+      </div>
+      {% empty %}
+      <p class="text-muted small mb-0 py-3">No hay obras activas.</p>
+      {% endfor %}
+    </section>
+  </div>
+
+  {# 5 · Últimos avances #}
+  <div class="col-xl-5">
+    <section class="tarjeta h-100">
+      <div class="tarjeta-cabecera"><h2>Últimos avances</h2></div>
+      {% for g in ultimos_avances %}{% with a=g.primero %}
+      <div class="dir-avance">
+        <span class="small text-muted dir-cuando">{% if a.fecha == dir_hoy %}{{ a.creado|time:"H:i" }}{% else %}{{ a.fecha|date:"d/m" }}{% endif %}</span>
+        <div class="min-w-0">
+          {% if g.cantidad > 1 %}
+          <div class="small"><a href="{% url 'obras:detalle' a.obra.pk %}?tab=historial" class="fw-semibold text-decoration-none">{{ a.obra.nombre }}</a> · {{ g.cantidad }} tareas actualizadas</div>
+          <div class="small text-muted">{% if a.certificado %}Certificado N° {{ a.certificado.numero }}{% else %}{{ a.usuario.nombre_completo|default:"—" }}{% endif %} · obra al {{ a.obra.avance }}%</div>
+          {% else %}
+          <div class="small"><a href="{% url 'obras:detalle' a.obra.pk %}?tab=tareas" class="fw-semibold text-decoration-none">{{ a.obra.nombre }}</a> · {{ a.tarea.nombre }}</div>
+          <div class="small text-muted">{% if a.anterior is not None %}{{ a.anterior }}% → {% endif %}{{ a.avance }}% · {% if a.certificado %}certificado N° {{ a.certificado.numero }}{% else %}{{ a.usuario.nombre_completo|default:"—" }}{% endif %}</div>
+          {% endif %}
+        </div>
+      </div>
+      {% endwith %}
+      {% empty %}
+      <p class="text-muted small mb-0 py-3">Todavía no hay avances registrados.</p>
+      {% endfor %}
+    </section>
+  </div>
+</div>
+
+<div class="row g-4 mb-2 mt-0">
+  {# 6 · Carga del equipo #}
+  <div class="col-lg-6 col-xl-4">
+    <section class="tarjeta h-100">
+      <div class="tarjeta-cabecera"><h2>Carga del equipo</h2><span class="small text-muted">semana del {{ lunes_semana|date:"d/m" }}</span></div>
+      {% for e in equipo_semana %}
+      <div class="dir-barra-fila">
+        <div class="d-flex justify-content-between small"><span>{{ e.persona.nombre_completo }}</span><span class="{% if e.extra %}fw-semibold{% else %}text-muted{% endif %}">{{ e.horas|pct:1 }} / {{ e.jornada|pct:1 }} h{% if e.extra %} · extra{% endif %}</span></div>
+        <div class="dir-pista fina"><div class="dir-relleno" style="width: {{ e.ancho }}%"></div></div>
+      </div>
+      {% endfor %}
+    </section>
+  </div>
+
+  {# 7 · Tipos de tarea #}
+  <div class="col-lg-6 col-xl-4">
+    <section class="tarjeta h-100">
+      <div class="tarjeta-cabecera"><h2>{{ inicio_mes|date:"F"|capfirst }} por tipo de tarea</h2></div>
+      {% for t in tipos_mes %}
+      <div class="dir-barra-fila">
+        <div class="d-flex justify-content-between small"><span>{{ t.nombre }}</span><span class="text-muted">{{ t.horas|pct:1 }} h · {{ t.pct }}%</span></div>
+        <div class="dir-pista fina"><div class="dir-relleno gris" style="width: {{ t.ancho }}%"></div></div>
+      </div>
+      {% empty %}
+      <p class="text-muted small mb-0 py-3">Todavía no hay horas este mes.</p>
+      {% endfor %}
+    </section>
+  </div>
+
+  {# 8 · Próximos hitos #}
+  <div class="col-lg-12 col-xl-4">
+    <section class="tarjeta h-100">
+      <div class="tarjeta-cabecera"><h2>Próximos hitos</h2><span class="small text-muted">14 días</span></div>
+      {% for h in proximos_hitos %}
+      <div class="dir-hito">
+        <div class="dir-dia"><div>{{ h.fecha|date:"j" }}</div><small>{{ h.fecha|date:"M" }}</small></div>
+        <div class="min-w-0"><a href="{% url 'obras:detalle' h.obra.pk %}?tab=hitos" class="small fw-semibold text-decoration-none">{{ h.obra.nombre }}</a><div class="small text-muted">{{ h.titulo }}</div></div>
+      </div>
+      {% empty %}
+      <p class="text-muted small mb-0 py-3">No hay hitos en los próximos 14 días.</p>
+      {% endfor %}
+    </section>
+  </div>
+</div>
+
+{# 9 · Resumen TR: horas por proyecto #}
+{% if horas_por_obra %}
+<section class="tarjeta mt-4">
+  <div class="tarjeta-cabecera"><h2>Resumen TR · horas por proyecto u obra <span class="badge text-bg-light border">{{ horas_por_obra.total|pct:1 }} h</span></h2><a href="{{ url_reportes }}" class="small">Ver reportes</a></div>
+  <div class="dir-horas-obra">
+    {% for f in horas_por_obra.filas|slice:":12" %}
+    <div class="dir-barra-fila">
+      <div class="d-flex justify-content-between small gap-2">{% if f.obra_id %}<a href="{% url 'obras:detalle' f.obra_id %}" class="text-truncate text-decoration-none">{{ f.obra__nombre }}</a>{% else %}<span class="text-muted">Estudio / sin proyecto</span>{% endif %}<span class="fw-semibold text-nowrap">{{ f.total|pct:1 }} h</span></div>
+      <div class="dir-pista fina"><div class="dir-relleno" style="width: {{ f.pct|stringformat:'.1f' }}%"></div></div>
+      <div class="small text-muted">{{ horas_por_obra.mes|date:"F"|capfirst }}: {% if f.mes %}{{ f.mes|pct:1 }} h{% else %}—{% endif %}{% if f.extra %} · extra {{ f.extra|pct:1 }} h{% endif %}</div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+{% endif %}
+{% endblock %}
