@@ -38,10 +38,10 @@ Qué puede hacer cada uno:
 | Ver una **obra** | Su equipo asignado; Coordinación, el responsable de Gestión Administrativa y DIR ven todas |
 | Ver los archivos de un proyecto u obra | Su equipo asignado; Coordinación, el responsable de Gestión Administrativa y DIR ven todos |
 | Editar datos, tareas y avance de un proyecto u obra | Sus responsables, Coordinación de Proyectos (todos) y DIR |
-| Crear proyectos y obras (también varios proyectos de una vez desde Excel) | DIR |
-| Ver **montos** (presupuesto, certificados, saldos) | Solo DIR y el responsable de Gestión Administrativa |
+| Crear proyectos y obras (también varios proyectos de una vez desde Excel) | DIR y Coordinación de Proyectos |
+| Ver **montos** (presupuesto, certificados, saldos) | Solo DIR, el responsable de Gestión Administrativa y Coordinación de Proyectos |
 | Cargar el **informe diario** de una obra | Solo su DT (asignado al equipo por Dirección Técnica) |
-| Leer los informes diarios | DIR, Coordinación de Obras y el DT de la obra |
+| Leer los informes diarios | DIR, Coordinación (de Obras y de Proyectos) y el DT de la obra |
 | Autorizar cargar o corregir un informe de un día que ya cerró | DIR |
 | Editar la lista de gremios | Los DT, Coordinación de Obras y DIR |
 | Ver el **historial de avance** | DIR, Coordinación y el responsable de Gestión Administrativa |
@@ -53,11 +53,11 @@ Qué puede hacer cada uno:
 | Ver el **Resumen TR** (horas de todos por proyecto) en el Dashboard | DIR |
 | Cargar o cambiar su **foto de perfil** | Cada persona, la suya, desde Mi perfil |
 | Habilitar carga tardía de horas y ver reportes | Coordinación de Proyectos y DIR |
-| Cargar clientes | Gestión Administrativa y DIR |
-| Dar de alta usuarios y definir sus días y horas | DIR |
+| Cargar clientes | Gestión Administrativa, Coordinación de Proyectos y DIR |
+| Dar de alta usuarios y definir sus días y horas | DIR y Coordinación de Proyectos (que no edita a quienes son de Gerencia ni asigna esa área) |
 | Editar el calendario de feriados | DIR |
 | Borrar un documento definitivamente (desde la papelera) | DIR |
-| Eliminar un proyecto u obra (va a la papelera) y restaurarlo | DIR |
+| Eliminar un proyecto u obra (va a la papelera) y restaurarlo | DIR y Coordinación de Proyectos |
 
 En los listados, cada persona ve **primero** los proyectos y obras donde está en el equipo (en negrita y con un
 punto, sin texto que lo explique) y después el resto. Lo mismo en el desplegable del Time Report: arriba «Tus
@@ -81,7 +81,7 @@ activo (ver sección 5).
    también pasan por el sistema: solo las ve el personal que ingresó.
 5. Nada se borra de entrada: los documentos van a la **papelera**. Solo DIR puede borrarlos definitivamente, y el
    registro de actividad conserva que existieron. Los proyectos y obras eliminados también van a una papelera: no
-   aparecen en ningún lado, pero no se borran y DIR los puede restaurar.
+   aparecen en ningún lado, pero no se borran y DIR o Coordinación de Proyectos los pueden restaurar.
 6. Antes de cada actualización del servidor se hace una copia de seguridad (`sophia-actualizar` la hace sola), y hay
    una copia automática todas las noches.
 7. Nunca se borra el historial de GitHub ni se fuerza una subida.
@@ -169,7 +169,7 @@ explica por qué.
 | Ingreso | Email y contraseña; pantalla con el logo de SOPHIA («Sistema de Obras y Proyectos / Inteligencia Arquitectónica») |
 | Menú | Dashboard · Proyectos · Obras · Documentos · Equipo · Clientes · Plantillas · Time Report · Ayuda |
 | Dashboard | Proyectos y obras activos de cada uno, horas de hoy, pedidos, permisos por vencer, planos para revisar. DIR ve el Resumen TR en lugar de sus horas |
-| Proyectos y Obras | Listas separadas con filtros de estado; creación desde plantilla o copiando otro proyecto; importar varios proyectos desde la planilla modelo (con vista previa y sin duplicar nombres); duplicar; ficha con pestañas; papelera con restaurar (DIR) |
+| Proyectos y Obras | Listas separadas con filtros de estado; creación desde plantilla o copiando otro proyecto; importar varios proyectos desde la planilla modelo (con vista previa y sin duplicar nombres); duplicar; ficha con pestañas; papelera con restaurar (DIR y Coordinación de Proyectos) |
 | Tareas | Árbol Etapa → Rubro → Ítem con incidencias, código, unidad y cantidad; barras de avance que se guardan solas; flechitas para plegar y desplegar |
 | Historial de avance | Fecha de cada cambio de avance; cuándo empezó y terminó cada ítem y cuántos días tardó |
 | Certificados | Importar el Excel del contratista (uno por quincena); montos por certificado y presupuesto por rubro |
@@ -222,3 +222,4 @@ aprobación. Cada cambio se anota abajo con fecha y motivo.
 | 09/11/2026 | Ayuda: video y preguntas de cómo crear un proyecto | Pedido de Pablo | Pablo Saez (lo pidió) |
 | 09/11/2026 | Ayuda: video y preguntas de cómo cargar el avance y personalizar las tareas | Pedido de Pablo | Pablo Saez (lo pidió) |
 | 09/11/2026 | Informe diario de obra (Dirección Técnica) | Trazabilidad diaria del avance de obra | Pablo Saez (lo pidió) |
+| 10/11/2026 | Coordinación de Proyectos: crea, elimina y restaura proyectos y obras; ve montos; lee informes diarios; gestiona clientes; da de alta personal (sin tocar Gerencia) | Pedido de Pablo | Pablo Saez (lo pidió) |

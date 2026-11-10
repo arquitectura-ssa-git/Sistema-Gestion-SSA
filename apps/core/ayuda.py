@@ -10,7 +10,7 @@ VIDEOS = [
      "pasos": ["Menú <strong>Time Report</strong>.", "Elegí el proyecto u obra y el tipo de tarea.",
                "Escribí las horas (de a media hora).", "¿Más de un proyecto? Tocá <strong>+</strong> y sumá otra línea.",
                "Tocá <strong>Guardar horas</strong>."]},
-    {"titulo": "Cómo crear un proyecto", "archivo": "crear-proyecto", "duracion": "40 segundos", "nota": "Lo hace DIR",
+    {"titulo": "Cómo crear un proyecto", "archivo": "crear-proyecto", "duracion": "40 segundos", "nota": "DIR y Coordinación de Proyectos",
      "pasos": ["Menú <strong>Proyectos</strong> → <strong>Nuevo proyecto</strong>.",
                "Nombre, cliente, tipo y ubicación (el código se genera solo).",
                "Etapa y estado, a la derecha.", "Elegí la plantilla de tareas y tocá <strong>Guardar</strong>.",
@@ -31,10 +31,10 @@ SECCIONES = [
          "https://sophia.saezsanchez.com.ar — sirve igual en la computadora y en el celular. En el celular conviene "
          "agregarla a la pantalla de inicio para usarla como una app."),
         ("¿Con qué usuario entro?",
-         "Con tu email del estudio y la contraseña que te dio Gerencia (DIR). La primera vez, cambiala desde "
+         "Con tu email del estudio y la contraseña que te dieron al darte de alta. La primera vez, cambiala desde "
          "Mi perfil."),
         ("Me olvidé la contraseña",
-         "Pedile a DIR que te ponga una nueva. Nadie puede ver tu contraseña: se guarda cifrada, solo se puede "
+         "Pedile a DIR o a Coordinación de Proyectos que te pongan una nueva. Nadie puede ver tu contraseña: se guarda cifrada, solo se puede "
          "cambiar."),
         ("¿Cómo cambio mi contraseña o mi foto?",
          "Arriba a la derecha, tocá tu nombre → Mi perfil. Ahí cambiás la foto (se recorta sola), tu WhatsApp y "
@@ -70,7 +70,7 @@ SECCIONES = [
     ]),
     ("Crear y cargar un proyecto", "plus-square", [
         ("¿Quién puede crear un proyecto u obra?",
-         "Solo DIR, desde Proyectos → Nuevo proyecto (u Obras → Nueva obra). Después, sus responsables y "
+         "DIR y Coordinación de Proyectos, desde Proyectos → Nuevo proyecto (u Obras → Nueva obra). Después, sus responsables y "
          "Coordinación de Proyectos pueden editarlo."),
         ("¿Qué datos son obligatorios?",
          "Solo el nombre. El código se genera solo (PR-2026-001…) si lo dejás vacío; cliente, tipo, ubicación y "
@@ -85,7 +85,7 @@ SECCIONES = [
          "responsable y la cruz lo quita."),
         ("¿Cómo le asigno el cliente después?",
          "Menú de 3 puntos → Editar datos → Cliente. Si el cliente no existe, usá «+ Cargar un cliente nuevo» "
-         "(Administración y DIR)."),
+         "(Administración, Coordinación de Proyectos y DIR)."),
         ("¿Qué diferencia hay entre proyecto y obra?",
          "Proyecto: diseño, planos y trámites; lo ve todo el personal. Obra: construcción en ejecución; la ve su "
          "equipo (y Coordinación, Administración y DIR). Si un proyecto pasa a obra, en Editar datos cambiás "
@@ -95,7 +95,7 @@ SECCIONES = [
          "fase está (Masterplan, Anteproyecto, Proyecto ejecutivo…). Estado: Activo, Stand by (suspendido "
          "temporalmente) o Superado. Los tres sirven para filtrar la lista."),
         ("Tengo muchos proyectos para cargar",
-         "Usá Proyectos → Importar desde Excel (DIR): bajá la planilla modelo, completala y subila. Se crean "
+         "Usá Proyectos → Importar desde Excel (DIR y Coordinación de Proyectos): bajá la planilla modelo, completala y subila. Se crean "
          "todos juntos con la plantilla que elijas."),
     ]),
     ("Proyectos y obras", "pencil-square", [
@@ -107,9 +107,9 @@ SECCIONES = [
          "Comercial…), Estado (Activo, Stand by, Superado) y Etapa."),
         ("¿Quién puede editar un proyecto?",
          "Sus responsables, Coordinación de Proyectos y DIR, desde el menú de 3 puntos → Editar datos o Editar "
-         "tareas. Crear y eliminar es solo de DIR."),
+         "tareas. Crear y eliminar: DIR y Coordinación de Proyectos."),
         ("Borré un proyecto por error",
-         "No se pierde: va a la papelera. DIR lo restaura desde Proyectos (u Obras) → Papelera."),
+         "No se pierde: va a la papelera. DIR o Coordinación de Proyectos lo restauran desde Proyectos (u Obras) → Papelera."),
     ]),
     ("Tareas y avance", "list-check", [
         ("¿Cómo actualizo el avance?",
@@ -145,7 +145,7 @@ SECCIONES = [
          "demás se reajustan."),
         ("¿Cómo cargo un certificado del contratista?",
          "En la obra → Tareas → Importar certificado (Excel). El listado queda igual al del certificado y cada "
-         "avance queda en el historial con la fecha. Los montos solo los ven DIR y Administración."),
+         "avance queda en el historial con la fecha. Los montos solo los ven DIR, Administración y Coordinación de Proyectos."),
         ("¿Dónde veo cuánto tardó cada tarea?",
          "Pestaña Historial de avance (DIR, Coordinación y Administración): fecha de inicio, fin y días de cada "
          "ítem."),
@@ -153,7 +153,7 @@ SECCIONES = [
     ("Informe diario de obra", "journal-richtext", [
         ("¿Quién carga el informe diario?",
          "El DT asignado a la obra (por Dirección Técnica), desde el celular o la computadora: Dashboard → «Informe "
-         "diario de hoy», o en la obra → pestaña Informes diarios. Lo leen DIR y Coordinación de Obras."),
+         "diario de hoy», o en la obra → pestaña Informes diarios. Lo leen DIR y Coordinación (de Obras y de Proyectos)."),
         ("¿Qué lleva el informe?",
          "- Clima: sol o lluvia; si llovió, si se pudo trabajar.\n"
          "- Cuántas personas hubo de cada gremio.\n"

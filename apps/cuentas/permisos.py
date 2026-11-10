@@ -70,12 +70,25 @@ def pertenece_a(u, *codigos):
 
 # --- Personal y clientes ---------------------------------------------------
 
+def es_coordinador_proyectos(u):
+    """Responsable de Gestión de Proyectos: además de lo de Coordinación, crea y elimina proyectos y obras, ve
+    montos, lee los informes diarios, gestiona clientes y da de alta al personal (sin tocar a Gerencia)."""
+    return es_responsable_de(u, A.GESTION_PROYECTOS)
+
+
 def puede_gestionar_personal(u):
-    return es_gerencia(u)
+    return es_gerencia(u) or es_coordinador_proyectos(u)
+
+
+def puede_editar_persona(u, persona):
+    """Coordinación de Proyectos no edita a quien es de Gerencia (ni puede asignar esa área)."""
+    if es_gerencia(u):
+        return True
+    return es_coordinador_proyectos(u) and not persona.membresias.filter(area__codigo=A.GERENCIA).exists()
 
 
 def puede_gestionar_clientes(u):
-    return pertenece_a(u, A.GESTION_ADMINISTRATIVA)
+    return pertenece_a(u, A.GESTION_ADMINISTRATIVA) or es_coordinador_proyectos(u)
 
 
 # --- Obras -----------------------------------------------------------------
@@ -90,8 +103,8 @@ def ve_todas_las_obras(u):
 
 
 def puede_ver_montos(u):
-    """Presupuestos y certificados de obra: Gerencia y el responsable de Gestión Administrativa."""
-    return es_gerencia(u) or es_responsable_de(u, A.GESTION_ADMINISTRATIVA)
+    """Presupuestos y certificados de obra: Gerencia, el responsable de Gestión Administrativa y Coordinación de Proyectos."""
+    return es_gerencia(u) or es_responsable_de(u, A.GESTION_ADMINISTRATIVA) or es_coordinador_proyectos(u)
 
 
 def puede_ver_historial_avance(u):
@@ -152,12 +165,12 @@ def trabaja_en(u, obra):
 
 
 def puede_crear_obra(u):
-    return es_gerencia(u)
+    return es_gerencia(u) or es_coordinador_proyectos(u)
 
 
 def puede_eliminar_obra(u):
-    """Mandar un proyecto u obra a la papelera (y restaurarlo): Gerencia."""
-    return es_gerencia(u)
+    """Mandar un proyecto u obra a la papelera (y restaurarlo): Gerencia y Coordinación de Proyectos."""
+    return es_gerencia(u) or es_coordinador_proyectos(u)
 
 
 def puede_editar_obra(u, obra):
@@ -182,8 +195,9 @@ def puede_ver_informes(u, obra):
 
 
 def ve_informes_de_todas(u):
-    """DIR y Coordinación de Obras: leen los informes de todas las obras y ven en el Dashboard cuáles faltan."""
-    return es_gerencia(u) or es_responsable_de(u, A.GESTION_OBRAS)
+    """DIR y Coordinación (de Obras y de Proyectos): leen los informes de todas las obras y ven en el Dashboard
+    cuáles faltan."""
+    return es_gerencia(u) or es_coordinador(u)
 
 
 def puede_editar_gremios(u):

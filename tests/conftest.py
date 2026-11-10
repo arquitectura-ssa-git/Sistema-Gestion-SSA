@@ -38,6 +38,11 @@ def coordinador(db):
 
 
 @pytest.fixture
+def coord_obras(db):
+    return persona("coordobras@ssa.test", (A.GESTION_OBRAS, "responsable"))
+
+
+@pytest.fixture
 def administracion(db):
     return persona("admin@ssa.test", (A.GESTION_ADMINISTRATIVA, "responsable"))
 

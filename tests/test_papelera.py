@@ -6,9 +6,10 @@ from apps.obras.models import Obra
 from .conftest import asignar, cliente_de
 
 
-def test_solo_dir_puede_eliminar(coordinador, comun, obra):
+def test_eliminan_solo_dir_y_coordinacion_de_proyectos(coordinador, coord_obras, comun, obra, proyectos):
     asignar(comun, obra, responsable=True)
-    for u in (coordinador, comun):
+    assert cliente_de(coordinador).post(f"/obras/{proyectos[0].pk}/eliminar/").status_code == 302
+    for u in (coord_obras, comun):
         assert cliente_de(u).post(f"/obras/{obra.pk}/eliminar/").status_code == 403
     obra.refresh_from_db()
     assert not obra.eliminada
