@@ -59,7 +59,7 @@
       </div>
     </div>
     <div class="tarjeta">
-      <div class="tarjeta-cabecera"><h2>Obras</h2>{% if perm.gerencia %}<a href="{% url 'obras:nueva' %}?cliente={{ cliente.pk }}" class="btn btn-sm btn-outline-dark"><i class="bi bi-plus-lg"></i> Nueva obra</a>{% endif %}</div>
+      <div class="tarjeta-cabecera"><h2>Obras</h2>{% if perm.crear_obras %}<a href="{% url 'obras:nueva' %}?cliente={{ cliente.pk }}" class="btn btn-sm btn-outline-dark"><i class="bi bi-plus-lg"></i> Nueva obra</a>{% endif %}</div>
       <ul class="list-group list-group-flush">
         {% for o in obras %}
           <a href="{% url 'obras:detalle' o.pk %}" class="list-group-item list-group-item-action d-flex justify-content-between"><span>{{ o }}</span>{% include "obras/_etapa.html" with obra=o %}</a>

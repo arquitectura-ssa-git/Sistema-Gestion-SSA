@@ -17,6 +17,7 @@ def globales(request):
         "personal": permisos.es_personal(usuario),
         "cliente": permisos.es_cliente(usuario),
         "clientes": permisos.puede_gestionar_clientes(usuario),
+        "crear_obras": permisos.puede_crear_obra(usuario),
         "auditoria": permisos.puede_ver_auditoria_global(usuario),
     }
     contexto["perm"] = perm

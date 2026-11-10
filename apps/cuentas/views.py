@@ -60,13 +60,15 @@ def _grupo_de(persona):
 
 @permisos.solo_personal
 def personal_lista(request):
-    """Equipo: todo el personal agrupado. Lo ve todo el estudio; solo Gerencia agrega y edita."""
+    """Equipo: todo el personal agrupado. Lo ve todo el estudio; Gerencia y Coordinación de Proyectos agregan y
+    editan."""
     puede_gestionar = permisos.puede_gestionar_personal(request.user)
     personas = Usuario.objects.filter(tipo=Usuario.Tipo.PERSONAL).prefetch_related("membresias__area")
     if not (puede_gestionar and request.GET.get("inactivos") == "1"):
         personas = personas.filter(is_active=True)
     grupos = {titulo: [] for titulo in _ORDEN_GRUPOS}
     for p in personas:
+        p.editable = puede_gestionar and permisos.puede_editar_persona(request.user, p)
         grupos[_grupo_de(p)].append(p)
     secciones = [(titulo, sorted(lista, key=lambda p: (p.first_name.lower(), p.last_name.lower())))
                  for titulo, lista in grupos.items() if lista]
@@ -75,10 +77,16 @@ def personal_lista(request):
     })
 
 
-@permisos.solo_gerencia
+@permisos.solo_personal
 def persona_form(request, pk=None):
+    """Alta y edición del personal: Gerencia y Coordinación de Proyectos (que no edita a Gerencia ni asigna esa
+    área)."""
+    permisos.exigir(permisos.puede_gestionar_personal(request.user))
     persona = get_object_or_404(Usuario, pk=pk, tipo=Usuario.Tipo.PERSONAL) if pk else None
-    form = PersonaForm(request.POST or None, instance=persona)
+    if persona:
+        permisos.exigir(permisos.puede_editar_persona(request.user, persona))
+    form = PersonaForm(request.POST or None, instance=persona,
+                       con_gerencia=permisos.es_gerencia(request.user))
     if request.method == "POST" and form.is_valid():
         es_alta = persona is None
         persona = form.save()

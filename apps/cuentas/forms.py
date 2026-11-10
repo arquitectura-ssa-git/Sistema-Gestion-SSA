@@ -54,7 +54,7 @@ class PersonaForm(_ConClaveInicial):
 
     DIAS = [("lun", "Lun"), ("mar", "Mar"), ("mie", "Mié"), ("jue", "Jue"), ("vie", "Vie")]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, con_gerencia=True, **kwargs):
         super().__init__(*args, **kwargs)
         # Cada día hábil: una casilla "viene" y sus horas. Sin tildar, ese día no tiene horas contratadas.
         for dia, nombre in self.DIAS:
@@ -65,7 +65,8 @@ class PersonaForm(_ConClaveInicial):
             self.fields[f"viene_{dia}"] = forms.BooleanField(label=nombre, required=False, initial=bool(valor))
             if not valor:
                 self.initial[f"horas_{dia}"] = ""
-        self.areas = list(Area.objects.all())
+        # Quien no es de Gerencia no ve ni toca esa área (no puede darse ni dar permisos de Gerencia).
+        self.areas = [a for a in Area.objects.all() if con_gerencia or a.codigo != Area.Codigo.GERENCIA]
         actuales = {}
         if self.instance.pk:
             actuales = {m.area_id: m.rol for m in self.instance.membresias.all()}

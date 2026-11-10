@@ -86,7 +86,8 @@ def test_planilla_sin_columna_nombre(dir_):
     assert "No encontré la columna «Nombre»" in html
 
 
-def test_solo_dir_importa(coordinador, comun):
-    for u in (coordinador, comun):
+def test_importan_solo_dir_y_coordinacion_de_proyectos(coordinador, coord_obras, comun):
+    assert cliente_de(coordinador).get("/proyectos/importar/").status_code == 200
+    for u in (coord_obras, comun):
         assert cliente_de(u).get("/proyectos/importar/").status_code == 403
         assert "Importar desde Excel" not in cliente_de(u).get("/proyectos/").content.decode()

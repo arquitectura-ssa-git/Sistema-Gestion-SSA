@@ -49,14 +49,15 @@ def test_editar_tareas_solo_responsables_y_dir(comun, otro, dir_, obra):
     assert respuesta.status_code == 403
 
 
-def test_montos_solo_dir_y_administracion(dir_, administracion, coordinador, comun, obra):
+def test_montos_dir_administracion_y_coordinacion_de_proyectos(dir_, administracion, coordinador, coord_obras,
+                                                                 comun, obra):
     asignar(comun, obra, responsable=True)
-    assert permisos.puede_ver_montos(dir_)
-    assert permisos.puede_ver_montos(administracion)
-    assert not permisos.puede_ver_montos(coordinador)
+    for u in (dir_, administracion, coordinador):
+        assert permisos.puede_ver_montos(u)
+        assert "tab=certificados" in cliente_de(u).get(f"/obras/{obra.pk}/").content.decode()
+    assert not permisos.puede_ver_montos(coord_obras)
     assert not permisos.puede_ver_montos(comun)
-    assert "tab=certificados" in cliente_de(administracion).get(f"/obras/{obra.pk}/").content.decode()
-    for u in (coordinador, comun):
+    for u in (coord_obras, comun):
         html = cliente_de(u).get(f"/obras/{obra.pk}/?tab=certificados").content.decode()
         assert "tab=certificados" not in html
         assert "Presupuesto total" not in html
@@ -111,3 +112,27 @@ def test_coordinacion_de_obras_no_edita_lo_ajeno(obra):
 
     coord_obras = persona("cobras@ssa.test", (A.GESTION_OBRAS, "responsable"))
     assert not permisos.puede_editar_obra(coord_obras, obra)
+
+
+def test_coordinacion_de_proyectos_crea_gestiona_clientes_y_lee_informes(coordinador, obra):
+    c = cliente_de(coordinador)
+    assert c.get("/proyectos/nuevo/").status_code == 200
+    assert c.get("/personal/clientes/").status_code == 200
+    assert permisos.puede_ver_informes(coordinador, obra) and not permisos.puede_cargar_informe(coordinador, obra)
+
+
+def test_coordinacion_de_proyectos_da_de_alta_personal_pero_no_toca_gerencia(coordinador, dir_, comun):
+    from apps.cuentas.models import Usuario
+
+    c = cliente_de(coordinador)
+    html = c.get("/personal/nueva/").content.decode()
+    assert c.get("/personal/nueva/").status_code == 200 and "area_gerencia" not in html
+    r = c.post("/personal/nueva/", {"first_name": "Nueva", "last_name": "Persona", "email": "nueva@ssa.test",
+                                    "area_desarrollo_proyectos": "integrante", "area_gerencia": "responsable",
+                                    "is_active": "on"})
+    assert r.status_code == 302
+    nueva = Usuario.objects.get(email="nueva@ssa.test")
+    assert list(nueva.membresias.values_list("area__codigo", flat=True)) == ["desarrollo_proyectos"]
+    assert c.get(f"/personal/{dir_.pk}/editar/").status_code == 403
+    assert c.get(f"/personal/{comun.pk}/editar/").status_code == 200
+    assert cliente_de(comun).get("/personal/nueva/").status_code == 403

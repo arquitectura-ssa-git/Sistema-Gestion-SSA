@@ -45,7 +45,7 @@
           </td>
           <td class="small">{{ p.telefono|default:"—" }}</td>
           <td class="text-end">
-            {% if puede_gestionar %}
+            {% if p.editable %}
             <div class="dropdown">
               <button class="btn btn-sm btn-acciones" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Acciones de {{ p.nombre_completo }}"><i class="bi bi-three-dots"></i></button>
               <ul class="dropdown-menu dropdown-menu-end">
