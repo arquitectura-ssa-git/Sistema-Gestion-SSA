@@ -62,12 +62,55 @@ def resumen_semana(usuario, lunes):
             "total_feriado": sum((c["pagadas"] for c in cols), CERO)}
 
 
+def semana_equipo(lunes, hoy):
+    """Para DIR: cada persona que carga × días de la semana, con lo que falta cargar en los días hábiles."""
+    from apps.cuentas.models import Area, Usuario
+
+    dias = [lunes + timedelta(days=i) for i in range(7)]
+    feriados = reglas.feriados_en(dias[0], dias[-1])
+    personas = (Usuario.objects.filter(tipo=Usuario.Tipo.PERSONAL, is_active=True)
+                .exclude(membresias__area__codigo=Area.Codigo.GERENCIA).order_by("first_name", "last_name"))
+    horas = {}
+    for r in (RegistroHoras.objects.filter(fecha__range=(dias[0], dias[-1]))
+              .values("usuario_id", "fecha", "extra").annotate(h=Sum("horas"))):
+        celda = horas.setdefault((r["usuario_id"], r["fecha"]), {"normal": CERO, "extra": CERO})
+        celda["extra" if r["extra"] else "normal"] += r["h"]
+    filas = []
+    for p in personas:
+        celdas, total, extra, faltan = [], CERO, CERO, 0
+        for d in dias:
+            c = horas.get((p.pk, d), {"normal": CERO, "extra": CERO})
+            contratadas = reglas.horas_contratadas(p, d, feriados)
+            falta = d <= hoy and contratadas > 0 and not (c["normal"] or c["extra"])
+            faltan += falta
+            total += c["normal"] + c["extra"]
+            extra += c["extra"]
+            celdas.append({"total": c["normal"] + c["extra"], "extra": c["extra"], "contratadas": contratadas,
+                           "falta": falta})
+        filas.append({"persona": p, "celdas": celdas, "total": total, "extra": extra, "faltan": faltan,
+                      "semanales": p.horas_semanales})
+    cols = [{"fecha": d, "nombre": DIAS[i], "feriado": feriados.get(d)} for i, d in enumerate(dias)]
+    return {"filas": filas, "dias": cols, "total": sum((f["total"] for f in filas), CERO),
+            "faltan": sum(f["faltan"] for f in filas)}
+
+
 @permisos.solo_personal
 def mio(request):
-    """Mi Time Report: la semana y la carga del día elegido (hoy, o un día pasado habilitado)."""
+    """Mi Time Report: la semana y la carga del día elegido (hoy, o un día pasado habilitado). DIR no carga horas:
+    ve la semana de todo el equipo y gestiona tipos de tarea, pedidos, reportes y feriados."""
     u = request.user
     hoy = reglas.hoy()
     dia = min(_fecha(request.GET.get("dia"), hoy), hoy)
+    if not reglas.carga_horas(u):
+        if request.method == "POST":
+            messages.error(request, "DIR no carga horas en el Time Report.")
+            return redirect("horas:mio")
+        lunes = reglas.lunes_de(dia)
+        return render(request, "horas/equipo.html", {
+            "hoy": hoy, "lunes": lunes, "equipo": semana_equipo(lunes, hoy),
+            "semana_anterior": lunes - timedelta(days=7), "semana_siguiente": lunes + timedelta(days=7),
+            "pendientes": Habilitacion.objects.filter(estado=Habilitacion.Estado.PENDIENTE).count(),
+        })
     editable = reglas.puede_editar(u, dia)
     formset = None
     if editable:
@@ -108,6 +151,7 @@ def mio(request):
 def repetir(request):
     """Copia las cargas del último día con horas (antes del elegido) al día elegido, si está vacío."""
     u = request.user
+    permisos.exigir(reglas.carga_horas(u))
     dia = min(_fecha(request.POST.get("dia"), reglas.hoy()), reglas.hoy())
     if not reglas.puede_editar(u, dia):
         messages.error(request, "Ese día no se puede editar.")
@@ -130,6 +174,7 @@ def repetir(request):
 @require_POST
 def pedir(request):
     u = request.user
+    permisos.exigir(reglas.carga_horas(u))
     dia = _fecha(request.POST.get("dia"), None)
     form = PedidoForm(request.POST)
     if not dia or dia >= reglas.hoy():

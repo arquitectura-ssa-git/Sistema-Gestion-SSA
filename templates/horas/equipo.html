@@ -1,0 +1,49 @@
+{% extends "base.html" %}{% load core_tags %}
+{% block titulo %}Time Report del equipo{% endblock %}
+{% block contenido %}
+<div class="pagina-titulo">
+  <div>
+    <h1>Time Report del equipo</h1>
+    <div class="small text-muted">Semana del {{ equipo.dias.0.fecha|date:"d/m" }} al {{ equipo.dias.6.fecha|date:"d/m/Y" }} · {{ equipo.total|pct:1 }} h cargadas{% if equipo.faltan %} · {{ equipo.faltan }} día{{ equipo.faltan|pluralize }} hábil{{ equipo.faltan|pluralize:"es" }} sin cargar{% endif %}</div>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <a href="?dia={{ semana_anterior|date:'Y-m-d' }}" class="btn btn-outline-secondary" title="Semana anterior" aria-label="Semana anterior"><i class="bi bi-chevron-left"></i></a>
+    <a href="?" class="btn btn-outline-secondary">Hoy</a>
+    {% if semana_siguiente <= hoy %}<a href="?dia={{ semana_siguiente|date:'Y-m-d' }}" class="btn btn-outline-secondary" title="Semana siguiente" aria-label="Semana siguiente"><i class="bi bi-chevron-right"></i></a>{% endif %}
+    <a href="{% url 'horas:tipos' %}" class="btn btn-outline-dark">Tipos de tarea</a>
+    <a href="{% url 'horas:feriados' %}" class="btn btn-outline-dark">Feriados</a>
+    <a href="{% url 'horas:habilitaciones' %}" class="btn btn-outline-dark">Pedidos{% if pendientes %} <span class="badge text-bg-secondary">{{ pendientes }}</span>{% endif %}</a>
+    <a href="{% url 'horas:reportes' %}" class="btn btn-dark">Reportes</a>
+  </div>
+</div>
+
+<div class="tarjeta">
+  <div class="table-responsive">
+    <table class="table table-tarjeta tabla-semana tabla-equipo">
+      <thead>
+        <tr>
+          <th>Persona</th>
+          {% for d in equipo.dias %}
+          <th class="text-end{% if d.fecha == hoy %} dia-activo{% endif %}{% if d.feriado %} dia-feriado{% endif %}"{% if d.feriado %} title="Feriado: {{ d.feriado.nombre }}"{% endif %}>{{ d.nombre }} {{ d.fecha|date:"d" }}{% if d.feriado %}<div class="etiqueta-feriado">Feriado</div>{% endif %}</th>
+          {% endfor %}
+          <th class="text-end">Semana</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for f in equipo.filas %}
+        <tr>
+          <td><span class="d-inline-flex align-items-center gap-2">{% include "includes/avatar.html" with persona=f.persona tam=28 %}{{ f.persona.nombre_completo }}</span></td>
+          {% for c in f.celdas %}
+          <td class="text-end">{% if c.total %}{{ c.total|pct:1 }}{% if c.extra %}<div class="small text-muted">{{ c.extra|pct:1 }} extra</div>{% endif %}{% elif c.falta %}<span class="sin-cargar">Sin cargar</span>{% else %}<span class="text-muted">—</span>{% endif %}</td>
+          {% endfor %}
+          <td class="text-end fw-semibold">{{ f.total|pct:1 }}<span class="text-muted fw-normal">/{{ f.semanales|pct:1 }}</span></td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="9"><div class="lista-vacia"><i class="bi bi-people"></i>No hay personal que cargue horas.</div></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+<p class="small text-muted mt-3">DIR no carga horas: ve las del equipo. «Sin cargar» marca los días hábiles con jornada en los que esa persona todavía no cargó nada. El detalle por proyecto, persona o tipo de tarea está en Reportes.</p>
+{% endblock %}

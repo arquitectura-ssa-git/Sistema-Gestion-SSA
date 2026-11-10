@@ -71,3 +71,18 @@ def test_una_linea_nueva_sin_tocar_se_ignora(comun):
     assert cliente_de(comun).post("/horas/", datos).status_code == 302
     r.refresh_from_db()
     assert r.horas == 3 and RegistroHoras.objects.count() == 1
+
+
+def test_dir_no_carga_horas_y_ve_las_del_equipo(dir_, comun):
+    from apps.horas.reglas import hoy
+
+    RegistroHoras.objects.create(usuario=comun, fecha=hoy(), tipo="produccion", horas=3, extra=True)
+    c = cliente_de(dir_)
+    html = c.get("/horas/").content.decode()
+    assert "Time Report del equipo" in html and comun.nombre_completo in html
+    assert "Guardar horas" not in html and 'href="/horas/tipos/"' in html
+    datos = {"form-TOTAL_FORMS": "1", "form-INITIAL_FORMS": "0", "form-MIN_NUM_FORMS": "0", "form-MAX_NUM_FORMS": "1000",
+             "form-0-tipo": "produccion", "form-0-horas": "2", "form-0-extra": "on"}
+    c.post("/horas/", datos)
+    assert not RegistroHoras.objects.filter(usuario=dir_).exists()
+    assert c.post("/horas/repetir/", {"dia": hoy().isoformat()}).status_code == 403

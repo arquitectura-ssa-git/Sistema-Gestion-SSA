@@ -510,3 +510,6 @@ a.dir-kpi:hover { border-color: #9c9b95; color: inherit; }
 .dir-hito .dir-dia div { font-size: 1.1rem; }
 .dir-hito .dir-dia small { font-size: .65rem; text-transform: uppercase; color: #5b5b57; }
 .dir-horas-obra { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); column-gap: 2rem; }
+
+/* Time Report del equipo (DIR) */
+.tabla-equipo .sin-cargar { font-size: .78rem; font-weight: 500; border: 1px solid var(--ssa-negro); border-radius: 999px; padding: .1rem .5rem; white-space: nowrap; }
