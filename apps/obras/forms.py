@@ -19,6 +19,7 @@ class ObraForm(forms.ModelForm):
         fields = ["tipo", "codigo", "nombre", "cliente", "uso", "direccion", "localidad", "superficie_m2", "descripcion",
                   "etapa", "estado", "fecha_inicio", "fecha_fin_estimada", "avance"]
         widgets = {
+            "nombre": forms.TextInput(attrs={"class": "en-mayusculas"}),
             "descripcion": forms.Textarea(attrs={"rows": 3}),
             "fecha_inicio": FechaInput(),
             "fecha_fin_estimada": FechaInput(),
@@ -109,7 +110,7 @@ class HitoForm(forms.ModelForm):
 
 
 class DuplicarObraForm(forms.Form):
-    nombre = forms.CharField(max_length=200)
+    nombre = forms.CharField(max_length=200, widget=forms.TextInput(attrs={"class": "en-mayusculas"}))
     cliente = forms.ModelChoiceField(queryset=None, required=False, empty_label="Sin cliente por ahora")
     copiar_equipo = forms.BooleanField(label="Copiar el equipo (personas, áreas y responsables)", required=False,
                                        initial=True)
