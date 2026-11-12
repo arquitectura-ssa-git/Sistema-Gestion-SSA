@@ -560,3 +560,6 @@ a.dir-kpi:hover { border-color: #9c9b95; color: inherit; }
 /* Time Report del equipo más compacto: dos renglones justos por fila */
 .tabla-equipo tbody td { height: 3.4rem; padding-top: .3rem; padding-bottom: .3rem; line-height: 1.2; }
 .tabla-equipo tbody td .small { line-height: 1.1; }
+/* Agenda compacta, mismo criterio que el Time Report del equipo */
+.tabla-agenda tbody td { height: 3.4rem; padding-top: .3rem; padding-bottom: .3rem; line-height: 1.2; }
+.tabla-agenda tbody td .small { line-height: 1.1; }
