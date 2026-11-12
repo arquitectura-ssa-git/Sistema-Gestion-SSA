@@ -3,6 +3,8 @@ from decimal import Decimal
 from django import forms
 from django.contrib.auth.password_validation import validate_password
 
+from apps.core.telefono import TelefonoField
+
 from .models import Area, Cliente, MiembroArea, Usuario
 
 
@@ -46,6 +48,8 @@ class _ConClaveInicial(forms.ModelForm):
 
 
 class PersonaForm(_ConClaveInicial):
+    telefono = TelefonoField(label="WhatsApp")
+
     class Meta:
         model = Usuario
         fields = ["first_name", "last_name", "email", "cargo", "telefono",
@@ -138,6 +142,8 @@ class PersonaForm(_ConClaveInicial):
 
 
 class ClienteForm(forms.ModelForm):
+    telefono = TelefonoField(label="Teléfono")
+
     class Meta:
         model = Cliente
         fields = ["apellido", "nombres", "cuit", "email", "telefono", "direccion", "notas"]
@@ -147,6 +153,8 @@ class ClienteForm(forms.ModelForm):
 
 
 class ContactoClienteForm(_ConClaveInicial):
+    telefono = TelefonoField(label="WhatsApp")
+
     class Meta:
         model = Usuario
         fields = ["first_name", "last_name", "email", "telefono", "notif_email", "notif_whatsapp", "is_active"]
@@ -193,6 +201,8 @@ def preparar_foto(archivo):
 
 
 class PerfilForm(forms.ModelForm):
+    telefono = TelefonoField(label="WhatsApp")
+
     foto_nueva = forms.FileField(label="Foto de perfil", required=False,
                                  widget=forms.FileInput(attrs={"accept": "image/*"}),
                                  help_text="Una foto tuya, de frente. Se recorta cuadrada.")

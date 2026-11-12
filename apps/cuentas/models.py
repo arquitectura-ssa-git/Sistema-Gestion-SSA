@@ -88,7 +88,7 @@ class Usuario(AbstractUser):
     provincia = models.CharField(max_length=60, blank=True)
     telefono = models.CharField(
         "WhatsApp", max_length=30, blank=True,
-        help_text="Con código de país, ej: +5491122334455",
+        help_text="País, característica y número, ej: +54 381 300-4288",
     )
     cliente = models.ForeignKey(
         Cliente, null=True, blank=True, on_delete=models.PROTECT, related_name="usuarios",
