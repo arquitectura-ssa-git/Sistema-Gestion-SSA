@@ -44,6 +44,9 @@ Qué puede hacer cada uno:
 | Leer los informes diarios | DIR, Coordinación (de Obras y de Proyectos) y el DT de la obra |
 | Autorizar cargar o corregir un informe de un día que ya cerró | DIR |
 | Editar la lista de gremios | Los DT, Coordinación de Obras y DIR |
+| **Asistente de Dirección** (perfil que asigna DIR; es del equipo de Administración) | Ve todos los proyectos y obras con su avance, los informes diarios y el historial de avance; **no ve montos ni certificados**; no edita proyectos ni obras; gestiona Legajos, Clientes y Agenda; **no carga Time Report**: su jornada se computa sola como Administración (lunes a viernes; los feriados como el resto) y DIR marca sus vacaciones o ausencias |
+| Ver y gestionar los **Legajos** del personal (DNI, título, confidencialidad, contrato o pasantía, otros) | Solo DIR y Asistente de Dirección |
+| Gestionar la **Agenda** de contactos | DIR, Coordinación de Proyectos y el equipo de Gestión Administrativa (Asistente de Dirección incluida) |
 | Ver el **historial de avance** | DIR, Coordinación y el responsable de Gestión Administrativa |
 | Importar un certificado de avance (Excel) — solo en **obras**, no en proyectos | Responsables de la obra, DIR y el responsable de Gestión Administrativa |
 | Subir archivos | A un proyecto u obra: su equipo asignado, Coordinación y DIR. A la Biblioteca general: todo el personal |
@@ -182,6 +185,8 @@ explica por qué.
 | Clientes | Fichas de clientes y sus contactos; se pueden eliminar si no tienen proyectos, obras ni contactos. Apellido o razón social (siempre en mayúsculas) y nombre aparte (inicial en mayúscula); se muestran como «APELLIDO, Nombre» |
 | Time Report | Carga diaria (una línea y «+» para sumar más; tipos de tarea editables por Coordinación de Proyectos y DIR: arrancan con Producción, Gestión, Coordinación, Administración, Compras, Capacitación), extras, «Repetir», habilitaciones, reportes con exportación a Excel, feriados · DIR no carga: ve la semana de todo el equipo (con los días hábiles sin cargar) y gestiona tipos de tarea, feriados, pedidos y reportes |
 | Informe diario de obra | Lo carga el DT (pensado para el celular): clima, si se pudo trabajar, personal por gremio, avance de tareas, fotos, notas de pedido con foto del libro y observaciones. Pestaña «Informes diarios» por obra con resumen; aviso en el Dashboard de las obras sin informe; correcciones con autorización de DIR |
+| Legajos | Pestaña de Equipo: estado de los documentos de cada persona, carga de fotos o PDF, vencimiento de contratos y pasantías; cada carga, consulta o baja queda registrada |
+| Agenda | Contactos filtrables por tipo (Proveedores, Clientes, Equipo y tipos que crea el estudio) con empresa, contacto (APELLIDO, Nombre), teléfono, email, facturación, CUIT, domicilio, CBU/CVU, alias y nota. Los clientes se sincronizan con Clientes en los dos sentidos; el Equipo sale de Equipo |
 | Ayuda | Videos cortos (cargar el Time Report, crear un proyecto, cargar el avance y personalizar las tareas) y preguntas frecuentes con buscador (se editan en apps/core/ayuda.py) |
 | Registro de actividad | Guarda cada acción; no se puede modificar |
 
@@ -229,3 +234,4 @@ aprobación. Cada cambio se anota abajo con fecha y motivo.
 | 10/11/2026 | Dashboard de DIR nuevo, con indicadores, alertas y gráficos | Ver el estado del estudio de un vistazo y planificar | Pablo Saez (lo pidió) |
 | 10/11/2026 | DIR no carga Time Report: ve el del equipo y gestiona los tipos de tarea | Pedido de Pablo | Pablo Saez (lo pidió) |
 | 10/11/2026 | Nombres de proyectos y obras siempre en mayúsculas; eliminar clientes sin trabajos | Pedido de Pablo | Pablo Saez (lo pidió) |
+| 12/11/2026 | Perfil Asistente de Dirección (jornada automática), Legajos y Agenda sincronizada con Clientes | Pedido de Pablo | Pablo Saez (lo pidió) |

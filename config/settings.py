@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "apps.documentos",
     "apps.informes",
     "apps.legajos",
+    "apps.agenda",
     # "apps.notificaciones",
     # "apps.aprobaciones",
     # "apps.comunicados",

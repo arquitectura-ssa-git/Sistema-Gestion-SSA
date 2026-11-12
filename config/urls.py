@@ -23,6 +23,7 @@ urlpatterns = [
     path("cuenta/", include("django.contrib.auth.urls")),
     path("", include("apps.core.urls")),
     path("personal/legajos/", include("apps.legajos.urls")),
+    path("agenda/", include("apps.agenda.urls")),
     path("personal/", include("apps.cuentas.urls")),
     # Se activan a medida que se construye cada sección:
     path("proyectos/", include("apps.obras.urls_proyectos")),

@@ -14,6 +14,7 @@ MENU_PERSONAL = [
         ("documentos:lista", "Documentos", "folder2-open", None),
         ("cuentas:personal", "Equipo", "people", None),
         ("cuentas:clientes", "Clientes", "person-vcard", "clientes"),
+        ("agenda:lista", "Agenda", "journal-bookmark", "agenda"),
         ("plantillas:lista", "Plantillas", "list-check", None),
         ("horas:mio", "Time Report", "clock", None),
         ("core:ayuda", "Ayuda", "question-circle", None),
