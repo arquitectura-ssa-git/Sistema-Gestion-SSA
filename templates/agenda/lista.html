@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block titulo %}Agenda{% endblock %}
+{% block contenido %}
+<div class="pagina-titulo">
+  <div>
+    <h1>Agenda</h1>
+    <div class="small text-muted">Proveedores, clientes, equipo y otros contactos del estudio. Los clientes se comparten con Clientes.</div>
+  </div>
+  <a href="{% url 'agenda:nuevo' %}{% if filtro != 'todos' and filtro != 'equipo' %}?tipo={{ filtro }}{% endif %}" class="btn btn-dark"><i class="bi bi-plus-lg"></i> Nuevo contacto</a>
+</div>
+
+<form method="get" class="d-flex flex-wrap gap-2 align-items-center mb-3">
+  {% for f in filtros %}
+    <a href="?tipo={{ f.codigo }}{% if q %}&amp;q={{ q|urlencode }}{% endif %}" class="btn btn-sm {% if f.codigo == filtro %}btn-dark{% else %}btn-outline-secondary{% endif %}"{% if f.codigo == filtro %} aria-current="true"{% endif %}>{{ f.nombre }} <span class="opacity-75">{{ f.cantidad }}</span></a>
+  {% endfor %}
+  <a href="{% url 'agenda:tipos' %}" class="btn btn-sm btn-outline-secondary agenda-tipo-nuevo">+ Tipo de contacto</a>
+  <input type="hidden" name="tipo" value="{{ filtro }}">
+  <input type="search" name="q" value="{{ q }}" class="form-control form-control-sm ms-auto" placeholder="Empresa, apellido, CUIT…" aria-label="Buscar en la agenda" style="max-width: 16rem">
+</form>
+
+<div class="row g-4">
+  <div class="col-xl-7">
+    <div class="tarjeta">
+      <div class="table-responsive">
+        <table class="table table-hover table-tarjeta">
+          <thead><tr><th>Contacto</th><th>Tipo</th><th>Teléfono</th><th>Email</th></tr></thead>
+          <tbody>
+          {% for c in filas %}
+            <tr{% if elegido and elegido.pk == c.pk %} class="fila-elegida"{% endif %}>
+              <td><a href="?tipo={{ filtro }}&amp;c={{ c.pk }}{% if q %}&amp;q={{ q|urlencode }}{% endif %}" class="text-decoration-none"><span class="fw-semibold d-block">{{ c.titulo }}</span>{% if c.empresa and c.persona %}<span class="small text-muted">{{ c.persona }}</span>{% endif %}</a></td>
+              <td><span class="badge text-bg-light border">{{ c.tipo }}</span></td>
+              <td class="small text-nowrap">{{ c.telefono|default:"—" }}</td>
+              <td class="small">{{ c.email|default:"—" }}</td>
+            </tr>
+          {% endfor %}
+          {% for p in personas %}
+            <tr>
+              <td><span class="d-inline-flex align-items-center gap-2">{% include "includes/avatar.html" with persona=p tam=26 %}<span><span class="fw-semibold d-block">{{ p.last_name|upper }}{% if p.first_name %}, {{ p.first_name }}{% endif %}</span><span class="small text-muted">{{ p.cargo|default:"" }}</span></span></span></td>
+              <td><span class="badge text-bg-light border">Equipo</span></td>
+              <td class="small text-nowrap">{{ p.telefono|default:"—" }}</td>
+              <td class="small">{{ p.email }}</td>
+            </tr>
+          {% endfor %}
+          {% if not filas and not personas %}
+            <tr><td colspan="4"><div class="lista-vacia"><i class="bi bi-journal-bookmark"></i>{% if q %}No hay contactos con «{{ q }}».{% else %}Todavía no hay contactos de este tipo.{% endif %}</div></td></tr>
+          {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="col-xl-5">
+    {% if elegido %}
+    <div class="panel-lateral"><div class="tarjeta"><div class="tarjeta-cuerpo">
+      <div class="d-flex justify-content-between align-items-start gap-2">
+        <div>
+          <span class="badge text-bg-light border">{{ elegido.tipo }}</span>
+          <h2 class="h4 fw-normal mt-2 mb-0">{{ elegido.titulo }}</h2>
+          {% if elegido.empresa and elegido.persona %}<div class="small">Contacto: {{ elegido.persona }}</div>{% endif %}
+        </div>
+        <div class="dropdown">
+          <button class="btn menu-acciones" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Acciones de {{ elegido }}"><i class="bi bi-three-dots"></i></button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="{% url 'agenda:editar' elegido.pk %}">Editar</a></li>
+            {% if elegido.cliente %}<li><a class="dropdown-item" href="{% url 'cuentas:cliente' elegido.cliente.pk %}">Ver en Clientes</a></li>{% endif %}
+            <li><form method="post" action="{% url 'agenda:eliminar' elegido.pk %}" onsubmit="return confirm('¿Eliminar {{ elegido|escapejs }} de la agenda?{% if elegido.cliente %} También se borra de Clientes.{% endif %}')">{% csrf_token %}<button class="dropdown-item text-danger">Eliminar</button></form></li>
+          </ul>
+        </div>
+      </div>
+      <dl class="agenda-ficha mt-3 mb-0">
+        <div><dt>Teléfono</dt><dd>{{ elegido.telefono|default:"—" }}</dd></div>
+        <div><dt>Email</dt><dd>{{ elegido.email|default:"—" }}</dd></div>
+        <div><dt>CUIT / DNI</dt><dd>{{ elegido.cuit|default:"—" }}</dd></div>
+        <div><dt>CBU / CVU</dt><dd>{{ elegido.cbu|default:"—" }}</dd></div>
+        <div class="ancho"><dt>Alias</dt><dd>{{ elegido.alias|default:"—" }}</dd></div>
+        <div class="ancho"><dt>Domicilio</dt><dd>{{ elegido.domicilio|default:"—" }}</dd></div>
+        <div class="ancho"><dt>Datos de facturación</dt><dd class="texto-libre">{{ elegido.facturacion|default:"—" }}</dd></div>
+        <div class="ancho"><dt>Nota</dt><dd class="texto-libre">{{ elegido.nota|default:"—" }}</dd></div>
+      </dl>
+    </div></div></div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

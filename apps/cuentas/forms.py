@@ -49,7 +49,7 @@ class PersonaForm(_ConClaveInicial):
     class Meta:
         model = Usuario
         fields = ["first_name", "last_name", "email", "cargo", "telefono",
-                  "horas_lun", "horas_mar", "horas_mie", "horas_jue", "horas_vie", "is_active"]
+                  "horas_lun", "horas_mar", "horas_mie", "horas_jue", "horas_vie", "is_active", "asistente_direccion"]
         labels = {"first_name": "Nombre", "last_name": "Apellido", "is_active": "Activo (puede ingresar)"}
 
     DIAS = [("lun", "Lun"), ("mar", "Mar"), ("mie", "Mié"), ("jue", "Jue"), ("vie", "Vie")]
@@ -67,6 +67,8 @@ class PersonaForm(_ConClaveInicial):
                 self.initial[f"horas_{dia}"] = ""
         # Quien no es de Gerencia no ve ni toca esa área (no puede darse ni dar permisos de Gerencia).
         self.areas = [a for a in Area.objects.all() if con_gerencia or a.codigo != Area.Codigo.GERENCIA]
+        if not con_gerencia:
+            self.fields.pop("asistente_direccion")  # da acceso a los Legajos: solo lo asigna DIR
         actuales = {}
         if self.instance.pk:
             actuales = {m.area_id: m.rol for m in self.instance.membresias.all()}
@@ -106,6 +108,12 @@ class PersonaForm(_ConClaveInicial):
         usuario = super().save(commit=False)
         usuario.tipo = Usuario.Tipo.PERSONAL
         usuario.cliente = None
+        if usuario.asistente_direccion and not usuario.tr_automatico_desde:
+            from apps.horas.reglas import hoy
+
+            usuario.tr_automatico_desde = hoy()  # la jornada automática se computa desde hoy
+        elif not usuario.asistente_direccion:
+            usuario.tr_automatico_desde = None
         self._aplicar_clave(usuario)
         usuario.save()
         self._guardar_areas(usuario)

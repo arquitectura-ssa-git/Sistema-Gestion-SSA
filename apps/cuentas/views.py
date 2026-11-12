@@ -74,6 +74,7 @@ def personal_lista(request):
                  for titulo, lista in grupos.items() if lista]
     return render(request, "cuentas/personal_lista.html", {
         "secciones": secciones, "areas": _areas_ordenadas(), "puede_gestionar": puede_gestionar,
+        "puede_ver_legajos": permisos.puede_ver_legajos(request.user),
     })
 
 

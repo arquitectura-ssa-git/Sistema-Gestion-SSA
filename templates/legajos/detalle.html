@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load core_tags %}
+{% block titulo %}Legajo · {{ persona.nombre_completo }}{% endblock %}
+{% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'cuentas:personal' %}">Equipo</a></li><li class="breadcrumb-item"><a href="{% url 'legajos:lista' %}">Legajos</a></li><li class="breadcrumb-item active">{{ persona.nombre_completo }}</li></ol></nav>{% endblock %}
+{% block contenido %}
+<div class="pagina-titulo">
+  <div class="d-flex align-items-center gap-3">
+    {% include "includes/avatar.html" with persona=persona tam=64 %}
+    <div>
+      <h1>{{ persona.nombre_completo }}</h1>
+      <div class="small text-muted">{{ persona.cargo|default:"" }}{% for m in persona.membresias.all %}{% if forloop.first and persona.cargo %} · {% endif %}{{ m.area.nombre }}{% if not forloop.last %} · {% endif %}{% endfor %}</div>
+    </div>
+  </div>
+  {% if faltan %}<span class="etiqueta-falta grande">Faltan {{ faltan }} documento{{ faltan|pluralize }}</span>{% else %}<span class="small text-muted">Legajo completo</span>{% endif %}
+</div>
+
+<div class="row g-4">
+  <div class="col-xl-8">
+    {% for s in secciones %}
+    <section class="tarjeta mb-3 legajo-doc">
+      <div class="tarjeta-cuerpo">
+        <div class="d-flex flex-wrap justify-content-between gap-2 align-items-center">
+          <h2 class="h6 mb-0">{{ s.titulo }} {% if not s.docs %}<span class="etiqueta-falta ms-1">Falta</span>{% endif %}</h2>
+        </div>
+        {% for d in s.docs %}
+        <div class="legajo-archivo">
+          <span class="legajo-formato">{{ d.formato }}</span>
+          <div class="flex-grow-1 min-w-0">
+            <div class="small fw-semibold text-truncate">{{ d.nombre_original|default:d.titulo }}</div>
+            <div class="small text-muted">Subido el {{ d.subido|date:"d/m/Y" }} por {{ d.subido_por.nombre_completo|default:"—" }}{% if d.vence %} · <span class="{% if d.vence <= limite_aviso %}fw-semibold text-body{% endif %}">vence el {{ d.vence|date:"d/m/Y" }}</span>{% endif %}</div>
+          </div>
+          <a href="{% url 'legajos:archivo' d.pk %}" target="_blank" class="btn btn-sm btn-outline-secondary">Ver</a>
+          <form method="post" action="{% url 'legajos:quitar' d.pk %}" onsubmit="return confirm('¿Quitar este archivo del legajo?')">{% csrf_token %}<button class="btn btn-sm btn-link text-danger">Quitar</button></form>
+        </div>
+        {% endfor %}
+        <form method="post" enctype="multipart/form-data" class="legajo-subir" novalidate>{% csrf_token %}
+          <input type="hidden" name="tipo" value="{{ s.tipo }}">
+          <input type="file" name="archivo" accept=".pdf,.jpg,.jpeg,.png,.webp,.heic,image/*" class="form-control form-control-sm" aria-label="Archivo para {{ s.titulo }}" required>
+          {% if s.con_vencimiento %}<label class="small text-muted d-flex align-items-center gap-1">Vence <input type="date" name="vence" class="form-control form-control-sm" style="width: 10rem"></label>{% endif %}
+          <button class="btn btn-sm btn-dark">{% if s.docs %}Agregar otro{% else %}Subir foto o PDF{% endif %}</button>
+        </form>
+      </div>
+    </section>
+    {% endfor %}
+
+    <section class="tarjeta mb-3 legajo-doc">
+      <div class="tarjeta-cuerpo">
+        <h2 class="h6">Otros documentos</h2>
+        {% for d in otros %}
+        <div class="legajo-archivo">
+          <span class="legajo-formato">{{ d.formato }}</span>
+          <div class="flex-grow-1 min-w-0"><div class="small fw-semibold">{{ d.titulo }}</div><div class="small text-muted">Subido el {{ d.subido|date:"d/m/Y" }} por {{ d.subido_por.nombre_completo|default:"—" }}</div></div>
+          <a href="{% url 'legajos:archivo' d.pk %}" target="_blank" class="btn btn-sm btn-outline-secondary">Ver</a>
+          <form method="post" action="{% url 'legajos:quitar' d.pk %}" onsubmit="return confirm('¿Quitar este archivo del legajo?')">{% csrf_token %}<button class="btn btn-sm btn-link text-danger">Quitar</button></form>
+        </div>
+        {% endfor %}
+        <form method="post" enctype="multipart/form-data" class="legajo-subir" novalidate>{% csrf_token %}
+          <input type="hidden" name="tipo" value="otro">
+          <input type="text" name="nombre" class="form-control form-control-sm" placeholder="Qué documento es (CV, seguro, alta en AFIP…)" aria-label="Nombre del documento" style="max-width: 18rem">
+          <input type="file" name="archivo" accept=".pdf,.jpg,.jpeg,.png,.webp,.heic,image/*" class="form-control form-control-sm" aria-label="Archivo" required>
+          <button class="btn btn-sm btn-outline-dark">+ Agregar documento</button>
+        </form>
+      </div>
+    </section>
+  </div>
+
+  <div class="col-xl-4">
+    <div class="panel-lateral"><div class="tarjeta"><div class="tarjeta-cabecera"><h2>Datos</h2></div><div class="tarjeta-cuerpo">
+      <dl class="small mb-0">
+        <dt>Email</dt><dd>{{ persona.email }}</dd>
+        <dt>WhatsApp</dt><dd>{{ persona.telefono|default:"—" }}</dd>
+        <dt>Jornada</dt><dd>{{ persona.horas_semanales|pct:1 }} h por semana{% if persona.asistente_direccion %} · automática{% endif %}</dd>
+        {% if contrato %}<dt>Contrato o convenio</dt><dd>Vence el {{ contrato.vence|date:"d/m/Y" }}{% if contrato.vence < hoy %} · <strong>vencido</strong>{% endif %}</dd>{% endif %}
+      </dl>
+      {% if movimientos %}
+      <h3 class="h6 mt-3">Movimientos</h3>
+      <ul class="list-unstyled small mb-0">{% for m in movimientos %}<li class="py-1"><span class="text-muted">{{ m.fecha|date:"d/m/Y" }}</span> · {{ m.descripcion|cut:"Legajo de "|cut:persona.nombre_completo|cut:": " }}</li>{% endfor %}</ul>
+      {% endif %}
+      <p class="small text-muted mt-3 mb-0">Los archivos se ven solo dentro de SOPHIA. Cada carga, consulta o baja queda en el registro de actividad.</p>
+    </div></div></div>
+  </div>
+</div>
+{% endblock %}

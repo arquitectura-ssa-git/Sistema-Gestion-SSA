@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block titulo %}Tipos de contacto{% endblock %}
+{% block migas %}<nav><ol class="breadcrumb"><li class="breadcrumb-item"><a href="{% url 'agenda:lista' %}">Agenda</a></li><li class="breadcrumb-item active">Tipos de contacto</li></ol></nav>{% endblock %}
+{% block contenido %}
+<div class="pagina-titulo"><h1>Tipos de contacto</h1></div>
+<div class="row g-4">
+  <div class="col-lg-6">
+    <div class="tarjeta"><ul class="list-group list-group-flush">
+      {% for t in tipos %}<li class="list-group-item">{{ t.nombre }}</li>{% endfor %}
+      <li class="list-group-item text-muted">Equipo <span class="small">· sale de Equipo</span></li>
+    </ul></div>
+  </div>
+  <div class="col-lg-6">
+    <div class="panel-lateral"><div class="tarjeta"><div class="tarjeta-cabecera"><h2>Agregar tipo</h2></div><div class="tarjeta-cuerpo">
+      <form method="post" novalidate>{% csrf_token %}
+        {% include "includes/campo.html" with campo=form.nombre %}
+        <button class="btn btn-sm btn-dark">Agregar</button>
+      </form>
+    </div></div></div>
+  </div>
+</div>
+{% endblock %}

@@ -97,6 +97,12 @@ class Usuario(AbstractUser):
     foto = models.ImageField("foto de perfil", upload_to=ruta_foto, blank=True)
     notif_email = models.BooleanField("recibir avisos por email", default=True)
     notif_whatsapp = models.BooleanField("recibir avisos por WhatsApp", default=True)
+    # Asistente de Dirección: ve proyectos, obras, avances, informes diarios e historial (sin montos), gestiona
+    # Legajos, Clientes y Agenda, y no carga Time Report: su jornada se computa sola (como Administración).
+    asistente_direccion = models.BooleanField(
+        "Asistente de Dirección", default=False,
+        help_text="No carga Time Report: su jornada se computa sola. Gestiona Legajos, Clientes y Agenda.")
+    tr_automatico_desde = models.DateField(null=True, blank=True, editable=False)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
