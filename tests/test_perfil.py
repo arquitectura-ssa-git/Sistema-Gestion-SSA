@@ -50,3 +50,16 @@ def test_la_foto_la_ve_el_personal_pero_no_alguien_sin_sesion(comun, otro):
     cliente_de(comun).post("/personal/mi-perfil/", {**perfil(comun), "foto_nueva": foto()})
     assert cliente_de(otro).get(f"/personal/{comun.pk}/foto/").status_code == 200
     assert Client().get(f"/personal/{comun.pk}/foto/").status_code == 302  # al login
+
+
+def test_domicilio_del_personal(dir_, comun):
+    from .conftest import cliente_de
+
+    r = cliente_de(dir_).post(f"/personal/{comun.pk}/editar/", {
+        "first_name": "Ana", "last_name": "Paz", "email": comun.email, "calle": "San Martín", "numero": "450",
+        "barrio": "Centro", "localidad": "San Miguel de Tucumán", "provincia": "Tucumán", "is_active": "on",
+        "area_desarrollo_proyectos": "integrante", **{f"viene_{d}": "on" for d in ("lun", "mar", "mie", "jue", "vie")},
+        **{f"horas_{d}": "8" for d in ("lun", "mar", "mie", "jue", "vie")}})
+    assert r.status_code == 302
+    comun.refresh_from_db()
+    assert comun.domicilio == "San Martín 450, Centro, San Miguel de Tucumán, Tucumán"

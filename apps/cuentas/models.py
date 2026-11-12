@@ -80,6 +80,12 @@ class Usuario(AbstractUser):
     email = models.EmailField("email", unique=True)
     tipo = models.CharField(max_length=10, choices=Tipo.choices, default=Tipo.PERSONAL)
     cargo = models.CharField(max_length=100, blank=True)
+    # Domicilio del personal (se ve en Equipo › editar y en el legajo)
+    calle = models.CharField(max_length=120, blank=True)
+    numero = models.CharField("número", max_length=20, blank=True)
+    barrio = models.CharField(max_length=100, blank=True)
+    localidad = models.CharField(max_length=100, blank=True)
+    provincia = models.CharField(max_length=60, blank=True)
     telefono = models.CharField(
         "WhatsApp", max_length=30, blank=True,
         help_text="Con código de país, ej: +5491122334455",
@@ -123,6 +129,12 @@ class Usuario(AbstractUser):
         if fecha.weekday() >= 5:
             return Decimal(0)
         return Decimal(getattr(self, f"horas_{self.DIAS_HABILES[fecha.weekday()]}") or 0)
+
+    @property
+    def domicilio(self):
+        """«Calle 123, Barrio, Localidad, Provincia» con lo que esté cargado."""
+        calle = " ".join(p for p in (self.calle, self.numero) if p)
+        return ", ".join(p for p in (calle, self.barrio, self.localidad, self.provincia) if p)
 
     @property
     def horas_semanales(self):

@@ -532,3 +532,4 @@ a.dir-kpi:hover { border-color: #9c9b95; color: inherit; }
 .agenda-ficha .ancho { grid-column: 1 / -1; }
 .agenda-ficha dt { font-size: .75rem; font-weight: 400; color: #5b5b57; }
 .agenda-ficha dd { margin: 0; font-size: .92rem; overflow-wrap: anywhere; }
+.domicilio .mb-3 { margin-bottom: 0 !important; }

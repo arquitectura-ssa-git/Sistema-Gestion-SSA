@@ -69,6 +69,7 @@
       <dl class="small mb-0">
         <dt>Email</dt><dd>{{ persona.email }}</dd>
         <dt>WhatsApp</dt><dd>{{ persona.telefono|default:"—" }}</dd>
+        <dt>Domicilio</dt><dd>{{ persona.domicilio|default:"—" }}</dd>
         <dt>Jornada</dt><dd>{{ persona.horas_semanales|pct:1 }} h por semana{% if persona.asistente_direccion %} · automática{% endif %}</dd>
         {% if contrato %}<dt>Contrato o convenio</dt><dd>Vence el {{ contrato.vence|date:"d/m/Y" }}{% if contrato.vence < hoy %} · <strong>vencido</strong>{% endif %}</dd>{% endif %}
       </dl>
