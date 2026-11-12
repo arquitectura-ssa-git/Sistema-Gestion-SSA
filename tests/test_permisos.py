@@ -165,3 +165,12 @@ def test_el_nombre_del_proyecto_queda_en_mayusculas(dir_):
     assert r.status_code == 302
     assert Obra.objects.get().nombre == "CASA LOS ÁLAMOS"
     assert 'class="form-control en-mayusculas"' in cliente_de(dir_).get("/proyectos/nuevo/").content.decode()
+
+
+def test_equipo_por_apellido(dir_, comun):
+    from apps.cuentas.models import Usuario
+
+    Usuario.objects.filter(pk=comun.pk).update(first_name="Bruno", last_name="Álvarez")
+    Usuario.objects.filter(pk=dir_.pk).update(first_name="Ana", last_name="Zeta")
+    html = cliente_de(dir_).get("/personal/").content.decode()
+    assert "ÁLVAREZ, Bruno" in html and "ZETA, Ana" in html

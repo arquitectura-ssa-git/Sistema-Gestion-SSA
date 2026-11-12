@@ -26,7 +26,8 @@ def _exigir(request):
 
 
 def _personal():
-    return Usuario.objects.filter(tipo=Usuario.Tipo.PERSONAL, is_active=True).order_by("first_name", "last_name")
+    return Usuario.objects.filter(tipo=Usuario.Tipo.PERSONAL, is_active=True).order_by("last_name", "first_name")
+
 
 
 @permisos.solo_personal
@@ -42,6 +43,7 @@ def lista(request):
         docs.setdefault(d.usuario_id, []).append(d)
     limite = hoy() + timedelta(days=DIAS_AVISO)
     filas, vencen = [], 0
+    personas = sorted(personas, key=lambda p: p.orden_apellido)
     for p in personas:
         propios = docs.get(p.pk, [])
         tipos = {d.tipo for d in propios}

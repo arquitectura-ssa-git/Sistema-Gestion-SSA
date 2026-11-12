@@ -88,7 +88,7 @@ class Usuario(AbstractUser):
     provincia = models.CharField(max_length=60, blank=True)
     telefono = models.CharField(
         "WhatsApp", max_length=30, blank=True,
-        help_text="Con código de país, ej: +5491122334455",
+        help_text="País, característica y número, ej: +54 381 300-4288",
     )
     cliente = models.ForeignKey(
         Cliente, null=True, blank=True, on_delete=models.PROTECT, related_name="usuarios",
@@ -129,6 +129,21 @@ class Usuario(AbstractUser):
         if fecha.weekday() >= 5:
             return Decimal(0)
         return Decimal(getattr(self, f"horas_{self.DIAS_HABILES[fecha.weekday()]}") or 0)
+
+    @property
+    def orden_apellido(self):
+        """Clave para ordenar por apellido y nombre, sin que importen mayúsculas ni acentos (Ñ después de N)."""
+        import unicodedata
+
+        texto = f"{self.last_name} {self.first_name}".strip().lower().replace("ñ", "n~")
+        return "".join(c for c in unicodedata.normalize("NFD", texto) if unicodedata.category(c) != "Mn")
+
+    @property
+    def apellido_nombre(self):
+        """«MARTIN, Javier» (o lo que esté cargado)."""
+        if self.last_name and self.first_name:
+            return f"{self.last_name.upper()}, {self.first_name}"
+        return (self.last_name.upper() or self.first_name or self.email)
 
     @property
     def domicilio(self):

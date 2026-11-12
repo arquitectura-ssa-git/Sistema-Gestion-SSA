@@ -59,3 +59,12 @@ def test_solo_pdf_o_fotos_y_otros_con_nombre(dir_, comun):
     assert not DocumentoLegajo.objects.exists()
     c.post(f"/personal/legajos/{comun.pk}/", {"tipo": "otro", "nombre": "CV", "archivo": pdf("cv.pdf")})
     assert DocumentoLegajo.objects.get().titulo == "CV"
+
+
+def test_lista_por_apellido(dir_):
+    persona("zeta@ssa.test", (A.DESARROLLO_PROYECTOS, "integrante")).__class__.objects.filter(
+        email="zeta@ssa.test").update(first_name="Ana", last_name="Álvarez")
+    persona("beta@ssa.test", (A.DESARROLLO_PROYECTOS, "integrante")).__class__.objects.filter(
+        email="beta@ssa.test").update(first_name="Bruno", last_name="Costa")
+    html = cliente_de(dir_).get("/personal/legajos/").content.decode()
+    assert "ÁLVAREZ, Ana" in html and html.index("ÁLVAREZ, Ana") < html.index("COSTA, Bruno")

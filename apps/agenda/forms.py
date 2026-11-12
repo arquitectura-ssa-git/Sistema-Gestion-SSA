@@ -1,9 +1,13 @@
 from django import forms
 
+from apps.core.telefono import TelefonoField
+
 from .models import Contacto, TipoContacto
 
 
 class ContactoForm(forms.ModelForm):
+    telefono = TelefonoField(label="Teléfono")
+
     class Meta:
         model = Contacto
         fields = ["tipo", "empresa", "apellido", "nombres", "telefono", "email", "cuit", "domicilio", "facturacion",
