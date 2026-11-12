@@ -86,3 +86,12 @@ def test_dir_no_carga_horas_y_ve_las_del_equipo(dir_, comun):
     c.post("/horas/", datos)
     assert not RegistroHoras.objects.filter(usuario=dir_).exists()
     assert c.post("/horas/repetir/", {"dia": hoy().isoformat()}).status_code == 403
+
+
+def test_equipo_de_dir_por_apellido(dir_, comun, otro):
+    from apps.cuentas.models import Usuario
+
+    Usuario.objects.filter(pk=comun.pk).update(first_name="Zoe", last_name="Álvarez")
+    Usuario.objects.filter(pk=otro.pk).update(first_name="Ana", last_name="Benítez")
+    html = cliente_de(dir_).get("/horas/").content.decode()
+    assert html.index("ÁLVAREZ, Zoe") < html.index("BENÍTEZ, Ana")

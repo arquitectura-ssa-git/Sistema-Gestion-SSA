@@ -7,7 +7,7 @@
   <div class="d-flex align-items-center gap-3">
     {% include "includes/avatar.html" with persona=persona tam=64 %}
     <div>
-      <h1>{{ persona.nombre_completo }}</h1>
+      <h1>{{ persona.apellido_nombre }}</h1>
       <div class="small text-muted">{{ persona.cargo|default:"" }}{% for m in persona.membresias.all %}{% if forloop.first and persona.cargo %} · {% endif %}{{ m.area.nombre }}{% if not forloop.last %} · {% endif %}{% endfor %}</div>
     </div>
   </div>

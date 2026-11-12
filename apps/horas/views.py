@@ -78,7 +78,7 @@ def semana_equipo(lunes, hoy):
         celda["auto"] = celda["auto"] or r["automatico"]
     ausencias = {(a.usuario_id, a.fecha): a for a in Ausencia.objects.filter(fecha__range=(dias[0], dias[-1]))}
     filas = []
-    for p in personas:
+    for p in sorted(personas, key=lambda p: p.orden_apellido):
         celdas, total, extra, faltan = [], CERO, CERO, 0
         for d in dias:
             c = horas.get((p.pk, d), {"normal": CERO, "extra": CERO, "auto": False})

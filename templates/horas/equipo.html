@@ -32,7 +32,7 @@
       <tbody>
       {% for f in equipo.filas %}
         <tr>
-          <td><span class="d-inline-flex align-items-center gap-2">{% include "includes/avatar.html" with persona=f.persona tam=28 %}<span>{{ f.persona.nombre_completo }}{% if f.persona.asistente_direccion %}<span class="d-block small text-muted">Jornada automática</span>{% endif %}</span></span></td>
+          <td><span class="d-inline-flex align-items-center gap-2">{% include "includes/avatar.html" with persona=f.persona tam=28 %}<span>{{ f.persona.apellido_nombre }}{% if f.persona.asistente_direccion %}<span class="d-block small text-muted">Jornada automática</span>{% endif %}</span></span></td>
           {% for c in f.celdas %}
           <td class="text-end">{% if c.ausente %}<span class="small text-muted">Ausente</span>{% elif c.total %}{{ c.total|pct:1 }}{% if c.auto %}<div class="small text-muted">automático</div>{% endif %}{% if c.extra %}<div class="small text-muted">{{ c.extra|pct:1 }} extra</div>{% endif %}{% elif c.falta %}<span class="sin-cargar">Sin cargar</span>{% else %}<span class="text-muted">—</span>{% endif %}{% if c.marcable %}<form method="post" action="{% url 'horas:ausencia' f.persona.pk %}">{% csrf_token %}<input type="hidden" name="dia" value="{{ c.fecha|date:'Y-m-d' }}"><button class="btn btn-link btn-sm p-0 small">{% if c.ausente %}Quitar ausencia{% else %}Marcar ausencia{% endif %}</button></form>{% endif %}</td>
           {% endfor %}

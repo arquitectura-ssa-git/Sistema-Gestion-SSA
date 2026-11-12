@@ -131,6 +131,21 @@ class Usuario(AbstractUser):
         return Decimal(getattr(self, f"horas_{self.DIAS_HABILES[fecha.weekday()]}") or 0)
 
     @property
+    def orden_apellido(self):
+        """Clave para ordenar por apellido y nombre, sin que importen mayúsculas ni acentos (Ñ después de N)."""
+        import unicodedata
+
+        texto = f"{self.last_name} {self.first_name}".strip().lower().replace("ñ", "n~")
+        return "".join(c for c in unicodedata.normalize("NFD", texto) if unicodedata.category(c) != "Mn")
+
+    @property
+    def apellido_nombre(self):
+        """«MARTIN, Javier» (o lo que esté cargado)."""
+        if self.last_name and self.first_name:
+            return f"{self.last_name.upper()}, {self.first_name}"
+        return (self.last_name.upper() or self.first_name or self.email)
+
+    @property
     def domicilio(self):
         """«Calle 123, Barrio, Localidad, Provincia» con lo que esté cargado."""
         calle = " ".join(p for p in (self.calle, self.numero) if p)

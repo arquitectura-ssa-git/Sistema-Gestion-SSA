@@ -70,7 +70,7 @@ def personal_lista(request):
     for p in personas:
         p.editable = puede_gestionar and permisos.puede_editar_persona(request.user, p)
         grupos[_grupo_de(p)].append(p)
-    secciones = [(titulo, sorted(lista, key=lambda p: (p.first_name.lower(), p.last_name.lower())))
+    secciones = [(titulo, sorted(lista, key=lambda p: p.orden_apellido))
                  for titulo, lista in grupos.items() if lista]
     return render(request, "cuentas/personal_lista.html", {
         "secciones": secciones, "areas": _areas_ordenadas(), "puede_gestionar": puede_gestionar,

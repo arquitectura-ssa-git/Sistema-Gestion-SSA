@@ -32,7 +32,7 @@
             <div class="d-flex align-items-center gap-2">
               {% include "includes/avatar.html" with persona=p tam=34 %}
               <div>
-                <span class="miembro-nombre">{{ p.nombre_completo }}</span>
+                <span class="miembro-nombre">{{ p.apellido_nombre }}</span>
                 {% if p.cargo %}<div class="small text-muted">{{ p.cargo }}</div>{% endif %}
               </div>
             </div>

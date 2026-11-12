@@ -539,3 +539,6 @@ a.dir-kpi:hover { border-color: #9c9b95; color: inherit; }
 .abecedario a:hover, .abecedario a:focus-visible { background: var(--ssa-negro); color: #f4f3ef; }
 .abecedario span { color: #b3b1aa; }
 .tabla-agenda tr[id] { scroll-margin-top: 1rem; }
+/* Time Report del equipo: todas las filas de dos renglones, tengan o no horas extra */
+.tabla-equipo tbody td { height: 4.6rem; vertical-align: middle; }
+.tabla-equipo tbody td .small { line-height: 1.2; }

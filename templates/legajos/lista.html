@@ -26,7 +26,7 @@
       <tbody>
       {% for f in filas %}
         <tr>
-          <td><a href="{% url 'legajos:detalle' f.persona.pk %}" class="d-inline-flex align-items-center gap-2 text-decoration-none">{% include "includes/avatar.html" with persona=f.persona tam=30 %}<span><span class="fw-semibold d-block">{{ f.persona.nombre_completo }}</span><span class="small text-muted">{{ f.persona.cargo|default:"" }}</span></span></a></td>
+          <td><a href="{% url 'legajos:detalle' f.persona.pk %}" class="d-inline-flex align-items-center gap-2 text-decoration-none">{% include "includes/avatar.html" with persona=f.persona tam=30 %}<span><span class="fw-semibold d-block">{{ f.persona.apellido_nombre }}</span><span class="small text-muted">{{ f.persona.cargo|default:"" }}</span></span></a></td>
           {% for e in f.estado %}
           <td>{% if e.cargado %}<span class="small">Cargado</span>{% if e.tipo == "contrato" and f.contrato %}<div class="small {% if f.por_vencer %}fw-semibold{% else %}text-muted{% endif %}">vence {{ f.contrato.vence|date:"d/m/Y" }}</div>{% endif %}{% else %}<span class="etiqueta-falta">Falta</span>{% endif %}</td>
           {% endfor %}
