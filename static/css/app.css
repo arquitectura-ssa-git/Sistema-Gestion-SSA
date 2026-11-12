@@ -548,3 +548,12 @@ a.dir-kpi:hover { border-color: #9c9b95; color: inherit; }
 .campo-telefono input:nth-child(1) { flex: 0 0 4.5rem; }
 .campo-telefono input:nth-child(2) { flex: 0 0 5.5rem; }
 .campo-telefono input:nth-child(3) { flex: 1 1 auto; min-width: 0; }
+
+/* Time Report del equipo: valor del día a la izquierda y casilla de ausencia o permiso a la derecha */
+.celda-equipo { display: flex; justify-content: flex-end; align-items: center; gap: .5rem; }
+.celda-equipo > div { white-space: nowrap; }
+.celda-equipo .marca-ausencia { margin: 0; }
+.celda-equipo .marca-ausencia { display: flex; align-items: center; }
+.celda-equipo .marca-ausencia .form-check-input { margin: 0; cursor: pointer; background-color: #fff; border-color: #9a9a9a; width: 1.15em; height: 1.15em; }
+.tabla-equipo th:not(:first-child), .tabla-equipo td:not(:first-child) { width: 8.5%; }
+.celda-equipo .marca-ausencia .form-check-input:checked { background-color: var(--ssa-plomo); border-color: var(--ssa-plomo); }

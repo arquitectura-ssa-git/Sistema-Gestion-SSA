@@ -34,7 +34,7 @@
         <tr>
           <td><span class="d-inline-flex align-items-center gap-2">{% include "includes/avatar.html" with persona=f.persona tam=28 %}<span>{{ f.persona.apellido_nombre }}{% if f.persona.asistente_direccion %}<span class="d-block small text-muted">Jornada automática</span>{% endif %}</span></span></td>
           {% for c in f.celdas %}
-          <td class="text-end">{% if c.ausente %}<span class="small text-muted">Ausente</span>{% elif c.total %}{{ c.total|pct:1 }}{% if c.auto %}<div class="small text-muted">automático</div>{% endif %}{% if c.extra %}<div class="small text-muted">{{ c.extra|pct:1 }} extra</div>{% endif %}{% elif c.falta %}<span class="sin-cargar">Sin cargar</span>{% else %}<span class="text-muted">—</span>{% endif %}{% if c.marcable %}<form method="post" action="{% url 'horas:ausencia' f.persona.pk %}">{% csrf_token %}<input type="hidden" name="dia" value="{{ c.fecha|date:'Y-m-d' }}"><button class="btn btn-link btn-sm p-0 small">{% if c.ausente %}Quitar ausencia{% else %}Marcar ausencia{% endif %}</button></form>{% endif %}</td>
+          <td class="text-end"><div class="celda-equipo"><div>{% if c.ausente %}<span class="text-muted">—</span><div class="small text-muted">Ausencia</div>{% elif c.total %}{{ c.total|pct:1 }}{% if c.auto %}<div class="small text-muted">automático</div>{% elif c.extra %}<div class="small text-muted">{{ c.extra|pct:1 }} extra</div>{% endif %}{% elif c.falta %}<span class="sin-cargar">Sin cargar</span>{% else %}<span class="text-muted">—</span>{% endif %}</div>{% if c.marcable %}<form method="post" action="{% url 'horas:ausencia' f.persona.pk %}" class="marca-ausencia">{% csrf_token %}<input type="hidden" name="dia" value="{{ c.fecha|date:'Y-m-d' }}"><input class="form-check-input" type="checkbox" onchange="this.form.submit()" {% if c.ausente %}checked{% endif %} title="Ausencia o permiso el {{ c.fecha|date:'d/m' }}" aria-label="Ausencia o permiso de {{ f.persona.apellido_nombre }} el {{ c.fecha|date:'d/m' }}"></form>{% endif %}</div></td>
           {% endfor %}
           <td class="text-end fw-semibold">{{ f.total|pct:1 }}<span class="text-muted fw-normal">/{{ f.semanales|pct:1 }}</span></td>
         </tr>
@@ -45,5 +45,5 @@
     </table>
   </div>
 </div>
-<p class="small text-muted mt-3">DIR no carga horas: ve las del equipo. «Sin cargar» marca los días hábiles con jornada en los que esa persona todavía no cargó nada. El detalle por proyecto, persona o tipo de tarea está en Reportes.</p>
+<p class="small text-muted mt-3">DIR no carga horas: ve las del equipo. La casilla junto a cada día de quien tiene jornada automática marca una ausencia o un permiso: ese día no se computa. «Sin cargar» marca los días hábiles con jornada en los que esa persona todavía no cargó nada. El detalle por proyecto, persona o tipo de tarea está en Reportes.</p>
 {% endblock %}
