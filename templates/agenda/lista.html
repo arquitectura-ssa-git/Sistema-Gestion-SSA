@@ -19,29 +19,24 @@
 </form>
 
 <div class="row g-4">
-  <div class="col-xl-7">
-    <div class="tarjeta">
+  <div class="col-xl-7 d-flex gap-2">
+    <nav class="abecedario" aria-label="Ir a la letra">
+      {% for a in abecedario %}{% if a.hay %}<a href="#letra-{{ a.letra }}">{{ a.letra }}</a>{% else %}<span aria-hidden="true">{{ a.letra }}</span>{% endif %}{% endfor %}
+    </nav>
+    <div class="tarjeta flex-grow-1 min-w-0">
       <div class="table-responsive">
-        <table class="table table-hover table-tarjeta">
+        <table class="table table-hover table-tarjeta tabla-agenda">
           <thead><tr><th>Contacto</th><th>Tipo</th><th>Teléfono</th><th>Email</th></tr></thead>
           <tbody>
-          {% for c in filas %}
-            <tr{% if elegido and elegido.pk == c.pk %} class="fila-elegida"{% endif %}>
-              <td><a href="?tipo={{ filtro }}&amp;c={{ c.pk }}{% if q %}&amp;q={{ q|urlencode }}{% endif %}" class="text-decoration-none"><span class="fw-semibold d-block">{{ c.titulo }}</span>{% if c.empresa and c.persona %}<span class="small text-muted">{{ c.persona }}</span>{% endif %}</a></td>
-              <td><span class="badge text-bg-light border">{{ c.tipo }}</span></td>
-              <td class="small text-nowrap">{{ c.telefono|default:"—" }}</td>
-              <td class="small">{{ c.email|default:"—" }}</td>
+          {% for f in filas %}{% with c=f.contacto %}
+            <tr{% if c and elegido and elegido.pk == c.pk %} class="fila-elegida"{% endif %}{% if f.ancla %} id="letra-{{ f.letra }}"{% endif %}>
+              <td>{% if c %}<a href="?tipo={{ filtro }}&amp;c={{ c.pk }}{% if q %}&amp;q={{ q|urlencode }}{% endif %}#letra-{{ f.letra }}" class="text-decoration-none">{% endif %}<span class="fw-semibold d-block">{{ f.titulo }}</span>{% if f.subtitulo %}<span class="small text-muted">{{ f.subtitulo }}</span>{% endif %}{% if c %}</a>{% endif %}</td>
+              <td><span class="badge text-bg-light border">{{ f.tipo }}</span></td>
+              <td class="small text-nowrap">{{ f.telefono|default:"—" }}</td>
+              <td class="small">{{ f.email|default:"—" }}</td>
             </tr>
-          {% endfor %}
-          {% for p in personas %}
-            <tr>
-              <td><span class="d-inline-flex align-items-center gap-2">{% include "includes/avatar.html" with persona=p tam=26 %}<span><span class="fw-semibold d-block">{{ p.last_name|upper }}{% if p.first_name %}, {{ p.first_name }}{% endif %}</span><span class="small text-muted">{{ p.cargo|default:"" }}</span></span></span></td>
-              <td><span class="badge text-bg-light border">Equipo</span></td>
-              <td class="small text-nowrap">{{ p.telefono|default:"—" }}</td>
-              <td class="small">{{ p.email }}</td>
-            </tr>
-          {% endfor %}
-          {% if not filas and not personas %}
+          {% endwith %}{% endfor %}
+          {% if not filas %}
             <tr><td colspan="4"><div class="lista-vacia"><i class="bi bi-journal-bookmark"></i>{% if q %}No hay contactos con «{{ q }}».{% else %}Todavía no hay contactos de este tipo.{% endif %}</div></td></tr>
           {% endif %}
           </tbody>

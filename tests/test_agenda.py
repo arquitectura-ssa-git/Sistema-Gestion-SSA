@@ -65,3 +65,12 @@ def test_eliminar_un_contacto_cliente_con_obras_no_se_permite(dir_):
     otro = Contacto.objects.create(tipo=proveedor(), empresa="X")
     cliente_de(dir_).post(f"/agenda/{otro.pk}/eliminar/")
     assert not Contacto.objects.filter(pk=otro.pk).exists()
+
+
+def test_lista_en_orden_alfabetico_con_abecedario_y_sin_fotos(dir_, comun):
+    Contacto.objects.create(tipo=proveedor(), empresa="Zeta Aberturas")
+    Contacto.objects.create(tipo=proveedor(), apellido="álvarez", nombres="ana")
+    html = cliente_de(dir_).get("/agenda/").content.decode()
+    assert html.index("ÁLVAREZ, Ana") < html.index("Zeta Aberturas")
+    assert 'href="#letra-A"' in html and 'id="letra-Z"' in html
+    assert 'class="avatar' not in html.split('class="abecedario"')[1].split("</table>")[0]

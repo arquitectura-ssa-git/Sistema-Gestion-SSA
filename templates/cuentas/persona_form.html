@@ -21,6 +21,14 @@
             <div class="col-sm-6">{% include "includes/campo.html" with campo=form.cargo %}</div>
             <div class="col-sm-6">{% include "includes/campo.html" with campo=form.telefono %}</div>
           </div>
+          <div class="form-label mt-1">Domicilio</div>
+          <div class="row g-2 mb-3 domicilio">
+            <div class="col-sm-8">{% include "includes/campo.html" with campo=form.calle %}</div>
+            <div class="col-sm-4">{% include "includes/campo.html" with campo=form.numero %}</div>
+            <div class="col-sm-4">{% include "includes/campo.html" with campo=form.barrio %}</div>
+            <div class="col-sm-4">{% include "includes/campo.html" with campo=form.localidad %}</div>
+            <div class="col-sm-4">{% include "includes/campo.html" with campo=form.provincia %}</div>
+          </div>
           <div class="mb-3">
             <div class="form-label">Horas contratadas por día</div>
             <div class="dias-contrato">

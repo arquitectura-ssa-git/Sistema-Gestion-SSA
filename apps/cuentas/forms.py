@@ -49,6 +49,7 @@ class PersonaForm(_ConClaveInicial):
     class Meta:
         model = Usuario
         fields = ["first_name", "last_name", "email", "cargo", "telefono",
+                  "calle", "numero", "barrio", "localidad", "provincia",
                   "horas_lun", "horas_mar", "horas_mie", "horas_jue", "horas_vie", "is_active", "asistente_direccion"]
         labels = {"first_name": "Nombre", "last_name": "Apellido", "is_active": "Activo (puede ingresar)"}
 

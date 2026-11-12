@@ -1,3 +1,5 @@
+import unicodedata
+
 from django.contrib import messages
 from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
@@ -13,6 +15,12 @@ from .models import Contacto, TipoContacto
 from .sincronizar import contacto_a_cliente
 
 EQUIPO = "equipo"
+
+
+def _clave(texto):
+    """Para ordenar sin que importen mayúsculas ni acentos (la Ñ va después de la N)."""
+    texto = (texto or "").strip().lower().replace("ñ", "n~")
+    return "".join(c for c in unicodedata.normalize("NFD", texto) if unicodedata.category(c) != "Mn")
 
 
 def _exigir(request):
@@ -40,15 +48,28 @@ def lista(request):
                + [{"codigo": t.codigo, "nombre": t.nombre, "cantidad": t.contactos.count()} for t in otros])
     if filtro not in ("todos", EQUIPO):
         contactos = contactos.filter(tipo__codigo=filtro)
-    filas = [] if filtro == EQUIPO else list(contactos)
+    contactos = [] if filtro == EQUIPO else list(contactos)
     personas = list(equipo) if filtro in ("todos", EQUIPO) else []
+    # Una sola lista en orden alfabético (contactos y equipo mezclados), con la letra de cada uno para el índice
+    filas = [{"contacto": c, "titulo": c.titulo, "subtitulo": c.persona if c.empresa and c.persona else "",
+              "tipo": c.tipo.nombre, "telefono": c.telefono, "email": c.email} for c in contactos]
+    filas += [{"contacto": None, "titulo": (f"{p.last_name.upper()}, {p.first_name}" if p.last_name else p.first_name),
+               "subtitulo": p.cargo, "tipo": "Equipo", "telefono": p.telefono, "email": p.email} for p in personas]
+    filas.sort(key=lambda f: _clave(f["titulo"]))
+    letras_con = set()
+    for f in filas:
+        letra = _clave(f["titulo"])[:1].upper()
+        f["letra"] = letra if letra.isalpha() else "#"
+        f["ancla"] = f["letra"] not in letras_con
+        letras_con.add(f["letra"])
+    abecedario = [{"letra": letra, "hay": letra in letras_con} for letra in "ABCDEFGHIJKLMNÑOPQRSTUVWXYZ"]
     elegido = None
     if request.GET.get("c"):
         elegido = Contacto.objects.select_related("tipo", "cliente").filter(pk=request.GET["c"]).first()
-    elif filas:
-        elegido = filas[0]
+    elif contactos:
+        elegido = next(f["contacto"] for f in filas if f["contacto"])
     return render(request, "agenda/lista.html", {
-        "filtros": filtros, "filtro": filtro, "q": q, "filas": filas, "personas": personas, "elegido": elegido,
+        "filtros": filtros, "filtro": filtro, "q": q, "filas": filas, "elegido": elegido, "abecedario": abecedario,
     })
 
 
