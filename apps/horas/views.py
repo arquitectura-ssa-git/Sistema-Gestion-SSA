@@ -5,7 +5,7 @@ from io import BytesIO
 from django.contrib import messages
 from django.db import transaction
 from django.db.models import Q, Sum
-from django.http import HttpResponse
+from django.http import Http404, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
@@ -17,7 +17,7 @@ from apps.cuentas.models import Usuario
 
 from . import reglas
 from .forms import DiaFormSet, FiltroReporteForm, PedidoForm
-from .models import Habilitacion, RegistroHoras, TipoTarea
+from .models import Ausencia, Habilitacion, RegistroHoras, TipoTarea
 
 DIAS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
 CERO = Decimal(0)
@@ -72,21 +72,25 @@ def semana_equipo(lunes, hoy):
                 .exclude(membresias__area__codigo=Area.Codigo.GERENCIA).order_by("first_name", "last_name"))
     horas = {}
     for r in (RegistroHoras.objects.filter(fecha__range=(dias[0], dias[-1]))
-              .values("usuario_id", "fecha", "extra").annotate(h=Sum("horas"))):
-        celda = horas.setdefault((r["usuario_id"], r["fecha"]), {"normal": CERO, "extra": CERO})
+              .values("usuario_id", "fecha", "extra", "automatico").annotate(h=Sum("horas"))):
+        celda = horas.setdefault((r["usuario_id"], r["fecha"]), {"normal": CERO, "extra": CERO, "auto": False})
         celda["extra" if r["extra"] else "normal"] += r["h"]
+        celda["auto"] = celda["auto"] or r["automatico"]
+    ausencias = {(a.usuario_id, a.fecha): a for a in Ausencia.objects.filter(fecha__range=(dias[0], dias[-1]))}
     filas = []
     for p in personas:
         celdas, total, extra, faltan = [], CERO, CERO, 0
         for d in dias:
-            c = horas.get((p.pk, d), {"normal": CERO, "extra": CERO})
+            c = horas.get((p.pk, d), {"normal": CERO, "extra": CERO, "auto": False})
             contratadas = reglas.horas_contratadas(p, d, feriados)
-            falta = d <= hoy and contratadas > 0 and not (c["normal"] or c["extra"])
+            ausente = ausencias.get((p.pk, d))
+            falta = d <= hoy and contratadas > 0 and not (c["normal"] or c["extra"]) and not ausente
             faltan += falta
             total += c["normal"] + c["extra"]
             extra += c["extra"]
             celdas.append({"total": c["normal"] + c["extra"], "extra": c["extra"], "contratadas": contratadas,
-                           "falta": falta})
+                           "falta": falta, "auto": c["auto"], "ausente": ausente, "fecha": d,
+                           "marcable": p.asistente_direccion and d <= hoy and contratadas > 0})
         filas.append({"persona": p, "celdas": celdas, "total": total, "extra": extra, "faltan": faltan,
                       "semanales": p.horas_semanales})
     cols = [{"fecha": d, "nombre": DIAS[i], "feriado": feriados.get(d)} for i, d in enumerate(dias)]
@@ -101,6 +105,19 @@ def mio(request):
     u = request.user
     hoy = reglas.hoy()
     dia = min(_fecha(request.GET.get("dia"), hoy), hoy)
+    reglas.completar_automaticos()
+    if permisos.es_asistente_direccion(u) and not permisos.es_gerencia(u):
+        # Su jornada se computa sola: ve su semana, sin formulario de carga.
+        if request.method == "POST":
+            messages.error(request, "Tu jornada se carga sola; no hace falta cargar horas.")
+            return redirect("horas:mio")
+        lunes = reglas.lunes_de(dia)
+        return render(request, "horas/mio.html", {
+            "dia": dia, "hoy": hoy, "editable": False, "formset": None, "automatico": True,
+            "semana": resumen_semana(u, lunes), "lunes": lunes,
+            "semana_anterior": lunes - timedelta(days=7), "semana_siguiente": lunes + timedelta(days=7),
+            "contratadas": reglas.horas_contratadas(u, dia), "feriado": reglas.feriado(dia),
+        })
     if not reglas.carga_horas(u):
         if request.method == "POST":
             messages.error(request, "DIR no carga horas en el Time Report.")
@@ -279,6 +296,7 @@ def _faltantes(desde, hasta):
 @permisos.solo_personal
 def reportes(request):
     permisos.exigir(permisos.puede_habilitar_horas(request.user))
+    reglas.completar_automaticos()
     hoy = reglas.hoy()
     form = FiltroReporteForm(request.GET or None, initial={
         "desde": hoy.replace(day=1), "hasta": hoy, "agrupar": "obra"})
@@ -433,3 +451,29 @@ def tipos(request):
             messages.success(request, f"Se agregó «{t}». Ya aparece en el Time Report de todos.")
             return redirect("horas:tipos")
     return render(request, "horas/tipos.html", {"tipos": TipoTarea.objects.all(), "form": form})
+
+
+@permisos.solo_gerencia
+@require_POST
+def ausencia(request, pk):
+    """DIR marca (o quita) vacaciones o una ausencia a quien tiene la jornada automática."""
+    from apps.cuentas.models import Usuario
+
+    persona = get_object_or_404(Usuario, pk=pk, asistente_direccion=True)
+    dia = _fecha(request.POST.get("dia"), None)
+    if not dia:
+        raise Http404
+    existente = Ausencia.objects.filter(usuario=persona, fecha=dia).first()
+    if existente:
+        existente.delete()
+        registrar("horas.ausencia_baja", f"Se quitó la ausencia del {dia:%d/%m/%Y} de {persona.nombre_completo}",
+                  objeto=persona)
+        reglas.completar_automaticos()
+        messages.success(request, f"{persona.nombre_completo}: el {dia:%d/%m} vuelve a computarse la jornada.")
+    else:
+        Ausencia.objects.create(usuario=persona, fecha=dia, motivo=request.POST.get("motivo", "")[:120],
+                                marcada_por=request.user)
+        RegistroHoras.objects.filter(usuario=persona, fecha=dia, automatico=True).delete()
+        registrar("horas.ausencia", f"Ausencia del {dia:%d/%m/%Y} para {persona.nombre_completo}", objeto=persona)
+        messages.success(request, f"{persona.nombre_completo}: el {dia:%d/%m} quedó como ausencia.")
+    return redirect(f"{reverse('horas:mio')}?dia={dia.isoformat()}")

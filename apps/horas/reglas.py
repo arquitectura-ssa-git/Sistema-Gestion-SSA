@@ -66,7 +66,39 @@ def es_media_hora(valor):
 
 
 def carga_horas(usuario):
-    """DIR (Gerencia) no carga Time Report: ve el del equipo."""
+    """DIR (Gerencia) no carga Time Report: ve el del equipo. Asistente de Dirección tampoco: su jornada se
+    computa sola (completar_automaticos)."""
     from apps.cuentas import permisos
 
-    return not permisos.es_gerencia(usuario)
+    return not permisos.es_gerencia(usuario) and not permisos.es_asistente_direccion(usuario)
+
+
+TIPO_AUTOMATICO = "administracion"
+
+
+def completar_automaticos(hasta=None):
+    """Carga sola la jornada de quien es Asistente de Dirección: cada día hábil (no feriado, que ya se computa
+    como jornada paga) desde que tiene el perfil, salvo los días que DIR marcó como ausencia. Se llama al abrir el
+    Time Report, los reportes y el Dashboard; no duplica lo ya cargado."""
+    from apps.cuentas.models import Usuario
+
+    from .models import Ausencia, RegistroHoras
+
+    hasta = hasta or hoy()
+    nuevos = []
+    for u in Usuario.objects.filter(asistente_direccion=True, is_active=True, tr_automatico_desde__isnull=False,
+                                    tr_automatico_desde__lte=hasta):
+        desde = u.tr_automatico_desde
+        hechos = set(RegistroHoras.objects.filter(usuario=u, automatico=True, fecha__range=(desde, hasta))
+                     .values_list("fecha", flat=True))
+        ausente = set(Ausencia.objects.filter(usuario=u, fecha__range=(desde, hasta)).values_list("fecha", flat=True))
+        feriados = feriados_en(desde, hasta)
+        dia = desde
+        while dia <= hasta:
+            horas = u.horas_del_dia(dia)
+            if horas and dia not in feriados and dia not in hechos and dia not in ausente:
+                nuevos.append(RegistroHoras(usuario=u, fecha=dia, obra=None, tipo=TIPO_AUTOMATICO, horas=horas,
+                                            automatico=True, nota="Jornada automática"))
+            dia += timedelta(days=1)
+    RegistroHoras.objects.bulk_create(nuevos)
+    return len(nuevos)

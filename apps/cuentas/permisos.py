@@ -64,6 +64,10 @@ def es_gerencia(u):
     return es_personal(u) and (u.is_superuser or A.GERENCIA in codigos_areas(u))
 
 
+def es_asistente_direccion(u):
+    return es_personal(u) and bool(getattr(u, "asistente_direccion", False))
+
+
 def pertenece_a(u, *codigos):
     return es_gerencia(u) or bool(codigos_areas(u) & set(codigos))
 
@@ -88,7 +92,18 @@ def puede_editar_persona(u, persona):
 
 
 def puede_gestionar_clientes(u):
-    return pertenece_a(u, A.GESTION_ADMINISTRATIVA) or es_coordinador_proyectos(u)
+    return pertenece_a(u, A.GESTION_ADMINISTRATIVA) or es_coordinador_proyectos(u) or es_asistente_direccion(u)
+
+
+def puede_ver_legajos(u):
+    """Legajos del personal (DNI, título, confidencialidad, contratos): solo DIR y Asistente de Dirección."""
+    return es_gerencia(u) or es_asistente_direccion(u)
+
+
+def puede_gestionar_agenda(u):
+    """Agenda de contactos (con datos de facturación y CBU): DIR, Coordinación de Proyectos y el equipo de
+    Gestión Administrativa (Asistente de Dirección incluida)."""
+    return puede_gestionar_clientes(u)
 
 
 # --- Obras -----------------------------------------------------------------
@@ -99,17 +114,19 @@ def es_coordinador(u):
 
 
 def ve_todas_las_obras(u):
-    return es_gerencia(u) or es_coordinador(u) or puede_ver_montos(u)
+    return es_gerencia(u) or es_coordinador(u) or puede_ver_montos(u) or es_asistente_direccion(u)
 
 
 def puede_ver_montos(u):
     """Presupuestos y certificados de obra: Gerencia, el responsable de Gestión Administrativa y Coordinación de Proyectos."""
+    if es_asistente_direccion(u) and not es_gerencia(u):
+        return False  # Asistente de Dirección no ve certificados ni costos
     return es_gerencia(u) or es_responsable_de(u, A.GESTION_ADMINISTRATIVA) or es_coordinador_proyectos(u)
 
 
 def puede_ver_historial_avance(u):
     """Historial de avance de las tareas: Gerencia, Coordinación y el responsable de Gestión Administrativa."""
-    return es_gerencia(u) or es_coordinador(u) or puede_ver_montos(u)
+    return es_gerencia(u) or es_coordinador(u) or puede_ver_montos(u) or es_asistente_direccion(u)
 
 
 def puede_importar_certificado(u, obra):
@@ -197,7 +214,7 @@ def puede_ver_informes(u, obra):
 def ve_informes_de_todas(u):
     """DIR y Coordinación (de Obras y de Proyectos): leen los informes de todas las obras y ven en el Dashboard
     cuáles faltan."""
-    return es_gerencia(u) or es_coordinador(u)
+    return es_gerencia(u) or es_coordinador(u) or es_asistente_direccion(u)
 
 
 def puede_editar_gremios(u):

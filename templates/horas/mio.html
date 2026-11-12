@@ -63,7 +63,9 @@
       {% if feriado %} · Feriado: {{ feriado.nombre }}. Tu jornada se computa sola; lo que cargues va como extra{% elif contratadas %} · jornada {{ contratadas|pct:1 }} h{% else %} · día no laboral: todo va como extra{% endif %}
     </span>
   </div>
-  {% if editable %}
+  {% if automatico %}
+    <div class="tarjeta-cuerpo"><p class="mb-0">Tu jornada se computa sola, de lunes a viernes, como Administración. No hace falta cargar horas. Si un día estuviste de vacaciones o ausente, lo marca DIR.</p></div>
+  {% elif editable %}
     <form method="post" novalidate>
       {% csrf_token %}
       {{ formset.management_form }}

@@ -80,8 +80,11 @@ def tablero(request):
         contexto["comunicados_sin_leer"] = u.comunicados_recibidos.filter(leido_en__isnull=True).select_related(
             "comunicado__autor")[:5]
     if permisos.es_gerencia(u):
+        from apps.horas.reglas import completar_automaticos
+
         from . import tablero_dir
 
+        completar_automaticos()
         contexto.update(tablero_dir.contexto(u))
         return render(request, "core/tablero_dir.html", contexto)
     return render(request, "core/tablero.html", contexto)

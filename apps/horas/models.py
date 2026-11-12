@@ -48,6 +48,7 @@ class RegistroHoras(models.Model):
                                 validators=[MinValueValidator(Decimal("0.5")), MaxValueValidator(24)])
     extra = models.BooleanField("hora extra", default=False)
     nota = models.CharField(max_length=200, blank=True)
+    automatico = models.BooleanField(default=False)  # jornada de Asistente de Dirección, computada sola
     creado = models.DateTimeField(auto_now_add=True)
     actualizado = models.DateTimeField(auto_now=True)
 
@@ -113,3 +114,19 @@ class Feriado(models.Model):
 
     def __str__(self):
         return f"{self.fecha:%d/%m/%Y} · {self.nombre}"
+
+
+class Ausencia(models.Model):
+    """Vacaciones o ausencias que DIR marca a quien tiene la jornada automática: ese día no se computa."""
+
+    usuario = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="ausencias")
+    fecha = models.DateField()
+    motivo = models.CharField(max_length=120, blank=True)
+    marcada_por = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL, related_name="+")
+    creada = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=["usuario", "fecha"], name="una_ausencia_por_dia")]
+
+    def __str__(self):
+        return f"{self.usuario} · {self.fecha:%d/%m/%Y}"
