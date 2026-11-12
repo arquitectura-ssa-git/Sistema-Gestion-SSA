@@ -513,3 +513,14 @@ a.dir-kpi:hover { border-color: #9c9b95; color: inherit; }
 
 /* Time Report del equipo (DIR) */
 .tabla-equipo .sin-cargar { font-size: .78rem; font-weight: 500; border: 1px solid var(--ssa-negro); border-radius: 999px; padding: .1rem .5rem; white-space: nowrap; }
+
+/* Equipo: pestañas Personas / Legajos, y legajos */
+.tabs-seccion { display: flex; gap: 1.75rem; border-bottom: 1px solid #cfcdc5; }
+.tabs-seccion a { padding: .55rem 0; text-decoration: none; color: #5b5b57; }
+.tabs-seccion a.activa { color: var(--ssa-negro); border-bottom: 2px solid var(--ssa-negro); margin-bottom: -1px; }
+.etiqueta-falta { font-size: .75rem; font-weight: 500; border: 1px solid var(--ssa-negro); border-radius: 999px; padding: .1rem .55rem; white-space: nowrap; }
+.etiqueta-falta.grande { font-size: .85rem; padding: .3rem .8rem; }
+.legajo-archivo { display: flex; align-items: center; gap: .75rem; padding: .65rem 0; border-top: 1px solid #e3e1da; margin-top: .65rem; }
+.legajo-formato { flex: none; width: 2.6rem; height: 3.1rem; border: 1px solid #cfcdc5; border-radius: .35rem; display: flex; align-items: center; justify-content: center; font-size: .65rem; letter-spacing: .05em; color: #5b5b57; background: #f2f1ec; }
+.legajo-subir { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-top: .85rem; }
+.legajo-subir input[type=file] { max-width: 20rem; }

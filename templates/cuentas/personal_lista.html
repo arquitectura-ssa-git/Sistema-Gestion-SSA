@@ -14,6 +14,7 @@
   </div>
   {% endif %}
 </div>
+{% include "cuentas/_tabs_equipo.html" with pestana="personas" %}
 <div class="leyenda-areas mb-3">
   {% for a in areas %}<span class="badge area area-{{ a.codigo }}">{{ a.nombre }}</span>{% endfor %}
   <span class="small text-muted ms-2">Relleno: responsable del área · Contorno: integrante</span>

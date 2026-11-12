@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block titulo %}Legajos{% endblock %}
+{% block contenido %}
+<div class="pagina-titulo"><h1>Equipo</h1></div>
+{% include "cuentas/_tabs_equipo.html" with pestana="legajos" puede_ver_legajos=True %}
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <p class="small text-muted mb-0"><i class="bi bi-lock"></i> Solo lo ven y lo gestionan DIR y Asistente de Dirección.</p>
+  <form method="get" class="d-flex flex-wrap gap-2 align-items-center">
+    <div class="form-check mb-0"><input class="form-check-input" type="checkbox" name="incompletos" value="1" id="incompletos" {% if solo_incompletos %}checked{% endif %} onchange="this.form.submit()"><label class="form-check-label small" for="incompletos">Solo legajos incompletos</label></div>
+    <input type="search" name="q" value="{{ q }}" class="form-control form-control-sm" placeholder="Buscar por nombre" aria-label="Buscar por nombre" style="width: 14rem">
+  </form>
+</div>
+
+<div class="dir-kpis mb-4">
+  <div class="dir-kpi"><span class="dir-kpi-titulo">Personas</span><span class="dir-kpi-valor">{{ resumen.personas }}</span></div>
+  <div class="dir-kpi"><span class="dir-kpi-titulo">Legajos completos</span><span class="dir-kpi-valor">{{ resumen.completos }}</span></div>
+  <div class="dir-kpi"><span class="dir-kpi-titulo">Con faltantes</span><span class="dir-kpi-valor">{{ resumen.incompletos }}</span></div>
+  <div class="dir-kpi"><span class="dir-kpi-titulo">Contratos que vencen en 60 días</span><span class="dir-kpi-valor">{{ resumen.vencen }}</span></div>
+</div>
+
+<div class="tarjeta">
+  <div class="table-responsive">
+    <table class="table table-hover table-tarjeta">
+      <thead><tr><th>Persona</th>{% for c, t in obligatorios %}<th>{% if c == "dni" %}DNI{% elif c == "titulo" %}Título{% elif c == "confidencialidad" %}Confidencialidad{% else %}Contrato o pasantía{% endif %}</th>{% endfor %}<th class="text-end">Legajo</th></tr></thead>
+      <tbody>
+      {% for f in filas %}
+        <tr>
+          <td><a href="{% url 'legajos:detalle' f.persona.pk %}" class="d-inline-flex align-items-center gap-2 text-decoration-none">{% include "includes/avatar.html" with persona=f.persona tam=30 %}<span><span class="fw-semibold d-block">{{ f.persona.nombre_completo }}</span><span class="small text-muted">{{ f.persona.cargo|default:"" }}</span></span></a></td>
+          {% for e in f.estado %}
+          <td>{% if e.cargado %}<span class="small">Cargado</span>{% if e.tipo == "contrato" and f.contrato %}<div class="small {% if f.por_vencer %}fw-semibold{% else %}text-muted{% endif %}">vence {{ f.contrato.vence|date:"d/m/Y" }}</div>{% endif %}{% else %}<span class="etiqueta-falta">Falta</span>{% endif %}</td>
+          {% endfor %}
+          <td class="text-end">{% if f.faltan %}<span class="fw-semibold">Faltan {{ f.faltan }}</span>{% else %}<span class="text-muted">Completo</span>{% endif %}{% if f.otros %}<div class="small text-muted">+{{ f.otros }} otro{{ f.otros|pluralize }}</div>{% endif %}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6"><div class="lista-vacia"><i class="bi bi-folder2"></i>{% if q or solo_incompletos %}No hay legajos con ese filtro.{% else %}No hay personal cargado.{% endif %}</div></td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

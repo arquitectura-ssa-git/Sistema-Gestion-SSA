@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     # Se activan a medida que se construye cada sección:
     "apps.documentos",
     "apps.informes",
+    "apps.legajos",
     # "apps.notificaciones",
     # "apps.aprobaciones",
     # "apps.comunicados",

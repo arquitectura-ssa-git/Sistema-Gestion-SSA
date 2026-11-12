@@ -1,0 +1,6 @@
+{% if puede_ver_legajos %}
+<nav class="tabs-seccion mb-3" aria-label="Secciones de Equipo">
+  <a href="{% url 'cuentas:personal' %}" class="{% if pestana == 'personas' %}activa{% endif %}"{% if pestana == 'personas' %} aria-current="page"{% endif %}>Personas</a>
+  <a href="{% url 'legajos:lista' %}" class="{% if pestana == 'legajos' %}activa{% endif %}"{% if pestana == 'legajos' %} aria-current="page"{% endif %}>Legajos</a>
+</nav>
+{% endif %}
