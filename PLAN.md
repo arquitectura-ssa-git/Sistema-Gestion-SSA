@@ -23,6 +23,7 @@
 | 16 | Ayuda (videos y preguntas frecuentes) | ✅ Hecho: 3 videos (Time Report, crear proyecto, avance y tareas) |
 | 17 | Importar proyectos y clientes desde Excel | ✅ Hecho |
 | 18 | Publicación en el VPS (sophia.saezsanchez.com.ar, HTTPS, respaldo diario) | ✅ Hecho |
+| 19 | Preguntale a SOPHIA (asistente que responde consultas sobre los datos; después por WhatsApp) | 📝 En diseño (ver abajo) |
 
 ## Módulos en diseño
 
@@ -75,6 +76,36 @@ trabajados y perdidos por lluvia, personal por gremio en el tiempo, avance día 
 **Definido con Pablo:** lo carga solo el DT; clima sol o lluvia (con lluvia se pregunta si se pudo trabajar); la
 lista de gremios la editan los DT y Coordinación de Obras; la nota de pedido es texto más foto de la hoja del libro.
 Hasta 20 fotos por informe; el aviso de «sin informe» sale solo los días hábiles.
+
+### 19 · Preguntale a SOPHIA — pedido por Pablo el 13/11/2026
+**Qué es:** un asistente al que DIR le pregunta con sus palabras y responde con los datos del sistema.
+Ej.: «¿cuántas horas lleva el proyecto Pérez?», «¿qué obras no mandaron informe esta semana?», «¿a quién se le vence
+el contrato?». Por ahora solo consultas; nada de informes programados.
+
+**Cómo funciona:** SOPHIA llama a Claude (API de Anthropic, modelo `claude-opus-5-5`, esfuerzo bajo) con un juego de
+**herramientas de solo lectura** escritas en Django. Claude elige cuáles usar, SOPHIA las ejecuta **con los permisos
+del usuario que pregunta** y Claude redacta la respuesta. No hay acceso libre a la base ni SQL: solo esas consultas.
+
+**Herramientas previstas:** buscar obras/proyectos (estado, etapa, avance, plazo, responsables); detalle de una obra
+(tareas, hitos, historial de avance, certificados si puede ver montos); horas (por persona, proyecto, tipo y fechas);
+informes diarios (por obra y fechas: clima, días perdidos, gremios); legajos (qué falta y qué vence — nunca el
+contenido de los archivos); agenda (buscar un contacto); resumen del tablero de DIR.
+
+**Etapas:**
+1. Cuadro «Preguntale a SOPHIA» en el Dashboard de DIR (web y celular). Sirve para probar y ajustar las respuestas.
+2. Por WhatsApp con Kapso: Pablo escribe al número de SOPHIA y recibe la respuesta. Como la conversación la empieza
+   él, no hace falta plantilla aprobada por Meta. Solo responde a números autorizados (el de DIR).
+3. Opcional: habilitarlo a Coordinación con sus permisos.
+
+**Reglas:** solo lee; respeta permisos (montos solo a quien los ve); cada pregunta queda en el registro de actividad;
+la clave de Anthropic va solo en el `.env` del VPS; los datos consultados viajan a Anthropic para armar la respuesta
+(los archivos de legajos no se mandan).
+
+**Costo estimado:** unos US$ 0,05 a 0,10 por pregunta → con 10 preguntas por día hábil, unos US$ 10 a 20 por mes.
+Kapso: plan gratis (2.000 mensajes/mes).
+
+**Falta de Pablo:** crear la cuenta en console.anthropic.com con medio de pago y generar la clave (la carga él en el
+servidor; nunca por chat); para la etapa 2, la cuenta de Kapso y el número de WhatsApp.
 
 ## Temas en pausa (para retomar)
 
