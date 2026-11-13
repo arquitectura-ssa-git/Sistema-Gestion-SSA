@@ -1,6 +1,6 @@
 # Plan: Sistema de Gestión de Proyectos para estudio de arquitectura
 
-## Estado de avance (al 14/10/2026)
+## Estado de avance (al 13/11/2026)
 
 | # | Sección | Estado |
 |---|---|---|
@@ -17,6 +17,12 @@
 | 10 | Pruebas automáticas y datos demo | ✅ Datos demo (`manage.py cargar_demo`) y pruebas automáticas en `tests/` (pytest). |
 | 11 | Gestión de Adquisiciones (pedidos de materiales, contrataciones y presupuestos) | 📝 En diseño (ver abajo). Reemplaza el tablero de Trello |
 | 12 | Informes diarios de Dirección Técnica | ✅ Hecho (09/11/2026). Falta el informe semanal para el cliente |
+| 13 | Time Report (carga de horas, feriados, pedidos de habilitación, reportes, tipos de tarea editables) | ✅ Hecho. DIR ve el del equipo; jornada automática con ausencias para la Asistente de Dirección |
+| 14 | Dashboard de DIR | ✅ Hecho (11/11/2026). Opcional: presupuesto de horas por proyecto |
+| 15 | Asistente de Dirección, Legajos del personal y Agenda (sincronizada con Clientes) | ✅ Hecho (12/11/2026) |
+| 16 | Ayuda (videos y preguntas frecuentes) | ✅ Hecho: 3 videos (Time Report, crear proyecto, avance y tareas) |
+| 17 | Importar proyectos y clientes desde Excel | ✅ Hecho |
+| 18 | Publicación en el VPS (sophia.saezsanchez.com.ar, HTTPS, respaldo diario) | ✅ Hecho |
 
 ## Módulos en diseño
 
