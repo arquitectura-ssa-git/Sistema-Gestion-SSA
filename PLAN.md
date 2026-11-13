@@ -53,7 +53,7 @@ adjuntos e historial; autorización de DIR con botón y comentario.
 - El DT **ve los montos de sus pedidos**.
 - Si DIR no autoriza, **elige**: «Devolver para corregir» (vuelve a Compras con comentario y se reenvía) o
   «Rechazar definitivo» (se cierra y el DT recibe el motivo). El comentario es obligatorio en los dos casos.
-- Maqueta aprobada antes de programar: tablero, carga desde el celular, ficha y autorización de DIR.
+- Maqueta antes de programar (falta que Pablo la apruebe): tablero, carga desde el celular, ficha y autorización de DIR.
 
 **Falta definir:** una o varias cotizaciones por pedido (la maqueta muestra hasta 3); recepción parcial; quién
 registra los pagos; si se migran los pedidos abiertos de Trello.
