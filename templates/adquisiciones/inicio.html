@@ -1,0 +1,64 @@
+{% extends "base.html" %}{% load core_tags %}
+{% block titulo %}Adquisiciones{% endblock %}
+{% block contenido %}
+{% include "adquisiciones/_cabecera.html" with seccion="inicio" subtitulo="" %}
+<p class="text-muted mb-4">{{ total_abiertos }} pedido{{ total_abiertos|pluralize }} abierto{{ total_abiertos|pluralize }} en {{ obras_abiertas }} obra{{ obras_abiertas|pluralize }} y proyecto{{ obras_abiertas|pluralize }}{% if mios %} · {{ mios|length }} te toca{{ mios|length|pluralize:"n" }} a vos{% endif %}</p>
+
+<h2 class="seccion-titulo">Para hacer</h2>
+<div class="row g-3 mb-4">
+  {% if es_compras %}
+  <div class="col-6 col-lg-3"><a href="#mios" class="pendiente-cuadro{% if tarjetas.nuevos %} fuerte{% endif %}"><span class="pendiente-numero">{{ tarjetas.nuevos|length }}</span><span class="fw-semibold">Pedidos nuevos</span><span class="small text-muted">Pedir cotización</span></a></div>
+  <div class="col-6 col-lg-3"><a href="#mios" class="pendiente-cuadro{% if tarjetas.devueltos %} fuerte{% endif %}"><span class="pendiente-numero">{{ tarjetas.devueltos|length }}</span><span class="fw-semibold">Devueltos por DIR</span><span class="small text-muted">Corregir y reenviar</span></a></div>
+  {% endif %}
+  {% if perm.gerencia %}
+  <div class="col-6 col-lg-3"><a href="#mios" class="pendiente-cuadro{% if tarjetas.autorizar %} fuerte{% endif %}"><span class="pendiente-numero">{{ tarjetas.autorizar|length }}</span><span class="fw-semibold">Para autorizar</span><span class="small text-muted">Esperan tu decisión</span></a></div>
+  {% endif %}
+  <div class="col-6 col-lg-3"><a href="#mios" class="pendiente-cuadro{% if tarjetas.recibir %} fuerte{% endif %}"><span class="pendiente-numero">{{ tarjetas.recibir|length }}</span><span class="fw-semibold">Por recibir en obra</span><span class="small text-muted">Registrar lo que llega</span></a></div>
+  <div class="col-6 col-lg-3"><a href="#mios" class="pendiente-cuadro"><span class="pendiente-numero">{{ mios|length }}</span><span class="fw-semibold">En total te tocan</span><span class="small text-muted">Ver la lista abajo</span></a></div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <h2 class="seccion-titulo" id="mios">Te toca a vos</h2>
+    <div class="tarjeta mb-4">
+      <ul class="list-unstyled mb-0 lista-pedidos">
+        {% for p in mios %}
+        <li><a href="{% url 'adquisiciones:pedido' p.pk %}" class="d-flex justify-content-between gap-3 text-decoration-none">
+          <span><span class="small text-muted">{{ p.codigo }} · {{ p.obra.codigo }} · {{ p.obra.nombre }}</span><span class="d-block fw-semibold">{{ p.titulo }}</span><span class="small">{% if p.devuelto %}Devuelto por DIR{% else %}{{ p.get_estado_display }}{% endif %}{% if p.urgente %} · <span class="pedido-urgente">Urgente</span>{% endif %}</span></span>
+          <span class="text-end small text-nowrap">{% if p.ver_montos and p.monto is not None %}{{ p.monto|pesos }}<br>{% endif %}{% if p.necesario_para %}<span class="text-muted">Para el {{ p.necesario_para|date:"d/m" }}</span>{% endif %}</span>
+        </a></li>
+        {% empty %}
+        <li><div class="lista-vacia"><i class="bi bi-check2-circle"></i>No tenés pedidos para mover.</div></li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <h2 class="seccion-titulo">Últimos movimientos</h2>
+    <div class="tarjeta mb-4"><ul class="list-unstyled mb-0 lista-pedidos small">
+      {% for m in movimientos %}
+      <li><a href="{% url 'adquisiciones:pedido' m.pedido_id %}" class="text-decoration-none"><span class="text-muted">{{ m.fecha|date:"d/m H:i" }}</span> · {{ m.pedido.codigo }}: {{ m.texto }}</a></li>
+      {% empty %}<li class="text-muted">Todavía no hay movimientos.</li>{% endfor %}
+    </ul></div>
+  </div>
+</div>
+
+<h2 class="seccion-titulo">Por obra y proyecto</h2>
+<div class="tarjeta mb-2"><div class="table-responsive">
+  <table class="table table-tarjeta tabla-por-obra mb-0">
+    <thead><tr><th>Obra / proyecto</th>{% for corto, largo in columnas_tabla %}<th class="text-center{% if forloop.counter == 4 %} col-dir{% endif %}" title="{{ largo }}">{{ corto }}</th>{% endfor %}<th class="text-end">En curso</th></tr></thead>
+    <tbody>
+      {% for g in por_obra %}
+      <tr>
+        <td><a href="{% url 'adquisiciones:tablero' %}?obra={{ g.obra.pk }}" class="fw-semibold text-decoration-none">{{ g.obra.codigo }} · {{ g.obra.nombre }}</a></td>
+        {% for n in g.celdas %}<td class="text-center">{% if n %}<span class="{% if forloop.counter == 4 %}cuenta-dir{% else %}fw-semibold{% endif %}">{{ n }}</span>{% else %}<span class="text-muted">·</span>{% endif %}</td>{% endfor %}
+        <td class="text-end text-nowrap">{% if g.ver %}{{ g.monto|pesos }}{% if g.sin_monto %}<div class="small text-muted">{{ g.sin_monto }} sin cotizar</div>{% endif %}{% else %}—{% endif %}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="10"><div class="lista-vacia"><i class="bi bi-cart3"></i>No hay pedidos abiertos.</div></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+<p class="small text-muted">Tocá una obra para ver su tablero. La columna DIR muestra lo que espera autorización.</p>
+{% endblock %}

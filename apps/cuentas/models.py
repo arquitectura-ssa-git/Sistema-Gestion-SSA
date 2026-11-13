@@ -109,6 +109,10 @@ class Usuario(AbstractUser):
         "Asistente de Dirección", default=False,
         help_text="No carga Time Report: su jornada se computa sola. Gestiona Legajos, Clientes y Agenda.")
     tr_automatico_desde = models.DateField(null=True, blank=True, editable=False)
+    # Gestión de Compras: sigue los pedidos de las obras (cotizaciones, órdenes de compra, facturas, entregas).
+    gestion_compras = models.BooleanField(
+        "Gestión de Compras", default=False,
+        help_text="Gestiona los pedidos de obra: cotizaciones, órdenes de compra, facturas y entregas. Ve sus montos.")
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []

@@ -82,6 +82,13 @@
           </form>
         </li>
         {% endfor %}
+        {% for p in atencion.compras %}
+        <li>
+          <span class="dir-etiqueta urgente">Compra</span>
+          <div class="flex-grow-1"><div><a href="{% url 'adquisiciones:pedido' p.pk %}">{{ p.codigo }} · {{ p.titulo }}</a> espera tu autorización</div><div class="small text-muted">{{ p.obra.nombre }}{% if p.monto is not None %} · {{ p.monto|pesos }}{% endif %}{% if p.devuelto %} · corregido{% endif %}</div></div>
+          <a href="{% url 'adquisiciones:pedido' p.pk %}" class="btn btn-sm btn-dark flex-shrink-0">Ver</a>
+        </li>
+        {% endfor %}
         {% if atencion.sin_informe %}
         <li>
           <span class="dir-etiqueta urgente">Hoy</span>

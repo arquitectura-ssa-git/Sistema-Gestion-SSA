@@ -1,0 +1,13 @@
+<div class="pagina-titulo">
+  <div>
+    <h1>Adquisiciones</h1>
+    <div class="small text-muted">{{ subtitulo }}</div>
+  </div>
+  <div class="d-flex flex-wrap gap-2">
+    <a href="{% url 'adquisiciones:inicio' %}" class="btn {% if seccion == 'inicio' %}btn-dark{% else %}btn-outline-dark{% endif %}">Mis pendientes</a>
+    <a href="{% url 'adquisiciones:tablero' %}" class="btn {% if seccion == 'tablero' %}btn-dark{% else %}btn-outline-dark{% endif %}">Tablero</a>
+    <a href="{% url 'adquisiciones:lista' %}" class="btn {% if seccion == 'lista' %}btn-dark{% else %}btn-outline-dark{% endif %}">Lista</a>
+    {% if perm.compras %}<a href="{% url 'adquisiciones:importar' %}" class="btn btn-outline-dark">Importar de Trello</a>{% endif %}
+    {% if puede_pedir %}<a href="{% url 'adquisiciones:nuevo' %}{% if filtro.obra %}?obra={{ filtro.obra }}{% endif %}" class="btn btn-dark"><i class="bi bi-plus-lg"></i> Nuevo pedido</a>{% endif %}
+  </div>
+</div>

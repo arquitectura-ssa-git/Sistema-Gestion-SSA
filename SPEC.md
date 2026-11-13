@@ -236,3 +236,4 @@ aprobación. Cada cambio se anota abajo con fecha y motivo.
 | 10/11/2026 | Nombres de proyectos y obras siempre en mayúsculas; eliminar clientes sin trabajos | Pedido de Pablo | Pablo Saez (lo pidió) |
 | 12/11/2026 | Perfil Asistente de Dirección (jornada automática), Legajos y Agenda sincronizada con Clientes | Pedido de Pablo | Pablo Saez (lo pidió) |
 | 12/11/2026 | Teléfonos con un solo formato (país +54, característica y número → «+54 381 300-4288»); filas de la Agenda con la misma altura; ausencia o permiso de la jornada automática con una casilla junto a cada día | Pedido de Pablo | Pablo Saez (lo pidió) |
+| 13/11/2026 | Gestión de Adquisiciones, etapa 1: pedidos de obra y proyecto, circuito de 8 estados con autorización de DIR, hasta 3 cotizaciones, entregas parciales, avisos en la campana e importación de Trello | Pedido de Pablo | Pablo Saez (lo pidió) |

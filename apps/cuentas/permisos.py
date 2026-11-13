@@ -226,6 +226,47 @@ def puede_autorizar_correccion_informe(u):
     return es_gerencia(u)
 
 
+# --- Adquisiciones ------------------------------------------------------------
+
+def es_compras(u):
+    """Gestión de Compras (Julieta y Rubén): sigue los pedidos de todas las obras."""
+    return es_personal(u) and bool(getattr(u, "gestion_compras", False))
+
+
+def puede_gestionar_compras(u):
+    return es_compras(u) or es_gerencia(u)
+
+
+def ve_todos_los_pedidos(u):
+    return (puede_gestionar_compras(u) or es_coordinador(u) or es_responsable_de(u, A.GESTION_ADMINISTRATIVA)
+            or es_asistente_direccion(u))
+
+
+def puede_autorizar_pedidos(u):
+    return es_gerencia(u)
+
+
+def puede_crear_pedido(u, obra):
+    """Los DT cargan los pedidos de su obra; en un proyecto, su equipo. Compras y Coordinación también pueden."""
+    return not obra.eliminada and (puede_gestionar_compras(u) or es_coordinador(u) or esta_asignado(u, obra))
+
+
+def puede_ver_pedido(u, pedido):
+    return ve_todos_los_pedidos(u) or esta_asignado(u, pedido.obra)
+
+
+def puede_ver_montos_pedido(u, pedido):
+    """Montos de cotizaciones y órdenes: DIR, Compras, Administración, Coordinación de Proyectos y el equipo de la obra
+    (el DT ve los de sus pedidos)."""
+    return puede_ver_montos(u) or es_compras(u) or esta_asignado(u, pedido.obra) or (
+        pedido.creado_por_id == getattr(u, "pk", None))
+
+
+def puede_recibir_pedido(u, pedido):
+    """La recepción en obra la registra el equipo de la obra (el DT) o Compras."""
+    return puede_gestionar_compras(u) or esta_asignado(u, pedido.obra)
+
+
 # --- Time Report -------------------------------------------------------------
 
 def puede_habilitar_horas(u):

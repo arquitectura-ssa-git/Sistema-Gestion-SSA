@@ -54,7 +54,7 @@ class PersonaForm(_ConClaveInicial):
         model = Usuario
         fields = ["first_name", "last_name", "email", "cargo", "telefono",
                   "calle", "numero", "barrio", "localidad", "provincia",
-                  "horas_lun", "horas_mar", "horas_mie", "horas_jue", "horas_vie", "is_active", "asistente_direccion"]
+                  "horas_lun", "horas_mar", "horas_mie", "horas_jue", "horas_vie", "is_active", "asistente_direccion", "gestion_compras"]
         labels = {"first_name": "Nombre", "last_name": "Apellido", "is_active": "Activo (puede ingresar)"}
 
     DIAS = [("lun", "Lun"), ("mar", "Mar"), ("mie", "Mié"), ("jue", "Jue"), ("vie", "Vie")]
@@ -74,6 +74,7 @@ class PersonaForm(_ConClaveInicial):
         self.areas = [a for a in Area.objects.all() if con_gerencia or a.codigo != Area.Codigo.GERENCIA]
         if not con_gerencia:
             self.fields.pop("asistente_direccion")  # da acceso a los Legajos: solo lo asigna DIR
+            self.fields.pop("gestion_compras")  # da acceso a los montos de las compras: solo lo asigna DIR
         actuales = {}
         if self.instance.pk:
             actuales = {m.area_id: m.rol for m in self.instance.membresias.all()}

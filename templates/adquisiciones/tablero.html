@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block titulo %}Tablero de pedidos{% endblock %}
+{% block contenido %}
+{% include "adquisiciones/_cabecera.html" with seccion="tablero" subtitulo="" %}
+{% include "adquisiciones/_filtros.html" %}
+<div class="tablero-pedidos-caja">
+  <div class="tablero-pedidos">
+    {% for c in columnas %}
+    <section class="tablero-columna{% if c.dir %} columna-dir{% endif %}" aria-label="{{ c.titulo }}">
+      <h2>{{ c.titulo }}<span>{{ c.pedidos|length }}</span></h2>
+      {% for p in c.pedidos %}{% include "adquisiciones/_tarjeta.html" %}{% empty %}<div class="small text-muted px-1">—</div>{% endfor %}
+    </section>
+    {% endfor %}
+  </div>
+</div>
+<p class="small text-muted mt-2">{{ total }} pedido{{ total|pluralize }} abierto{{ total|pluralize }}. Para avanzar un pedido, abrilo y usá el botón del paso que corresponde. Los pedidos de proyecto pasan por Recepción, Autorización DIR y Orden de compra.</p>
+{% endblock %}

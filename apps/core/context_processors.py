@@ -20,6 +20,7 @@ def globales(request):
         "agenda": permisos.puede_gestionar_agenda(usuario),
         "crear_obras": permisos.puede_crear_obra(usuario),
         "auditoria": permisos.puede_ver_auditoria_global(usuario),
+        "compras": permisos.puede_gestionar_compras(usuario),
     }
     contexto["perm"] = perm
     contexto["menu"] = construir_menu(request, perm)

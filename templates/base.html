@@ -44,9 +44,9 @@
       </button>
       <div class="flex-grow-1 text-truncate">{% block migas %}{% endblock %}</div>
       {% if mostrar_campana %}
-      <a href="{% url 'notificaciones:lista' %}" class="btn btn-light position-relative me-2" title="Notificaciones">
+      <a href="{% url 'notificaciones:lista' %}" class="btn btn-light position-relative me-2" title="Avisos" aria-label="Avisos{% if notif_no_leidas %}: {{ notif_no_leidas }} sin leer{% endif %}">
         <i class="bi bi-bell"></i>
-        {% if notif_no_leidas %}<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ notif_no_leidas }}</span>{% endif %}
+        {% if notif_no_leidas %}<span class="position-absolute top-0 start-100 translate-middle badge rounded-pill text-bg-dark">{{ notif_no_leidas }}</span>{% endif %}
       </a>
       {% endif %}
       <div class="dropdown">

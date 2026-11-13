@@ -1,0 +1,24 @@
+{% extends "base.html" %}{% load core_tags %}
+{% block titulo %}Pedidos{% endblock %}
+{% block contenido %}
+{% include "adquisiciones/_cabecera.html" with seccion="lista" subtitulo="" %}
+{% include "adquisiciones/_filtros.html" %}
+<div class="tarjeta"><div class="table-responsive">
+  <table class="table table-hover table-tarjeta mb-0">
+    <thead><tr><th>Pedido</th><th>Obra / proyecto</th><th>Estado</th><th>Para el</th><th class="text-end">Monto</th></tr></thead>
+    <tbody>
+      {% for p in pedidos %}
+      <tr>
+        <td><a href="{% url 'adquisiciones:pedido' p.pk %}" class="text-decoration-none"><span class="small text-muted">{{ p.codigo }} · {{ p.get_tipo_display }}</span><span class="d-block fw-semibold">{{ p.titulo }}</span></a></td>
+        <td class="small">{{ p.obra.codigo }} · {{ p.obra.nombre }}</td>
+        <td class="small">{% if p.devuelto %}Devuelto por DIR{% else %}{{ p.get_estado_display }}{% endif %}{% if p.urgente and p.abierto %} · <span class="pedido-urgente">Urgente</span>{% endif %}</td>
+        <td class="small text-nowrap">{{ p.necesario_para|date:"d/m/Y"|default:"—" }}</td>
+        <td class="text-end text-nowrap">{% if p.ver_montos and p.monto is not None %}{{ p.monto|pesos }}{% else %}—{% endif %}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5"><div class="lista-vacia"><i class="bi bi-cart3"></i>No hay pedidos con esos filtros.</div></td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endblock %}

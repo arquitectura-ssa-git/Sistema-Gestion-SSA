@@ -74,3 +74,12 @@ document.addEventListener("click", function (e) {
   });
   fila.hidden = true;
 });
+
+// Pedidos: «+ Agregar ítem» muestra la próxima fila oculta del formulario.
+document.addEventListener("click", function (e) {
+  const boton = e.target.closest("[data-mostrar-item]");
+  if (!boton) return;
+  const fila = document.querySelector(".item-fila.oculta");
+  if (fila) { fila.classList.remove("oculta"); const campo = fila.querySelector("input[type=text]"); if (campo) campo.focus(); }
+  if (!document.querySelector(".item-fila.oculta")) boton.hidden = true;
+});

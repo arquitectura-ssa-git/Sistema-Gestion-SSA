@@ -24,6 +24,14 @@ def _personal_que_carga():
             .exclude(membresias__area__codigo=Area.Codigo.GERENCIA).order_by("first_name", "last_name"))
 
 
+def _compras_para_autorizar():
+    from django.apps import apps as django_apps
+    if not django_apps.is_installed("apps.adquisiciones"):
+        return []
+    from apps.adquisiciones.reglas import esperando_dir
+    return list(esperando_dir()[:8])
+
+
 def plazo_transcurrido(obra, hoy):
     """% del plazo que ya pasó (None si la obra no tiene fecha de inicio y fin estimada)."""
     if not (obra.fecha_inicio and obra.fecha_fin_estimada) or obra.fecha_fin_estimada <= obra.fecha_inicio:
@@ -154,7 +162,7 @@ def contexto(usuario):
         },
         "atencion": {
             "sin_informe": sin_informe, "sin_tr": sin_tr, "atrasadas": atrasadas, "quietos": quietos,
-            "pedidos_horas": pedidos_horas, "pedidos_informe": pedidos_informe,
+            "pedidos_horas": pedidos_horas, "pedidos_informe": pedidos_informe, "compras": _compras_para_autorizar(),
         },
         "semanas": semanas, "promedio_semanal": promedio,
         "obras_plazo": filas_obras,

@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block titulo %}Importar de Trello{% endblock %}
+{% block contenido %}
+<div class="small text-muted mb-2"><a href="{% url 'adquisiciones:inicio' %}">Adquisiciones</a> / Importar de Trello</div>
+<div class="pagina-titulo"><div><h1>Importar de Trello</h1><div class="small text-muted">Un tablero por obra. En Trello: Menú del tablero → Imprimir, exportar y compartir → Exportar como JSON.</div></div></div>
+
+{% if not leido %}
+<form method="post" enctype="multipart/form-data" class="tarjeta"><div class="tarjeta-cuerpo">{% csrf_token %}
+  {% include "includes/campo.html" with campo=form.obra %}
+  {% include "includes/campo.html" with campo=form.archivo %}
+  <button class="btn btn-dark">Ver qué se va a importar</button>
+  <p class="small text-muted mt-3 mb-0">Cada tarjeta abierta pasa a ser un pedido: la lista donde está define el estado, la descripción se convierte en ítems y los comentarios quedan en el historial. Los adjuntos quedan como enlaces a Trello. Si importás el mismo tablero dos veces, no se repiten.</p>
+</div></form>
+{% else %}
+<div class="tarjeta mb-3"><div class="tarjeta-cuerpo">
+  <div class="d-flex flex-wrap justify-content-between gap-2 align-items-center">
+    <div><strong>{{ leido.tablero }}</strong> → {{ obra.codigo }} · {{ obra.nombre }}<div class="small text-muted">{{ leido.filas|length }} tarjeta{{ leido.filas|length|pluralize }} abierta{{ leido.filas|length|pluralize }} · se van a crear {{ a_crear }} pedido{{ a_crear|pluralize }}</div></div>
+    <form method="post" class="d-flex gap-2">{% csrf_token %}<button name="confirmar" value="1" class="btn btn-dark" {% if not a_crear %}disabled{% endif %}>Importar {{ a_crear }} pedido{{ a_crear|pluralize }}</button><a href="{% url 'adquisiciones:importar' %}" class="btn btn-outline-secondary">Cancelar</a></form>
+  </div>
+</div></div>
+<div class="tarjeta"><div class="table-responsive">
+  <table class="table table-tarjeta mb-0">
+    <thead><tr><th>Tarjeta</th><th>En Trello</th><th>Queda en SOPHIA</th><th class="text-end">Ítems</th><th class="text-end">Comentarios</th></tr></thead>
+    <tbody>
+      {% for f in leido.filas %}
+      <tr class="{% if f.repetido %}text-muted{% endif %}">
+        <td><span class="small text-muted">{{ f.referencia }}</span><span class="d-block fw-semibold">{{ f.titulo }}</span>{% if f.repetido %}<span class="small">Ya importada: no se repite</span>{% endif %}</td>
+        <td class="small">{{ f.lista }}</td>
+        <td class="small">{{ f.estado_texto }}</td>
+        <td class="text-end">{{ f.items|length }}</td>
+        <td class="text-end">{{ f.comentarios|length }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div></div>
+{% endif %}
+{% endblock %}

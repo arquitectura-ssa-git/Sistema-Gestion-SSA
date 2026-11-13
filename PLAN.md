@@ -10,12 +10,12 @@
 | 4 | Obras y equipo | ✅ Hecho: lista con filtros, alta/edición, ficha con pestañas (resumen, equipo, hitos, actividad) |
 | 4b | Proyectos, menú nuevo y plantillas de tareas | ✅ Hecho: menú Dashboard · Proyectos · Obras · Documentos · Equipo · Miembros · Clientes · Plantillas. Cada obra es de tipo *Proyecto* u *Obra* (se elige al crearla; códigos PR-/OB-). Plantillas de tareas con incidencia (suman 100%); al aplicarlas se copian a la pestaña *Tareas* y el avance sale de incidencia × avance de cada tarea. |
 | 5 | Documentos (archivos, versiones, papelera) | ✅ Hecho: 10 tipos con datos propios, 3 niveles de acceso, versiones con huella, circuito de planos, vista previa de PDF/fotos/planillas, papelera. Diseño en `docs/SECCION-5-DOCUMENTOS.md` |
-| 6 | Notificaciones (sistema, email, WhatsApp) | ⏸️ En pausa: avisos de hitos por WhatsApp analizados (ver «Temas en pausa»). El email del servidor tampoco está configurado. |
+| 6 | Notificaciones (sistema, email, WhatsApp) | 🔨 Avisos dentro de SOPHIA (campana) hechos con Adquisiciones. En pausa: avisos de hitos por WhatsApp analizados (ver «Temas en pausa»). El email del servidor tampoco está configurado. |
 | 7 | Aprobaciones (gastos, decisiones y cambios) | ⏳ Pendiente |
 | 8 | Comunicados (avisos al grupo y a clientes) | ⏳ Pendiente |
 | 9 | Portal del cliente | ⏳ Pendiente. Hay una maqueta interactiva para mostrar: `demo/portal-cliente-demo.html` |
 | 10 | Pruebas automáticas y datos demo | ✅ Datos demo (`manage.py cargar_demo`) y pruebas automáticas en `tests/` (pytest). |
-| 11 | Gestión de Adquisiciones (pedidos de materiales, contrataciones y presupuestos) | 📝 En diseño (ver abajo). Reemplaza el tablero de Trello |
+| 11 | Gestión de Adquisiciones (pedidos de materiales, contrataciones y presupuestos) | 🔨 Etapa 1 hecha (13/11/2026): pedidos, circuito, cotizaciones, autorización DIR, entregas parciales, avisos, importar Trello. Falta etapa 3: proveedores y cuentas corrientes |
 | 12 | Informes diarios de Dirección Técnica | ✅ Hecho (09/11/2026). Falta el informe semanal para el cliente |
 | 13 | Time Report (carga de horas, feriados, pedidos de habilitación, reportes, tipos de tarea editables) | ✅ Hecho. DIR ve el del equipo; jornada automática con ausencias para la Asistente de Dirección |
 | 14 | Dashboard de DIR | ✅ Hecho (11/11/2026). Opcional: presupuesto de horas por proyecto |
@@ -71,8 +71,13 @@ queda en el historial). El aviso es la campana de SOPHIA y «Mis pendientes»; m
 | 8 Recepción en obra | DT («Recibido») | completo o con faltantes, nota, foto del remito | Julieta (y DIR si falta algo) |
 Pedidos de proyecto: Responsable carga con presupuesto → DIR → Julieta arma la OC.
 
-**Falta definir:** qué pasa con una recepción parcial (¿queda abierto lo que falta?); quién registra los pagos
-(la maqueta supone Julieta); cómo se pasa el tablero de Trello (exportación del tablero).
+- **Entrega parcial:** el pedido queda abierto en «Recepción en obra» hasta que se completa.
+- **Pagos (etapa 3):** los gestionan **Julieta y Rubén** (Gestión de Compras). Las facturas van a un listado de
+  **cuentas corrientes** por proveedor y se van pagando según disponibilidad y prioridad: efectivo, cheque,
+  transferencia, y **pagos parciales** en servicios profesionales, que dependen de las entregas. El paso «Compra» del
+  circuito confirma la compra al proveedor; el pago se sigue en la cuenta corriente.
+
+**Falta:** el archivo JSON exportado del tablero de Trello para migrarlo.
 
 ### 12 · Informes diarios de Dirección Técnica
 **Quién y cuándo:** el DT de la obra, desde SOPHIA (normalmente en el celular, en la obra). Uno por obra y por día,

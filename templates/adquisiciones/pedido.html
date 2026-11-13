@@ -1,0 +1,173 @@
+{% extends "base.html" %}{% load core_tags %}
+{% block titulo %}{{ p.codigo }} · {{ p.titulo }}{% endblock %}
+{% block contenido %}
+<div class="small text-muted mb-2"><a href="{% url 'adquisiciones:inicio' %}">Adquisiciones</a> / <a href="{% url 'adquisiciones:tablero' %}?obra={{ p.obra.pk }}">{{ p.obra.codigo }}</a> / {{ p.codigo }}</div>
+<div class="pagina-titulo">
+  <div>
+    <h1>{{ p.titulo }}</h1>
+    <div class="text-muted">{{ p.codigo }} · {{ p.get_tipo_display }} · {{ p.obra.codigo }} · {{ p.obra.nombre }} · {% if p.creado_por %}pidió {{ p.creado_por.nombre_completo }}{% else %}importado de Trello{% endif %} el {{ p.creado|date:"d/m" }}{% if p.necesario_para %} · lo necesita para el {{ p.necesario_para|date:"d/m" }}{% endif %}{% if p.urgente and p.abierto %} · <span class="pedido-urgente">Urgente</span>{% endif %}</div>
+  </div>
+  {% if puede_editar %}<a href="{% url 'adquisiciones:editar' p.pk %}" class="btn btn-outline-dark">Editar</a>{% endif %}
+</div>
+
+{% if p.abierto %}
+<ol class="pasos-pedido" aria-label="Estado del pedido">
+  {% for paso in pasos %}<li class="{% if paso.hecho %}hecho{% elif paso.actual %}actual{% endif %}"><span class="barra"></span><span class="nombre">{{ paso.nombre }}</span></li>{% endfor %}
+</ol>
+{% else %}
+<div class="estado-cierre mb-3">{% if p.estado == "rechazado" %}Rechazado por DIR{% else %}Pedido completo{% endif %} · {{ p.estado_desde|date:"d/m/Y" }}</div>
+{% endif %}
+
+{% if ultima_devolucion %}
+<div class="aviso-devuelto mb-3"><strong>DIR lo devolvió para corregir</strong> ({{ ultima_devolucion.fecha|date:"d/m H:i" }}): «{{ ultima_devolucion.comentario }}»</div>
+{% endif %}
+
+{% if autorizar %}
+<section class="panel-accion panel-dir mb-4" aria-labelledby="t-autorizar">
+  <h2 id="t-autorizar">Espera tu autorización</h2>
+  <div class="d-flex flex-wrap justify-content-between gap-3 mb-3">
+    <div>{% if p.elegida %}Orden {{ p.oc_numero|default:"" }} con <strong>{{ p.elegida.proveedor_nombre }}</strong>{% else %}Sin cotización elegida{% endif %}</div>
+    <div class="monto-grande">{{ p.monto|pesos }}</div>
+  </div>
+  <form method="post" action="" class="d-flex flex-column gap-2">{% csrf_token %}
+    <label class="form-label small mb-0" for="comentario-dir">Comentario (obligatorio si devolvés o rechazás)</label>
+    <textarea name="comentario" id="comentario-dir" rows="2" class="form-control"></textarea>
+    <div class="d-flex flex-wrap gap-2 mt-1">
+      <button class="btn btn-autorizar" formaction="{% url 'adquisiciones:accion' p.pk 'autorizar' %}">Autorizar</button>
+      <button class="btn btn-outline-light" formaction="{% url 'adquisiciones:accion' p.pk 'devolver' %}">Devolver para corregir</button>
+      <button class="btn btn-outline-light opacity-75" formaction="{% url 'adquisiciones:accion' p.pk 'rechazar' %}" onclick="return confirm('¿Rechazar este pedido en forma definitiva?')">Rechazar definitivo</button>
+    </div>
+  </form>
+  <ul class="small mb-0 mt-3 opacity-75">
+    <li>Autorizar: sigue el circuito y avisa a Compras y al DT.</li>
+    <li>Devolver: vuelve a Compras con tu comentario; cuando lo corrigen, te llega de nuevo.</li>
+    <li>Rechazar: se cierra y se archiva; el DT recibe el motivo.</li>
+  </ul>
+</section>
+{% endif %}
+
+{% if accion %}
+<section class="panel-accion mb-4" aria-labelledby="t-accion">
+  <h2 id="t-accion">Próximo paso: {{ accion.1 }}</h2>
+  {% with codigo=accion.0 %}
+  {% if codigo == "cotizar" %}
+  <form method="post" action="{% url 'adquisiciones:accion' p.pk 'cotizar' %}" class="row g-2 align-items-end">{% csrf_token %}
+    <div class="col-md-9"><label class="form-label small" for="proveedores">¿A qué proveedores pediste? (opcional)</label><input name="proveedores" id="proveedores" class="form-control" maxlength="300" placeholder="Ej.: Corralón Norte, Hierros del Valle"></div>
+    <div class="col-md-3"><button class="btn btn-dark w-100">Pedir cotizaciones</button></div>
+  </form>
+  {% elif codigo == "orden" %}
+  <p class="small mb-2">Cargá hasta {{ maximo }} cotizaciones abajo y elegí una. Después armá la orden de compra.</p>
+  <form method="post" action="{% url 'adquisiciones:accion' p.pk 'orden' %}">{% csrf_token %}<button class="btn btn-dark" {% if not p.elegida %}disabled{% endif %}>Armar orden de compra{% if p.elegida %} con {{ p.elegida.proveedor_nombre }}{% endif %}</button></form>
+  {% elif codigo == "a_dir" %}
+  {% if p.es_de_proyecto %}<p class="small mb-2">Cargá el presupuesto abajo (hasta {{ maximo }}) y envialo a DIR.</p>{% endif %}
+  <form method="post" action="{% url 'adquisiciones:accion' p.pk 'a_dir' %}">{% csrf_token %}<button class="btn btn-dark" {% if not p.elegida %}disabled{% endif %}>Enviar a DIR{% if p.devuelto %} (corregido){% endif %}</button></form>
+  {% elif codigo == "emitir" %}
+  <form method="post" action="{% url 'adquisiciones:accion' p.pk 'emitir' %}">{% csrf_token %}<button class="btn btn-dark">Emitir orden de compra</button></form>
+  {% elif codigo == "factura" %}
+  <form method="post" enctype="multipart/form-data" action="{% url 'adquisiciones:accion' p.pk 'factura' %}" class="row g-2 align-items-end">{% csrf_token %}
+    <div class="col-md-4">{% include "includes/campo.html" with campo=form_factura.factura_numero %}</div>
+    <div class="col-md-5">{% include "includes/campo.html" with campo=form_factura.factura_archivo %}</div>
+    <div class="col-md-3 mb-3"><button class="btn btn-dark w-100">Factura recibida</button></div>
+  </form>
+  {% elif codigo == "comprado" %}
+  <form method="post" action="{% url 'adquisiciones:accion' p.pk 'comprado' %}">{% csrf_token %}<button class="btn btn-dark">Compra confirmada</button><span class="small text-muted ms-2">El pago se sigue en la cuenta corriente del proveedor.</span></form>
+  {% elif codigo == "entrega" %}
+  <form method="post" action="{% url 'adquisiciones:accion' p.pk 'entrega' %}" class="row g-2 align-items-end">{% csrf_token %}
+    <div class="col-md-3">{% include "includes/campo.html" with campo=form_entrega.fecha_entrega %}</div>
+    <div class="col-md-6">{% include "includes/campo.html" with campo=form_entrega.entrega_detalle %}</div>
+    <div class="col-md-3 mb-3"><button class="btn btn-dark w-100">Confirmar entrega</button></div>
+  </form>
+  {% elif codigo == "recibir" %}
+  <form method="post" enctype="multipart/form-data" action="{% url 'adquisiciones:accion' p.pk 'recibir' %}">{% csrf_token %}
+    {% include "includes/campo.html" with campo=form_recepcion.completa %}
+    {% include "includes/campo.html" with campo=form_recepcion.nota %}
+    {% include "includes/campo.html" with campo=form_recepcion.foto %}
+    <button class="btn btn-dark">Registrar recepción</button>
+    <div class="small text-muted mt-1">Si falta algo, el pedido queda abierto hasta que llegue el resto.</div>
+  </form>
+  {% endif %}
+  {% endwith %}
+</section>
+{% endif %}
+
+<div class="row g-4">
+  <div class="col-lg-8">
+    <section class="tarjeta mb-4"><div class="tarjeta-cuerpo">
+      <h2 class="seccion-titulo">Ítems</h2>
+      <div class="table-responsive"><table class="table table-sm mb-0">
+        <thead><tr><th>Descripción</th><th class="text-end">Cantidad</th></tr></thead>
+        <tbody>
+          {% for i in items %}<tr><td>{{ i.descripcion }}</td><td class="text-end text-nowrap">{% if i.cantidad is not None %}{{ i.cantidad|floatformat:"-2" }} {{ i.unidad }}{% else %}—{% endif %}</td></tr>
+          {% empty %}<tr><td colspan="2" class="text-muted">Sin ítems.</td></tr>{% endfor %}
+        </tbody>
+      </table></div>
+      {% if p.nota %}<div class="mt-3"><div class="dato-etiqueta">Nota</div><div class="texto-largo">{{ p.nota|urlize|linebreaksbr }}</div></div>{% endif %}
+    </div></section>
+
+    <section class="mb-4" id="cotizaciones" aria-labelledby="t-cot">
+      <h2 class="seccion-titulo" id="t-cot">{% if p.es_de_proyecto %}Presupuestos{% else %}Cotizaciones{% endif %} <span class="text-muted fw-normal">(hasta {{ maximo }})</span></h2>
+      {% if ver_montos %}
+      <div class="row g-3">
+        {% for c in cotizaciones %}
+        <div class="col-md-4"><div class="cotizacion{% if c.elegida %} elegida{% endif %}">
+          <span class="small text-muted">{% if c.elegida %}Elegida{% else %}Cotización {{ forloop.counter }}{% endif %}</span>
+          <span class="fw-semibold">{{ c.proveedor_nombre }}</span>
+          <span class="monto-grande">{{ c.monto|pesos }}</span>
+          {% if c.detalle %}<span class="small text-muted">{{ c.detalle }}</span>{% endif %}
+          {% if c.archivo %}<a href="{% url 'adquisiciones:archivo' 'cotizacion' c.pk %}" target="_blank" class="small">Ver presupuesto</a>{% endif %}
+          {% if puede_elegir %}<div class="d-flex gap-2 mt-1">
+            {% if not c.elegida %}<form method="post" action="{% url 'adquisiciones:cotizacion_elegir' c.pk %}">{% csrf_token %}<button class="btn btn-sm btn-outline-dark">Elegir</button></form>{% endif %}
+            <form method="post" action="{% url 'adquisiciones:cotizacion_quitar' c.pk %}">{% csrf_token %}<button class="btn btn-sm btn-link text-muted p-0" onclick="return confirm('¿Quitar esta cotización?')">Quitar</button></form>
+          </div>{% endif %}
+        </div></div>
+        {% empty %}
+        <div class="col-12 text-muted small">Todavía no hay {% if p.es_de_proyecto %}presupuestos{% else %}cotizaciones{% endif %}.</div>
+        {% endfor %}
+      </div>
+      {% if puede_cotizar %}
+      <details class="tarjeta mt-3" {% if not cotizaciones %}open{% endif %}><summary class="tarjeta-cuerpo fw-semibold">+ Cargar {% if p.es_de_proyecto %}presupuesto{% else %}cotización{% endif %}</summary>
+        <form method="post" enctype="multipart/form-data" action="{% url 'adquisiciones:cotizacion' p.pk %}" class="tarjeta-cuerpo pt-0">{% csrf_token %}
+          <div class="row g-2">
+            <div class="col-md-6">{% include "includes/campo.html" with campo=form_cot.proveedor %}</div>
+            <div class="col-md-6">{% include "includes/campo.html" with campo=form_cot.proveedor_nombre %}</div>
+            <div class="col-md-4">{% include "includes/campo.html" with campo=form_cot.monto %}</div>
+            <div class="col-md-8">{% include "includes/campo.html" with campo=form_cot.detalle %}</div>
+            <div class="col-12">{% include "includes/campo.html" with campo=form_cot.archivo %}</div>
+          </div>
+          <button class="btn btn-dark">Guardar</button>
+        </form>
+      </details>
+      {% endif %}
+      {% else %}
+      <p class="small text-muted">Los montos los ven DIR, Compras, Administración y el equipo de la obra.</p>
+      {% endif %}
+    </section>
+
+    {% if recepciones %}
+    <section class="tarjeta mb-4"><div class="tarjeta-cuerpo">
+      <h2 class="seccion-titulo">Recepción en obra</h2>
+      <ul class="list-unstyled mb-0">
+        {% for r in recepciones %}<li class="py-1 border-bottom"><strong>{% if r.completa %}Llegó todo{% else %}Entrega parcial{% endif %}</strong> · {{ r.fecha|date:"d/m H:i" }} · {{ r.usuario.nombre_completo }}{% if r.nota %}<div class="small">{{ r.nota }}</div>{% endif %}{% if r.foto %}<a href="{% url 'adquisiciones:archivo' 'recepcion' r.pk %}" target="_blank" class="small">Foto del remito</a>{% endif %}</li>{% endfor %}
+      </ul>
+    </div></section>
+    {% endif %}
+  </div>
+
+  <aside class="col-lg-4">
+    <div class="pedido-datos mb-4">
+      <h2 class="seccion-titulo">Datos</h2>
+      {% if p.proveedores_consultados %}<div><div class="dato-etiqueta">Se pidió cotización a</div>{{ p.proveedores_consultados }}</div>{% endif %}
+      {% if p.oc_numero %}<div><div class="dato-etiqueta">Orden de compra</div>{{ p.oc_numero }}{% if p.elegida %} · {{ p.elegida.proveedor_nombre }}{% endif %}</div>{% endif %}
+      {% if p.factura_numero %}<div><div class="dato-etiqueta">Factura</div>{{ p.factura_numero }}{% if p.factura_archivo and ver_montos %} · <a href="{% url 'adquisiciones:archivo' 'factura' p.pk %}" target="_blank">ver</a>{% endif %}</div>{% endif %}
+      {% if p.fecha_entrega %}<div><div class="dato-etiqueta">Entrega</div>{{ p.fecha_entrega|date:"d/m/Y" }}{% if p.entrega_detalle %} · {{ p.entrega_detalle }}{% endif %}</div>{% endif %}
+      {% if adjuntos %}<div><div class="dato-etiqueta">Fotos y archivos</div>
+        <div class="d-flex flex-wrap gap-2 mt-1">{% for a in adjuntos %}{% if a.es_foto %}<a href="{% url 'adquisiciones:archivo' 'adjunto' a.pk %}" target="_blank"><img src="{% url 'adquisiciones:archivo' 'adjunto' a.pk %}" alt="{{ a.nombre }}" class="miniatura-pedido" loading="lazy"></a>{% else %}<a href="{% url 'adquisiciones:archivo' 'adjunto' a.pk %}" target="_blank" class="small"><i class="bi bi-paperclip"></i> {{ a.nombre }}</a>{% endif %}{% endfor %}</div>
+      </div>{% endif %}
+      <h2 class="seccion-titulo mt-3">Historial</h2>
+      <ul class="list-unstyled mb-0 small historial-pedido">
+        {% for m in movimientos %}<li><span class="text-muted">{{ m.fecha|date:"d/m H:i" }}</span> · {{ m.texto }}{% if m.comentario %}<div class="comentario">«{{ m.comentario|urlize|linebreaksbr }}»</div>{% endif %}</li>{% endfor %}
+      </ul>
+    </div>
+  </aside>
+</div>
+{% endblock %}

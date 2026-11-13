@@ -11,6 +11,7 @@ MENU_PERSONAL = [
         ("core:tablero", "Dashboard", "speedometer2", None),
         ("proyectos:lista", "Proyectos", "pencil-square", None),
         ("obras:lista", "Obras", "buildings", None),
+        ("adquisiciones:inicio", "Adquisiciones", "cart3", None),
         ("documentos:lista", "Documentos", "folder2-open", None),
         ("cuentas:personal", "Equipo", "people", None),
         ("cuentas:clientes", "Clientes", "person-vcard", "clientes"),

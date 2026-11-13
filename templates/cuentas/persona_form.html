@@ -50,6 +50,7 @@
           </div>
           {% include "includes/campo.html" with campo=form.is_active %}
           {% if form.asistente_direccion %}{% include "includes/campo.html" with campo=form.asistente_direccion %}{% endif %}
+          {% if form.gestion_compras %}{% include "includes/campo.html" with campo=form.gestion_compras %}{% endif %}
           <hr>
           {% include "includes/campo.html" with campo=form.clave_inicial %}
           {% include "includes/campo.html" with campo=form.enviar_invitacion %}

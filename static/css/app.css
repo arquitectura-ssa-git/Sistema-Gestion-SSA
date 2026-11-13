@@ -563,3 +563,67 @@ a.dir-kpi:hover { border-color: #9c9b95; color: inherit; }
 /* Agenda compacta, mismo criterio que el Time Report del equipo */
 .tabla-agenda tbody td { height: 3.4rem; padding-top: .3rem; padding-bottom: .3rem; line-height: 1.2; }
 .tabla-agenda tbody td .small { line-height: 1.1; }
+
+/* Adquisiciones */
+.seccion-titulo { font-size: .8rem; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--ssa-gris, #5B5B57); margin-bottom: .75rem; }
+.pendiente-cuadro { display: flex; flex-direction: column; gap: .25rem; height: 100%; padding: 1rem 1.1rem; border-radius: 12px; background: #E6E5DF; border: 2px solid transparent; color: inherit; text-decoration: none; }
+.pendiente-cuadro.fuerte { background: #FBFAF7; border-color: var(--ssa-negro, #1A1A1A); }
+.pendiente-numero { font-size: 2.2rem; font-weight: 300; line-height: 1; }
+.lista-pedidos li { padding: .75rem 1rem; border-bottom: 1px solid #E6E5DF; }
+.lista-pedidos li:last-child { border-bottom: 0; }
+.lista-pedidos a { color: inherit; }
+.pedido-urgente { font-size: .78rem; font-weight: 600; color: #F4F3EF; background: var(--ssa-negro, #1A1A1A); border-radius: 999px; padding: .05rem .5rem; }
+.tabla-por-obra .col-dir { color: var(--ssa-negro, #1A1A1A); font-weight: 600; }
+.cuenta-dir { display: inline-block; min-width: 1.6rem; padding: .05rem .45rem; border-radius: 999px; background: var(--ssa-negro, #1A1A1A); color: #F4F3EF; font-weight: 600; }
+.tablero-pedidos-caja { overflow-x: auto; padding-bottom: .5rem; }
+.tablero-pedidos { display: grid; grid-template-columns: repeat(8, minmax(210px, 1fr)); gap: .6rem; min-width: 1720px; align-items: start; }
+.tablero-columna { background: #E6E5DF; border-radius: 12px; padding: .75rem; display: flex; flex-direction: column; gap: .6rem; border: 2px solid transparent; }
+.tablero-columna.columna-dir { background: #FBFAF7; border-color: var(--ssa-negro, #1A1A1A); }
+.tablero-columna h2 { font-size: .8rem; font-weight: 600; margin: 0; display: flex; justify-content: space-between; gap: .5rem; }
+.tablero-columna h2 span { font-weight: 400; color: #5B5B57; }
+.pedido-tarjeta { display: flex; flex-direction: column; gap: .3rem; background: #FBFAF7; border: 1px solid #DCDAD3; border-radius: 10px; padding: .7rem; color: inherit; text-decoration: none; }
+.pedido-tarjeta:hover { border-color: #9C9B95; }
+.pedido-tarjeta-arriba, .pedido-tarjeta-abajo { display: flex; justify-content: space-between; gap: .4rem; font-size: .78rem; color: #5B5B57; }
+.pedido-tarjeta-abajo { border-top: 1px solid #E6E5DF; padding-top: .35rem; color: inherit; font-size: .82rem; }
+.pedido-tarjeta-titulo { font-weight: 500; line-height: 1.25; }
+.pedido-chip { border: 1px solid #CFCDC5; border-radius: 999px; padding: 0 .45rem; }
+.pasos-pedido { list-style: none; padding: 0; margin: 0 0 1.25rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); gap: .3rem; }
+.pasos-pedido li { display: flex; flex-direction: column; gap: .35rem; font-size: .78rem; color: #5B5B57; }
+.pasos-pedido .barra { height: 6px; border-radius: 3px; background: #CFCDC5; }
+.pasos-pedido li.hecho { color: inherit; }
+.pasos-pedido li.hecho .barra { background: var(--ssa-negro, #1A1A1A); }
+.pasos-pedido li.actual { color: inherit; font-weight: 600; }
+.pasos-pedido li.actual .barra { background: var(--ssa-negro, #1A1A1A); outline: 2px solid var(--ssa-negro, #1A1A1A); outline-offset: 2px; }
+.panel-accion { background: #FBFAF7; border: 2px solid var(--ssa-negro, #1A1A1A); border-radius: 14px; padding: 1.1rem 1.25rem; }
+.panel-accion h2 { font-size: 1.1rem; font-weight: 500; margin-bottom: .75rem; }
+.panel-dir { background: var(--ssa-negro, #1A1A1A); color: #F4F3EF; }
+.panel-dir .form-control { background: #FFFFFF; }
+.monto-grande { font-size: 1.6rem; font-weight: 300; font-variant-numeric: tabular-nums; }
+.aviso-devuelto { border: 2px solid var(--ssa-negro, #1A1A1A); border-radius: 12px; padding: .8rem 1rem; background: #FBFAF7; }
+.estado-cierre { display: inline-block; font-weight: 600; border: 1.5px solid var(--ssa-negro, #1A1A1A); border-radius: 999px; padding: .25rem .9rem; }
+.cotizacion { display: flex; flex-direction: column; gap: .2rem; height: 100%; background: #FBFAF7; border: 1px solid #DCDAD3; border-radius: 12px; padding: 1rem; }
+.cotizacion.elegida { border: 2px solid var(--ssa-negro, #1A1A1A); }
+.pedido-datos { background: #E6E5DF; border-radius: 12px; padding: 1.1rem 1.2rem; display: flex; flex-direction: column; gap: .7rem; }
+.historial-pedido li { padding: .3rem 0; border-bottom: 1px solid #CFCDC5; }
+.historial-pedido .comentario { color: #3A3A37; margin-top: .15rem; }
+.miniatura-pedido { width: 64px; height: 64px; object-fit: cover; border-radius: 6px; }
+.texto-largo { white-space: normal; overflow-wrap: anywhere; }
+.items-pedido { display: flex; flex-direction: column; gap: .4rem; }
+.item-fila { display: grid; grid-template-columns: minmax(0, 1fr) 6rem 7rem 2rem; gap: .4rem; align-items: center; }
+.item-fila.oculta { display: none; }
+.item-fila .item-error { grid-column: 1 / -1; }
+.item-quitar { cursor: pointer; text-align: center; }
+.item-quitar input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.item-quitar:has(input:checked) { color: #B02A37; }
+@media (max-width: 575px) { .item-fila { grid-template-columns: minmax(0, 1fr) 4.5rem 5rem 1.6rem; } }
+.opciones-pildora .pildora-opcion { display: inline-flex; align-items: center; gap: .4rem; border: 1px solid #CFCDC5; border-radius: 999px; padding: .45rem .9rem; cursor: pointer; }
+.opciones-pildora .pildora-opcion:has(input:checked) { background: var(--ssa-negro, #1A1A1A); color: #F4F3EF; border-color: var(--ssa-negro, #1A1A1A); }
+.lista-avisos li { border-bottom: 1px solid #E6E5DF; }
+.lista-avisos li a { padding: .8rem 1rem; color: inherit; }
+.lista-avisos li.no-leido { font-weight: 500; background: #FBFAF7; }
+.punto-aviso { display: inline-block; width: .5rem; height: .5rem; border-radius: 50%; background: var(--ssa-negro, #1A1A1A); margin-right: .5rem; vertical-align: middle; }
+.historial-pedido li, .pedido-datos { overflow-wrap: anywhere; min-width: 0; }
+.panel-dir .btn-autorizar { background: #F4F3EF; color: #121212; border: 1px solid #F4F3EF; }
+.panel-dir .btn-autorizar:hover { background: #FFFFFF; color: #121212; }
+.panel-dir .btn-outline-light { color: #F4F3EF; border-color: #F4F3EF; }
+.panel-dir .form-label, .panel-dir label { color: #F4F3EF; opacity: .85; }

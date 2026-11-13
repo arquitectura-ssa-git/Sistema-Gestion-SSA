@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block titulo %}Avisos{% endblock %}
+{% block contenido %}
+<div class="pagina-titulo">
+  <div><h1>Avisos</h1><div class="small text-muted">Lo que pasó en lo que te toca. Tocá un aviso para ir a verlo.</div></div>
+  {% if avisos %}<form method="post" action="{% url 'notificaciones:leer_todas' %}">{% csrf_token %}<button class="btn btn-outline-dark">Marcar todos como leídos</button></form>{% endif %}
+</div>
+<div class="tarjeta">
+  <ul class="list-unstyled mb-0 lista-avisos">
+    {% for n in avisos %}
+    <li class="{% if not n.leida %}no-leido{% endif %}"><a href="{% url 'notificaciones:ir' n.pk %}" class="text-decoration-none d-flex justify-content-between gap-3"><span>{% if not n.leida %}<span class="punto-aviso" aria-label="Sin leer"></span>{% endif %}{{ n.texto }}</span><span class="small text-muted text-nowrap">{{ n.creada|date:"d/m H:i" }}</span></a></li>
+    {% empty %}
+    <li><div class="lista-vacia"><i class="bi bi-bell"></i>No tenés avisos.</div></li>
+    {% endfor %}
+  </ul>
+</div>
+{% endblock %}

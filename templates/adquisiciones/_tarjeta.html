@@ -1,0 +1,7 @@
+{% load core_tags %}<a href="{% url 'adquisiciones:pedido' p.pk %}" class="pedido-tarjeta{% if p.urgente %} urgente{% endif %}">
+  <span class="pedido-tarjeta-arriba"><span>{{ p.codigo }}</span><span class="pedido-chip">{{ p.get_tipo_display }}</span></span>
+  <span class="pedido-tarjeta-titulo">{{ p.titulo }}</span>
+  <span class="small text-muted">{{ p.obra.codigo }} · {{ p.obra.nombre }}</span>
+  <span class="pedido-tarjeta-abajo"><span>{% if p.ver_montos and p.monto is not None %}{{ p.monto|pesos }}{% elif p.estado == "pedido" or p.estado == "cotizacion" %}Sin cotizar{% else %}—{% endif %}</span><span class="{% if p.urgente %}pedido-urgente{% else %}text-muted{% endif %}">{% if p.necesario_para %}Para el {{ p.necesario_para|date:"d/m" }}{% elif p.urgente %}Urgente{% endif %}</span></span>
+  {% if p.devuelto %}<span class="small fw-semibold">Devuelto por DIR</span>{% endif %}
+</a>

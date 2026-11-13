@@ -1,0 +1,54 @@
+{% extends "base.html" %}{% load core_tags %}
+{% block titulo %}{% if nuevo %}Nuevo pedido{% else %}Editar {{ pedido.codigo }}{% endif %}{% endblock %}
+{% block contenido %}
+<div class="pagina-titulo">
+  <div>
+    <div class="small text-muted"><a href="{% url 'adquisiciones:inicio' %}">Adquisiciones</a>{% if pedido %} / <a href="{% url 'adquisiciones:pedido' pedido.pk %}">{{ pedido.codigo }}</a>{% endif %}</div>
+    <h1>{% if nuevo %}Nuevo pedido{% else %}Editar pedido{% endif %}</h1>
+  </div>
+</div>
+<form method="post" enctype="multipart/form-data" class="form-pedido">{% csrf_token %}
+  {% include "includes/errores_form.html" with form=form %}
+  <div class="tarjeta mb-3"><div class="tarjeta-cuerpo">
+    {% include "includes/campo.html" with campo=form.obra %}
+    <div class="mb-3">
+      <div class="form-label">¿Qué necesitás?</div>
+      <div class="d-flex flex-wrap gap-2 opciones-pildora">
+        {% for o in form.tipo %}<label class="pildora-opcion">{{ o.tag }}<span>{{ o.choice_label }}</span></label>{% endfor %}
+      </div>
+    </div>
+    {% include "includes/campo.html" with campo=form.titulo %}
+
+    <div class="form-label">Ítems</div>
+    {{ items.management_form }}
+    {% for e in items.non_form_errors %}<div class="text-danger small">{{ e }}</div>{% endfor %}
+    <datalist id="unidades">{% for u in unidades %}<option value="{{ u }}">{% endfor %}</datalist>
+    <div class="items-pedido">
+      {% for f in items.forms %}
+      <div class="item-fila{% if forloop.counter > 3 and not f.instance.pk and not f.has_changed %} oculta{% endif %}" data-item>
+        {{ f.id }}
+        {{ f.descripcion|bs }}
+        {{ f.cantidad|bs }}
+        {{ f.unidad|bs }}
+        {% if f.instance.pk %}<label class="item-quitar" title="Quitar este ítem">{{ f.DELETE }} <i class="bi bi-trash3" aria-hidden="true"></i><span class="visually-hidden">Quitar</span></label>{% else %}<span></span>{% endif %}
+        {% for e in f.errors.values %}<div class="text-danger small item-error">{{ e|join:" " }}</div>{% endfor %}
+      </div>
+      {% endfor %}
+    </div>
+    <button type="button" class="btn btn-sm btn-outline-secondary mt-2 mb-3" data-mostrar-item>+ Agregar ítem</button>
+
+    <div class="row g-3">
+      <div class="col-sm-6">{% include "includes/campo.html" with campo=form.necesario_para %}</div>
+      <div class="col-sm-6 d-flex align-items-end">{% include "includes/campo.html" with campo=form.urgente %}</div>
+    </div>
+    {% include "includes/campo.html" with campo=form.nota %}
+    {% include "includes/campo.html" with campo=adjuntos.adjuntos %}
+    {% if pedido and pedido.adjuntos.exists %}<div class="small text-muted mb-3">Ya tiene {{ pedido.adjuntos.count }} archivo{{ pedido.adjuntos.count|pluralize }}; los que subas se suman.</div>{% endif %}
+  </div></div>
+  <div class="d-flex flex-wrap gap-2">
+    <button class="btn btn-dark btn-lg">{% if nuevo %}Enviar pedido a Compras{% else %}Guardar cambios{% endif %}</button>
+    <a href="{% if pedido %}{% url 'adquisiciones:pedido' pedido.pk %}{% else %}{% url 'adquisiciones:inicio' %}{% endif %}" class="btn btn-outline-secondary btn-lg">Cancelar</a>
+  </div>
+  {% if nuevo %}<p class="small text-muted mt-2">Gestión de Compras recibe el aviso y lo sigue desde ahí. Vas a ver cada paso en la ficha del pedido.</p>{% endif %}
+</form>
+{% endblock %}
