@@ -53,10 +53,26 @@ adjuntos e historial; autorización de DIR con botón y comentario.
 - El DT **ve los montos de sus pedidos**.
 - Si DIR no autoriza, **elige**: «Devolver para corregir» (vuelve a Compras con comentario y se reenvía) o
   «Rechazar definitivo» (se cierra y el DT recibe el motivo). El comentario es obligatorio en los dos casos.
-- Maqueta antes de programar (falta que Pablo la apruebe): tablero, carga desde el celular, ficha y autorización de DIR.
+- Maqueta aprobada (13/11/2026): pantalla «Mis pendientes» de Compras, tablero, carga desde el celular, ficha,
+  autorización de DIR y circuito con avisos.
+- **Hasta 3 cotizaciones** por pedido. **Se migra todo lo de Trello** a SOPHIA.
 
-**Falta definir:** una o varias cotizaciones por pedido (la maqueta muestra hasta 3); recepción parcial; quién
-registra los pagos; si se migran los pedidos abiertos de Trello.
+**Quién mueve cada estado y a quién avisa** (solo se avanza al paso siguiente; nada se compra sin DIR; cada cambio
+queda en el historial). El aviso es la campana de SOPHIA y «Mis pendientes»; más adelante email o WhatsApp.
+| Estado | Lo mueve (botón) | Carga | Avisa a |
+|---|---|---|---|
+| 1 Recepción de pedido | DT («Enviar pedido») | tipo, ítems, para cuándo, urgencia, nota, fotos | Julieta |
+| 2 Solicitud de cotización | Julieta («Pedir cotizaciones») | proveedores consultados (de la Agenda) | DT |
+| 3 Orden de compra | Julieta («Armar orden de compra») | hasta 3 cotizaciones con monto y PDF; elige una | — |
+| 4 Autorización DIR | DIR (Autorizar / Devolver / Rechazar) | comentario si devuelve o rechaza | Autorizar: Julieta y DT · Devolver: Julieta (vuelve a 3) · Rechazar: Julieta y DT |
+| 5 Facturación | Julieta («Factura recibida») | factura PDF y número | — |
+| 6 Compra | Julieta («Pagado») | fecha y forma de pago | DT |
+| 7 Logística y entrega | Julieta («Confirmar entrega») | fecha, hora y quién lleva | DT (y el día de la entrega) |
+| 8 Recepción en obra | DT («Recibido») | completo o con faltantes, nota, foto del remito | Julieta (y DIR si falta algo) |
+Pedidos de proyecto: Responsable carga con presupuesto → DIR → Julieta arma la OC.
+
+**Falta definir:** qué pasa con una recepción parcial (¿queda abierto lo que falta?); quién registra los pagos
+(la maqueta supone Julieta); cómo se pasa el tablero de Trello (exportación del tablero).
 
 ### 12 · Informes diarios de Dirección Técnica
 **Quién y cuándo:** el DT de la obra, desde SOPHIA (normalmente en el celular, en la obra). Uno por obra y por día,
