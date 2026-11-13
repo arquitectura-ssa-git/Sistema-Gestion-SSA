@@ -27,7 +27,7 @@
 
 ## Módulos en diseño
 
-### 11 · Gestión de Adquisiciones — recomendado: dentro de SOPHIA (falta la decisión de Pablo)
+### 11 · Gestión de Adquisiciones — se hace dentro de SOPHIA (decidido por Pablo el 13/11/2026)
 Usa lo que ya existe: proyectos y obras, equipos y responsables, permisos de montos, documentos y registro de actividad.
 
 **Qué se pide:** materiales, contrataciones profesionales y presupuestos de contratistas, siempre de una obra o un
@@ -48,9 +48,15 @@ adjuntos e historial; autorización de DIR con botón y comentario.
 **Etapas:** 1) pedidos y circuito de estados; 2) cotizaciones, órdenes de compra con montos y autorización DIR;
 3) proveedores y cuenta.
 
-**Falta definir:** quién es la Asistente de Compras y su área; quién ve los montos (¿el DT ve los de su pedido?);
-una o varias cotizaciones por pedido; qué pasa si DIR rechaza; recepción parcial; quién registra los pagos;
-si se migran los pedidos abiertos de Trello.
+**Definido con Pablo (13/11/2026):**
+- Los DT cargan los pedidos desde la obra; **Gestión de Compras (Julieta)** hace el seguimiento y el resto del proceso.
+- El DT **ve los montos de sus pedidos**.
+- Si DIR no autoriza, **elige**: «Devolver para corregir» (vuelve a Compras con comentario y se reenvía) o
+  «Rechazar definitivo» (se cierra y el DT recibe el motivo). El comentario es obligatorio en los dos casos.
+- Maqueta aprobada antes de programar: tablero, carga desde el celular, ficha y autorización de DIR.
+
+**Falta definir:** una o varias cotizaciones por pedido (la maqueta muestra hasta 3); recepción parcial; quién
+registra los pagos; si se migran los pedidos abiertos de Trello.
 
 ### 12 · Informes diarios de Dirección Técnica
 **Quién y cuándo:** el DT de la obra, desde SOPHIA (normalmente en el celular, en la obra). Uno por obra y por día,
